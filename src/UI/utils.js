@@ -177,6 +177,14 @@ export function getAnnotationRect(el) {
     x = parseInt(el.getAttribute('x'), 10);
     y = parseInt(el.getAttribute('y'), 10);
     break;
+
+    case 'circle':
+    case 'svg':
+    h = parseInt(el.getAttribute('r'), 10)*2;
+    w = parseInt(el.getAttribute('r'), 10)*2;
+    x = parseInt(el.getAttribute('cx'), 10)-h/2;
+    y = parseInt(el.getAttribute('cy'), 10)-w/2;
+    break;
   }
 
   // Result provides same properties as getBoundingClientRect

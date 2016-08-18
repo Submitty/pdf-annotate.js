@@ -45,7 +45,7 @@ function getSelectionRects() {
  */
 function handleDocumentMousedown(e) {
   let svg;
-  if ((_type !== 'area' && _type !== 'circle')|| !(svg = findSVGAtPoint(e.clientX, e.clientY))) {
+  if (_type !== 'circle' || !(svg = findSVGAtPoint(e.clientX, e.clientY))) {
     return;
   }
 
@@ -90,7 +90,7 @@ function handleDocumentMousemove(e) {
  */
 function handleDocumentMouseup(e) {
   let rects;
-  if ((_type !== 'area' && _type !== 'circle') && (rects = getSelectionRects())) {
+  if (_type !== 'circle' && (rects = getSelectionRects())) {
     let svg = findSVGAtPoint(rects[0].left, rects[0].top);
     saveRect(_type, [...rects].map((r) => {
       return {
@@ -100,7 +100,7 @@ function handleDocumentMouseup(e) {
         height: r.height
       };
     }));
-  } else if ((_type === 'area' || _type === 'circle') && overlay) {
+  } else if (_type === 'circle' && overlay) {
     let svg = overlay.parentNode.querySelector('svg.annotationLayer');
     let rect = svg.getBoundingClientRect();
     saveRect(_type, [{
@@ -174,10 +174,12 @@ function saveRect(type, rects, color) {
       }
 
       return scaleDown(svg, {
+        ///*
         y: (r.top + offset) - boundingRect.top,
         x: r.left - boundingRect.left,
         width: r.width,
-        height: r.height
+        height: r.height//*/
+
       });
     }).filter((r) => r.width > 0 && r.height > 0 && r.x > -1 && r.y > -1)
   };
@@ -188,22 +190,15 @@ function saveRect(type, rects, color) {
   }
 
   // Special treatment for area as it only supports a single rect
-  if (type === 'area') {
+  if (true) {
     let rect = annotation.rectangles[0];
     delete annotation.rectangles;
-    annotation.x = rect.x;
-    annotation.y = rect.y;
-    annotation.width = rect.width;
-    annotation.height = rect.height;
-  }
 
-   if (type === 'circle') {
-    let rect = annotation.rectangles[0];
-    delete annotation.rectangles;
     annotation.cx = rect.x;
     annotation.cy = rect.y;
     annotation.r = rect.width;
     annotation.r = rect.height;
+
   }
 
   let { documentId, pageNumber } = getMetadata(svg);
@@ -218,7 +213,7 @@ function saveRect(type, rects, color) {
 /**
  * Enable rect behavior
  */
-export function enableRect(type) {
+export function enableCircle(type) {
   _type = type;
   
   if (_enabled) { return; }
@@ -232,7 +227,7 @@ export function enableRect(type) {
 /**
  * Disable rect behavior
  */
-export function disableRect() {
+export function disableCircle() {
   if (!_enabled) { return; }
 
   _enabled = false;

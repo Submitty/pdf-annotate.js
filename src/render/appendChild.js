@@ -4,6 +4,7 @@ import renderPath from './renderPath';
 import renderPoint from './renderPoint';
 import renderRect from './renderRect';
 import renderText from './renderText';
+import renderCircle from './renderCircle';
 
 const isFirefox = /firefox/i.test(navigator.userAgent);
 
@@ -117,6 +118,9 @@ export default function appendChild(svg, annotation, viewport) {
     case 'area':
     case 'highlight':
       child = renderRect(annotation);
+      break;
+    case 'circle':
+      child = renderCircle(annotation);
       break;
     case 'strikeout':
       child = renderLine(annotation);

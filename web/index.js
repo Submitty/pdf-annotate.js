@@ -200,6 +200,7 @@ render();
           UI.disablePoint();
           break;
         case 'area':
+        case 'circle':
         case 'highlight':
         case 'strikeout':
           UI.disableRect();
@@ -229,6 +230,7 @@ render();
         UI.enablePoint();
         break;
       case 'area':
+      case 'circle':
       case 'highlight':
       case 'strikeout':
         UI.enableRect(type);

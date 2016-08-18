@@ -310,6 +310,49 @@ function handleDocumentMouseup(e) {
 
       target[0].parentNode.removeChild(target[0]);
       appendChild(svg, annotation);
+    } else if (type === 'circle') {//boyu adding for handle transform the circle annotation
+    
+    let { deltaX, deltaY } = getDelta('cx', 'cy');
+      [...target].forEach((t, i) => {
+        if (deltaY !== 0) {
+
+          let halfRadius = parseInt(t.getAttribute('r'), 10)/2;
+
+          let modelY = parseInt(t.getAttribute('cy'), 10) + deltaY +halfRadius;
+          let viewY = modelY;
+
+          if (type === 'textbox') {
+            viewY += annotation.size;
+          }
+
+          if (type === 'point') {
+            viewY = scaleUp(svg, { viewY }).viewY;
+          }
+
+          t.setAttribute('cy', viewY);
+          if (annotation.rectangles) {
+            annotation.rectangles[i].cy = modelY;
+          } else if (annotation.cy) {
+            annotation.cy = modelY;
+          }
+        }
+        if (deltaX !== 0) {
+          let halfRadius = parseInt(t.getAttribute('r'), 10)/2;
+          let modelX = parseInt(t.getAttribute('cx'), 10) + deltaX +halfRadius;
+          let viewX = modelX;
+
+          if (type === 'point') {
+            viewX = scaleUp(svg, { viewX }).viewX;
+          }
+
+          t.setAttribute('cx', viewX);
+          if (annotation.rectangles) {
+            annotation.rectangles[i].cx = modelX;
+          } else if (annotation.cx) {
+            annotation.cx = modelX;
+          }
+        }
+      }); 
     }
 
     PDFJSAnnotate.getStoreAdapter().editAnnotation(documentId, annotationId, annotation);
