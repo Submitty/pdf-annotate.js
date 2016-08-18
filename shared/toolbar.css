@@ -82,7 +82,6 @@ body {
 }
 
 .toolbar button.circle:after {
-  content: 'O';
   width: 15px;
   height: 15px;
   border: 0px solid red;
