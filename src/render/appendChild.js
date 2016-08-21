@@ -108,7 +108,7 @@ function transform(node, viewport) {
  * @param {Object} viewport The page's viewport data
  * @return {SVGElement} A node that was created and appended by this function
  */
-export default function appendChild(svg, annotation, viewport) {
+function appendChild(svg, annotation, viewport) {
   if (!viewport) {
     viewport = JSON.parse(svg.getAttribute('data-pdf-annotate-viewport'));
   }
@@ -148,4 +148,38 @@ export default function appendChild(svg, annotation, viewport) {
   }
 
   return child;
+}
+
+/**
+ * Transform a child annotation of an SVG.
+ *
+ * @param {SVGElement} svg The SVG element with the child annotation
+ * @param {Object} child The SVG child to transform
+ * @param {Object} viewport The page's viewport data
+ * @return {SVGElement} A node that was transformed by this function
+ */
+function transformChild(svg, child, viewport) {
+  if (!viewport) {
+    viewport = JSON.parse(svg.getAttribute('data-pdf-annotate-viewport'));
+  }
+
+  // If no type was provided for an annotation it will result in node being null.
+  // Skip transforming if node doesn't exist.
+  if (child) {
+    child = transform(child, viewport);
+  }
+
+  return child;
+}
+
+export default {
+  /**
+   * Append an SVG child for an annotation
+   */
+  appendChild,
+
+  /**
+   * Transform an existing SVG child
+   */  
+  transformChild
 }

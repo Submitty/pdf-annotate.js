@@ -1,5 +1,5 @@
 import PDFJSAnnotate from '../PDFJSAnnotate';
-import appendChild from './appendChild';
+import { appendChild, transformChild } from './appendChild';
 import renderScreenReaderHints from '../a11y/renderScreenReaderHints';
 
 /**
@@ -16,7 +16,6 @@ import renderScreenReaderHints from '../a11y/renderScreenReaderHints';
 export default function render(svg, viewport, data) {
   return new Promise((resolve, reject) => {
     // Reset the content of the SVG
-    svg.innerHTML = ''; 
     svg.setAttribute('data-pdf-annotate-container', true);
     svg.setAttribute('data-pdf-annotate-viewport', JSON.stringify(viewport));
     svg.removeAttribute('data-pdf-annotate-document');
@@ -24,6 +23,7 @@ export default function render(svg, viewport, data) {
 
     // If there's no data nothing can be done
     if (!data) {
+      svg.innerHTML = ''; 
       return resolve(svg);
     }
 
@@ -35,9 +35,14 @@ export default function render(svg, viewport, data) {
       return resolve(svg);
     }
 
-    // Append annotation to svg
+    // Append or transform annotation to svg
     data.annotations.forEach((a) => {
-      appendChild(svg, a, viewport);
+      var node = svg.querySelector('[data-pdf-annotate-id="' + a.uuid + '"]');
+      if (node) {
+        transformChild(svg, node, viewport);
+      } else {
+        appendChild(svg, a, viewport);
+      }
     });
 
     resolve(svg);

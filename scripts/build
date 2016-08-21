@@ -2,5 +2,5 @@
 
 server=./node_modules/.bin/webpack
 $server
-MINIFY=1
+export MINIFY=1
 $server

@@ -1462,8 +1462,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _appendChild = __webpack_require__(11);
 	
-	var _appendChild2 = _interopRequireDefault(_appendChild);
-	
 	var _renderScreenReaderHints = __webpack_require__(21);
 	
 	var _renderScreenReaderHints2 = _interopRequireDefault(_renderScreenReaderHints);
@@ -1484,7 +1482,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	function render(svg, viewport, data) {
 	  return new Promise(function (resolve, reject) {
 	    // Reset the content of the SVG
-	    svg.innerHTML = '';
 	    svg.setAttribute('data-pdf-annotate-container', true);
 	    svg.setAttribute('data-pdf-annotate-viewport', JSON.stringify(viewport));
 	    svg.removeAttribute('data-pdf-annotate-document');
@@ -1492,6 +1489,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    // If there's no data nothing can be done
 	    if (!data) {
+	      svg.innerHTML = '';
 	      return resolve(svg);
 	    }
 	
@@ -1503,9 +1501,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return resolve(svg);
 	    }
 	
-	    // Append annotation to svg
+	    // Append or transform annotation to svg
 	    data.annotations.forEach(function (a) {
-	      (0, _appendChild2.default)(svg, a, viewport);
+	      var node = svg.querySelector('[data-pdf-annotate-id="' + a.uuid + '"]');
+	      if (node) {
+	        (0, _appendChild.transformChild)(svg, node, viewport);
+	      } else {
+	        (0, _appendChild.appendChild)(svg, a, viewport);
+	      }
 	    });
 	
 	    resolve(svg);
@@ -1522,7 +1525,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.default = appendChild;
 	
 	var _objectAssign = __webpack_require__(12);
 	
@@ -1697,6 +1699,40 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  return child;
 	}
+	
+	/**
+	 * Transform a child annotation of an SVG.
+	 *
+	 * @param {SVGElement} svg The SVG element with the child annotation
+	 * @param {Object} child The SVG child to transform
+	 * @param {Object} viewport The page's viewport data
+	 * @return {SVGElement} A node that was transformed by this function
+	 */
+	function transformChild(svg, child, viewport) {
+	  if (!viewport) {
+	    viewport = JSON.parse(svg.getAttribute('data-pdf-annotate-viewport'));
+	  }
+	
+	  // If no type was provided for an annotation it will result in node being null.
+	  // Skip transforming if node doesn't exist.
+	  if (child) {
+	    child = transform(child, viewport);
+	  }
+	
+	  return child;
+	}
+	
+	exports.default = {
+	  /**
+	   * Append an SVG child for an annotation
+	   */
+	  appendChild: appendChild,
+	
+	  /**
+	   * Transform an existing SVG child
+	   */
+	  transformChild: transformChild
+	};
 	module.exports = exports['default'];
 
 /***/ },
