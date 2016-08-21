@@ -91,9 +91,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _render2 = _interopRequireDefault(_render);
 	
-	var _UI = __webpack_require__(28);
+	var _UI = __webpack_require__(30);
 	
 	var _UI2 = _interopRequireDefault(_UI);
+	
+	var _config = __webpack_require__(25);
+	
+	var _config2 = _interopRequireDefault(_config);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -167,7 +171,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var _getStoreAdapter;
 	
 	    return (_getStoreAdapter = this.getStoreAdapter()).getAnnotations.apply(_getStoreAdapter, arguments);
-	  }
+	  },
+	
+	
+	  config: _config2.default
 	};
 	module.exports = exports['default'];
 
@@ -194,14 +201,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	// Adapter should never be invoked publicly
-	
 	var StoreAdapter = function () {
 	  /**
 	   * Create a new StoreAdapter instance
 	   *
 	   * @param {Object} [definition] The definition to use for overriding abstract methods
 	   */
-	
 	  function StoreAdapter() {
 	    var _this = this;
 	
@@ -423,7 +428,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  return StoreAdapter;
 	}();
-
+	
 	exports.default = StoreAdapter;
 	module.exports = exports['default'];
 
@@ -587,8 +592,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	      er = arguments[1];
 	      if (er instanceof Error) {
 	        throw er; // Unhandled 'error' event
+	      } else {
+	        // At least give some kind of context to the user
+	        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
+	        err.context = er;
+	        throw err;
 	      }
-	      throw TypeError('Uncaught, unspecified "error" event.');
 	    }
 	  }
 	
@@ -985,84 +994,95 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // TODO this should be calculated somehow
 	  var LINE_OFFSET = 16;
 	
-	  switch (el.nodeName.toLowerCase()) {
-	    case 'path':
-	      var minX = void 0,
-	          maxX = void 0,
-	          minY = void 0,
-	          maxY = void 0;
+	  (function () {
+	    switch (el.nodeName.toLowerCase()) {
+	      case 'path':
+	        var minX = void 0,
+	            maxX = void 0,
+	            minY = void 0,
+	            maxY = void 0;
 	
-	      el.getAttribute('d').replace(/Z/, '').split('M').splice(1).forEach(function (p) {
-	        var s = p.split(' ').map(function (i) {
-	          return parseInt(i, 10);
+	        el.getAttribute('d').replace(/Z/, '').split('M').splice(1).forEach(function (p) {
+	          var s = p.split(' ').map(function (i) {
+	            return parseInt(i, 10);
+	          });
+	
+	          if (typeof minX === 'undefined' || s[0] < minX) {
+	            minX = s[0];
+	          }
+	          if (typeof maxX === 'undefined' || s[2] > maxX) {
+	            maxX = s[2];
+	          }
+	          if (typeof minY === 'undefined' || s[1] < minY) {
+	            minY = s[1];
+	          }
+	          if (typeof maxY === 'undefined' || s[3] > maxY) {
+	            maxY = s[3];
+	          }
 	        });
 	
-	        if (typeof minX === 'undefined' || s[0] < minX) {
-	          minX = s[0];
+	        h = maxY - minY;
+	        w = maxX - minX;
+	        x = minX;
+	        y = minY;
+	        break;
+	
+	      case 'line':
+	        h = parseInt(el.getAttribute('y2'), 10) - parseInt(el.getAttribute('y1'), 10);
+	        w = parseInt(el.getAttribute('x2'), 10) - parseInt(el.getAttribute('x1'), 10);
+	        x = parseInt(el.getAttribute('x1'), 10);
+	        y = parseInt(el.getAttribute('y1'), 10);
+	
+	        if (h === 0) {
+	          h += LINE_OFFSET;
+	          y -= LINE_OFFSET / 2;
 	        }
-	        if (typeof maxX === 'undefined' || s[2] > maxX) {
-	          maxX = s[2];
+	        break;
+	
+	      case 'text':
+	        h = rect.height;
+	        w = rect.width;
+	        x = parseInt(el.getAttribute('x'), 10);
+	        y = parseInt(el.getAttribute('y'), 10) - h;
+	        break;
+	
+	      case 'g':
+	        var _getOffset2 = getOffset(el);
+	
+	        var offsetLeft = _getOffset2.offsetLeft;
+	        var offsetTop = _getOffset2.offsetTop;
+	
+	        h = rect.height;
+	        w = rect.width;
+	        x = rect.left - offsetLeft;
+	        y = rect.top - offsetTop;
+	
+	        if (el.getAttribute('data-pdf-annotate-type') === 'strikeout') {
+	          h += LINE_OFFSET;
+	          y -= LINE_OFFSET / 2;
 	        }
-	        if (typeof minY === 'undefined' || s[1] < minY) {
-	          minY = s[1];
-	        }
-	        if (typeof maxY === 'undefined' || s[3] > maxY) {
-	          maxY = s[3];
-	        }
-	      });
+	        break;
 	
-	      h = maxY - minY;
-	      w = maxX - minX;
-	      x = minX;
-	      y = minY;
-	      break;
+	      case 'rect':
+	      case 'svg':
+	        h = parseInt(el.getAttribute('height'), 10);
+	        w = parseInt(el.getAttribute('width'), 10);
+	        x = parseInt(el.getAttribute('x'), 10);
+	        y = parseInt(el.getAttribute('y'), 10);
+	        break;
 	
-	    case 'line':
-	      h = parseInt(el.getAttribute('y2'), 10) - parseInt(el.getAttribute('y1'), 10);
-	      w = parseInt(el.getAttribute('x2'), 10) - parseInt(el.getAttribute('x1'), 10);
-	      x = parseInt(el.getAttribute('x1'), 10);
-	      y = parseInt(el.getAttribute('y1'), 10);
+	      case 'circle':
+	      case 'svg':
+	        h = parseInt(el.getAttribute('r'), 10) * 2;
+	        w = parseInt(el.getAttribute('r'), 10) * 2;
+	        x = parseInt(el.getAttribute('cx'), 10) - h / 2;
+	        y = parseInt(el.getAttribute('cy'), 10) - w / 2;
+	        break;
+	    }
 	
-	      if (h === 0) {
-	        h += LINE_OFFSET;
-	        y -= LINE_OFFSET / 2;
-	      }
-	      break;
+	    // Result provides same properties as getBoundingClientRect
+	  })();
 	
-	    case 'text':
-	      h = rect.height;
-	      w = rect.width;
-	      x = parseInt(el.getAttribute('x'), 10);
-	      y = parseInt(el.getAttribute('y'), 10) - h;
-	      break;
-	
-	    case 'g':
-	      var _getOffset2 = getOffset(el);
-	
-	      var offsetLeft = _getOffset2.offsetLeft;
-	      var offsetTop = _getOffset2.offsetTop;
-	
-	      h = rect.height;
-	      w = rect.width;
-	      x = rect.left - offsetLeft;
-	      y = rect.top - offsetTop;
-	
-	      if (el.getAttribute('data-pdf-annotate-type') === 'strikeout') {
-	        h += LINE_OFFSET;
-	        y -= LINE_OFFSET / 2;
-	      }
-	      break;
-	
-	    case 'rect':
-	    case 'svg':
-	      h = parseInt(el.getAttribute('height'), 10);
-	      w = parseInt(el.getAttribute('width'), 10);
-	      x = parseInt(el.getAttribute('x'), 10);
-	      y = parseInt(el.getAttribute('y'), 10);
-	      break;
-	  }
-	
-	  // Result provides same properties as getBoundingClientRect
 	  var result = {
 	    top: y,
 	    left: x,
@@ -1266,7 +1286,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	// StoreAdapter for working with localStorage
 	// This is ideal for testing, examples, and prototyping
-	
 	var LocalStoreAdapter = function (_StoreAdapter) {
 	  _inherits(LocalStoreAdapter, _StoreAdapter);
 	
@@ -1445,7 +1464,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _appendChild2 = _interopRequireDefault(_appendChild);
 	
-	var _renderScreenReaderHints = __webpack_require__(20);
+	var _renderScreenReaderHints = __webpack_require__(21);
 	
 	var _renderScreenReaderHints2 = _interopRequireDefault(_renderScreenReaderHints);
 	
@@ -1528,6 +1547,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _renderText = __webpack_require__(19);
 	
 	var _renderText2 = _interopRequireDefault(_renderText);
+	
+	var _renderCircle = __webpack_require__(20);
+	
+	var _renderCircle2 = _interopRequireDefault(_renderCircle);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -1644,6 +1667,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    case 'highlight':
 	      child = (0, _renderRect2.default)(annotation);
 	      break;
+	    case 'circle':
+	      child = (0, _renderCircle2.default)(annotation);
+	      break;
 	    case 'strikeout':
 	      child = (0, _renderLine2.default)(annotation);
 	      break;
@@ -1677,8 +1703,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 12 */
 /***/ function(module, exports) {
 
-	/* eslint-disable no-unused-vars */
 	'use strict';
+	/* eslint-disable no-unused-vars */
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 	var propIsEnumerable = Object.prototype.propertyIsEnumerable;
 	
@@ -1690,7 +1716,51 @@ return /******/ (function(modules) { // webpackBootstrap
 		return Object(val);
 	}
 	
-	module.exports = Object.assign || function (target, source) {
+	function shouldUseNative() {
+		try {
+			if (!Object.assign) {
+				return false;
+			}
+	
+			// Detect buggy property enumeration order in older V8 versions.
+	
+			// https://bugs.chromium.org/p/v8/issues/detail?id=4118
+			var test1 = new String('abc');  // eslint-disable-line
+			test1[5] = 'de';
+			if (Object.getOwnPropertyNames(test1)[0] === '5') {
+				return false;
+			}
+	
+			// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+			var test2 = {};
+			for (var i = 0; i < 10; i++) {
+				test2['_' + String.fromCharCode(i)] = i;
+			}
+			var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
+				return test2[n];
+			});
+			if (order2.join('') !== '0123456789') {
+				return false;
+			}
+	
+			// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+			var test3 = {};
+			'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
+				test3[letter] = letter;
+			});
+			if (Object.keys(Object.assign({}, test3)).join('') !==
+					'abcdefghijklmnopqrst') {
+				return false;
+			}
+	
+			return true;
+		} catch (e) {
+			// We don't expect any of the above to throw, but better to be safe.
+			return false;
+		}
+	}
+	
+	module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 		var from;
 		var to = toObject(target);
 		var symbols;
@@ -1865,11 +1935,51 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var d = [];
 	  var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 	
-	  for (var i = 0, l = a.lines.length; i < l; i++) {
+	  /*
+	  for (let i=0, l=a.lines.length; i<l; i++) {
 	    var p1 = a.lines[i];
-	    var p2 = a.lines[i + 1];
+	    var p2 = a.lines[i+1];
 	    if (p2) {
+	      d.push(`M${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]}`);
+	    }
+	  }*/
+	
+	  if (a.lines.length > 2) {
+	    var p1 = a.lines[0];
+	    var p2 = a.lines[a.lines.length - 1];
+	
+	    var p3 = []; //arrow 
+	    var p4 = [];
+	    var p0 = []; //arrow intersection
+	
+	
+	    if (p2) {
+	      var k = -(p2[0] - p1[0]) / (p2[1] - p1[1]);
+	
+	      var deltaX = 3;
+	      p0[0] = p1[0] + 0.8 * (p2[0] - p1[0]);
+	      p0[1] = p1[1] + 0.8 * (p2[1] - p1[1]);
+	
+	      p3[0] = p0[0] + deltaX;
+	      p3[1] = p0[1] + k * deltaX;
+	
+	      p4[0] = p0[0] - deltaX;
+	      p4[1] = p0[1] - k * deltaX;
+	
+	      if (Math.abs(p2[1] - p1[1]) < 20) {
+	
+	        p3[0] = p0[0];
+	        p3[1] = p0[1] + deltaX * 1;
+	
+	        p4[0] = p0[0];
+	        p4[1] = p0[1] - deltaX * 1;
+	      }
+	
 	      d.push('M' + p1[0] + ' ' + p1[1] + ' ' + p2[0] + ' ' + p2[1]);
+	      //d.push(`M${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]}`);
+	      d.push('M' + p2[0] + ' ' + p2[1] + ' ' + p3[0] + ' ' + p3[1]);
+	      d.push('M' + p3[0] + ' ' + p3[1] + ' ' + p4[0] + ' ' + p4[1]);
+	      d.push('M' + p4[0] + ' ' + p4[1] + ' ' + p2[0] + ' ' + p2[1]);
 	    }
 	  }
 	
@@ -2081,13 +2191,86 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	
+	exports.default = renderCircle;
+	
+	var _setAttributes = __webpack_require__(14);
+	
+	var _setAttributes2 = _interopRequireDefault(_setAttributes);
+	
+	var _normalizeColor = __webpack_require__(15);
+	
+	var _normalizeColor2 = _interopRequireDefault(_normalizeColor);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	/**
+	 * Create SVGRectElements from an annotation definition.
+	 * This is used for anntations of type `area` and `highlight`.
+	 *
+	 * @param {Object} a The annotation definition
+	 * @return {SVGGElement|SVGRectElement} A group of all rects to be rendered
+	 */
+	function renderCircle(a) {
+	  if (a.type === 'highlight') {
+	    var _ret = function () {
+	      var group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+	      (0, _setAttributes2.default)(group, {
+	        fill: (0, _normalizeColor2.default)(a.color || '#ff0'),
+	        fillOpacity: 0.2
+	      });
+	
+	      a.rectangles.forEach(function (r) {
+	        group.appendChild(createCircle(r));
+	      });
+	
+	      return {
+	        v: group
+	      };
+	    }();
+	
+	    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+	  } else {
+	    var circle = createCircle(a);
+	    (0, _setAttributes2.default)(circle, {
+	      stroke: (0, _normalizeColor2.default)(a.color || '#f00'),
+	      fill: 'none'
+	    });
+	
+	    return circle;
+	  }
+	}
+	
+	function createCircle(r) {
+	  var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+	  (0, _setAttributes2.default)(circle, {
+	    cx: r.cx + 15,
+	    cy: r.cy + 15,
+	    r: 30
+	  });
+	
+	  return circle;
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	exports.default = renderScreenReaderHints;
 	
-	var _insertScreenReaderHint = __webpack_require__(21);
+	var _insertScreenReaderHint = __webpack_require__(22);
 	
 	var _insertScreenReaderHint2 = _interopRequireDefault(_insertScreenReaderHint);
 	
-	var _initEventHandlers = __webpack_require__(27);
+	var _initEventHandlers = __webpack_require__(29);
 	
 	var _initEventHandlers2 = _interopRequireDefault(_initEventHandlers);
 	
@@ -2150,7 +2333,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2160,26 +2343,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = insertScreenReaderHint;
 	
-	var _createScreenReaderOnly = __webpack_require__(22);
+	var _createScreenReaderOnly = __webpack_require__(23);
 	
 	var _createScreenReaderOnly2 = _interopRequireDefault(_createScreenReaderOnly);
 	
-	var _insertElementWithinChildren = __webpack_require__(23);
+	var _insertElementWithinChildren = __webpack_require__(24);
 	
 	var _insertElementWithinChildren2 = _interopRequireDefault(_insertElementWithinChildren);
 	
-	var _insertElementWithinElement = __webpack_require__(24);
+	var _insertElementWithinElement = __webpack_require__(26);
 	
 	var _insertElementWithinElement2 = _interopRequireDefault(_insertElementWithinElement);
 	
-	var _renderScreenReaderComments = __webpack_require__(25);
+	var _renderScreenReaderComments = __webpack_require__(27);
 	
 	var _renderScreenReaderComments2 = _interopRequireDefault(_renderScreenReaderComments);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	// Annotation types that support comments
-	var COMMENT_TYPES = ['highlight', 'point', 'area'];
+	var COMMENT_TYPES = ['highlight', 'point', 'area', 'circle'];
 	
 	/**
 	 * Insert a hint into the DOM for screen readers for a specific annotation.
@@ -2216,6 +2399,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	      (0, _insertElementWithinChildren2.default)((0, _createScreenReaderOnly2.default)('Unlabeled drawing', annotation.uuid), x, y, annotation.page);
 	      break;
+	
+	    case 'circle':
+	      var x2 = typeof annotation.cx !== 'undefined' ? annotation.cx : annotation.lines[0][0];
+	      var y2 = typeof annotation.cy !== 'undefined' ? annotation.cy : annotation.lines[0][1];
+	
+	      (0, _insertElementWithinChildren2.default)((0, _createScreenReaderOnly2.default)('Unlabeled drawing', annotation.uuid), x2, y2, annotation.page);
+	      break;
 	  }
 	
 	  // Include comments in screen reader hint
@@ -2226,7 +2416,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2258,7 +2448,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2268,7 +2458,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = insertElementWithinChildren;
 	
-	var _insertElementWithinElement = __webpack_require__(24);
+	var _config = __webpack_require__(25);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _insertElementWithinElement = __webpack_require__(26);
 	
 	var _insertElementWithinElement2 = _interopRequireDefault(_insertElementWithinElement);
 	
@@ -2298,7 +2492,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // Fall back to inserting between elements
 	  var svg = document.querySelector('svg[data-pdf-annotate-page="' + pageNumber + '"]');
 	  var rect = svg.getBoundingClientRect();
-	  var nodes = [].concat(_toConsumableArray(svg.parentNode.querySelectorAll('.textLayer > div')));
+	  var nodes = [].concat(_toConsumableArray(svg.parentNode.querySelectorAll(_config2.default.textClassQuery() + ' > div')));
 	
 	  y = (0, _utils.scaleUp)(svg, { y: y }).y + rect.top;
 	  x = (0, _utils.scaleUp)(svg, { x: x }).x + rect.left;
@@ -2314,7 +2508,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	
 	  // If all else fails try to append to the bottom
-	  var textLayer = svg.parentNode.querySelector('.textLayer');
+	  var textLayer = svg.parentNode.querySelector(_config2.default.textClassQuery());
 	  if (textLayer) {
 	    var textRect = textLayer.getBoundingClientRect();
 	    if ((0, _utils.pointIntersectsRect)(x, y, textRect)) {
@@ -2328,7 +2522,31 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 24 */
+/* 25 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = {
+	    annotationLayerName: 'annotationLayer',
+	    textLayerName: 'textLayer',
+	    annotationSvgQuery: function annotationSvgQuery() {
+	        return 'svg.' + this.annotationLayerName;
+	    },
+	    annotationClassQuery: function annotationClassQuery() {
+	        return '.' + this.annotationLayerName;
+	    },
+	    textClassQuery: function textClassQuery() {
+	        return '.' + this.textLayerName;
+	    }
+	};
+	module.exports = exports['default'];
+
+/***/ },
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2338,7 +2556,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = insertElementWithinElement;
 	
+	var _config = __webpack_require__(25);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
 	var _utils = __webpack_require__(6);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 	
@@ -2424,14 +2648,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var rect = svg.getBoundingClientRect();
 	  y = (0, _utils.scaleUp)(svg, { y: y }).y + rect.top;
 	  x = (0, _utils.scaleUp)(svg, { x: x }).x + rect.left;
-	  return [].concat(_toConsumableArray(svg.parentNode.querySelectorAll('.textLayer [data-canvas-width]'))).filter(function (el) {
+	  return [].concat(_toConsumableArray(svg.parentNode.querySelectorAll(_config2.default.textClassQuery() + ' [data-canvas-width]'))).filter(function (el) {
 	    return (0, _utils.pointIntersectsRect)(x, y, el.getBoundingClientRect());
 	  })[0];
 	}
 	module.exports = exports['default'];
 
 /***/ },
-/* 25 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2445,7 +2669,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _insertScreenReaderComment = __webpack_require__(26);
+	var _insertScreenReaderComment = __webpack_require__(28);
 	
 	var _insertScreenReaderComment2 = _interopRequireDefault(_insertScreenReaderComment);
 	
@@ -2499,7 +2723,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 26 */
+/* 28 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2529,7 +2753,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 27 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2539,19 +2763,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = initEventHandlers;
 	
-	var _insertScreenReaderHint = __webpack_require__(21);
+	var _insertScreenReaderHint = __webpack_require__(22);
 	
 	var _insertScreenReaderHint2 = _interopRequireDefault(_insertScreenReaderHint);
 	
-	var _renderScreenReaderHints = __webpack_require__(20);
+	var _renderScreenReaderHints = __webpack_require__(21);
 	
 	var _renderScreenReaderHints2 = _interopRequireDefault(_renderScreenReaderHints);
 	
-	var _insertScreenReaderComment = __webpack_require__(26);
+	var _insertScreenReaderComment = __webpack_require__(28);
 	
 	var _insertScreenReaderComment2 = _interopRequireDefault(_insertScreenReaderComment);
 	
-	var _renderScreenReaderComments = __webpack_require__(25);
+	var _renderScreenReaderComments = __webpack_require__(27);
 	
 	var _renderScreenReaderComments2 = _interopRequireDefault(_renderScreenReaderComments);
 	
@@ -2659,7 +2883,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 28 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2670,17 +2894,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _event = __webpack_require__(4);
 	
-	var _edit = __webpack_require__(29);
+	var _edit = __webpack_require__(31);
 	
-	var _pen = __webpack_require__(30);
+	var _pen = __webpack_require__(32);
 	
-	var _point = __webpack_require__(31);
+	var _point = __webpack_require__(33);
 	
-	var _rect = __webpack_require__(32);
+	var _rect = __webpack_require__(34);
 	
-	var _text = __webpack_require__(33);
+	var _circle = __webpack_require__(35);
 	
-	var _page = __webpack_require__(34);
+	var _text = __webpack_require__(36);
+	
+	var _page = __webpack_require__(37);
 	
 	exports.default = {
 	  addEventListener: _event.addEventListener, removeEventListener: _event.removeEventListener, fireEvent: _event.fireEvent,
@@ -2688,13 +2914,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  disablePen: _pen.disablePen, enablePen: _pen.enablePen, setPen: _pen.setPen,
 	  disablePoint: _point.disablePoint, enablePoint: _point.enablePoint,
 	  disableRect: _rect.disableRect, enableRect: _rect.enableRect,
+	  disableCirle: _circle.disableCirle, enableCircle: _circle.enableCircle,
 	  disableText: _text.disableText, enableText: _text.enableText, setText: _text.setText,
 	  createPage: _page.createPage, renderPage: _page.renderPage
 	};
 	module.exports = exports['default'];
 
 /***/ },
-/* 29 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2711,6 +2938,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _PDFJSAnnotate = __webpack_require__(1);
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
+	
+	var _config = __webpack_require__(25);
+	
+	var _config2 = _interopRequireDefault(_config);
 	
 	var _appendChild = __webpack_require__(11);
 	
@@ -2829,7 +3060,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  var annotationId = overlay.getAttribute('data-target-id');
 	  var nodes = document.querySelectorAll('[data-pdf-annotate-id="' + annotationId + '"]');
-	  var svg = overlay.parentNode.querySelector('svg.annotationLayer');
+	  var svg = overlay.parentNode.querySelector(_config2.default.annotationSvgQuery());
 	
 	  var _getMetadata = (0, _utils.getMetadata)(svg);
 	
@@ -2946,7 +3177,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var annotationId = overlay.getAttribute('data-target-id');
 	  var target = document.querySelectorAll('[data-pdf-annotate-id="' + annotationId + '"]');
 	  var type = target[0].getAttribute('data-pdf-annotate-type');
-	  var svg = overlay.parentNode.querySelector('svg.annotationLayer');
+	  var svg = overlay.parentNode.querySelector(_config2.default.annotationSvgQuery());
 	
 	  var _getMetadata2 = (0, _utils.getMetadata)(svg);
 	
@@ -3026,39 +3257,89 @@ return /******/ (function(modules) { // webpackBootstrap
 	        //   });
 	      })();
 	    } else if (type === 'drawing') {
-	        (function () {
-	          var rect = (0, _utils.scaleDown)(svg, (0, _utils.getAnnotationRect)(target[0]));
+	      (function () {
+	        var rect = (0, _utils.scaleDown)(svg, (0, _utils.getAnnotationRect)(target[0]));
 	
-	          var _annotation$lines$ = _slicedToArray(annotation.lines[0], 2);
+	        var _annotation$lines$ = _slicedToArray(annotation.lines[0], 2);
 	
-	          var originX = _annotation$lines$[0];
-	          var originY = _annotation$lines$[1];
+	        var originX = _annotation$lines$[0];
+	        var originY = _annotation$lines$[1];
 	
-	          var _calcDelta = calcDelta(originX, originY);
+	        var _calcDelta = calcDelta(originX, originY);
 	
-	          var deltaX = _calcDelta.deltaX;
-	          var deltaY = _calcDelta.deltaY;
+	        var deltaX = _calcDelta.deltaX;
+	        var deltaY = _calcDelta.deltaY;
 	
-	          // origin isn't necessarily at 0/0 in relation to overlay x/y
-	          // adjust the difference between overlay and drawing coords
+	        // origin isn't necessarily at 0/0 in relation to overlay x/y
+	        // adjust the difference between overlay and drawing coords
 	
-	          deltaY += originY - rect.top;
-	          deltaX += originX - rect.left;
+	        deltaY += originY - rect.top;
+	        deltaX += originX - rect.left;
 	
-	          annotation.lines.forEach(function (line, i) {
-	            var _annotation$lines$i = _slicedToArray(annotation.lines[i], 2);
+	        annotation.lines.forEach(function (line, i) {
+	          var _annotation$lines$i = _slicedToArray(annotation.lines[i], 2);
 	
-	            var x = _annotation$lines$i[0];
-	            var y = _annotation$lines$i[1];
+	          var x = _annotation$lines$i[0];
+	          var y = _annotation$lines$i[1];
 	
-	            annotation.lines[i][0] = x + deltaX;
-	            annotation.lines[i][1] = y + deltaY;
-	          });
+	          annotation.lines[i][0] = x + deltaX;
+	          annotation.lines[i][1] = y + deltaY;
+	        });
 	
-	          target[0].parentNode.removeChild(target[0]);
-	          (0, _appendChild2.default)(svg, annotation);
-	        })();
-	      }
+	        target[0].parentNode.removeChild(target[0]);
+	        (0, _appendChild2.default)(svg, annotation);
+	      })();
+	    } else if (type === 'circle') {
+	      (function () {
+	        //boyu adding for handle transform the circle annotation
+	
+	        var _getDelta2 = getDelta('cx', 'cy');
+	
+	        var deltaX = _getDelta2.deltaX;
+	        var deltaY = _getDelta2.deltaY;
+	
+	        [].concat(_toConsumableArray(target)).forEach(function (t, i) {
+	          if (deltaY !== 0) {
+	
+	            var halfRadius = parseInt(t.getAttribute('r'), 10) / 2;
+	
+	            var modelY = parseInt(t.getAttribute('cy'), 10) + deltaY + halfRadius;
+	            var viewY = modelY;
+	
+	            if (type === 'textbox') {
+	              viewY += annotation.size;
+	            }
+	
+	            if (type === 'point') {
+	              viewY = (0, _utils.scaleUp)(svg, { viewY: viewY }).viewY;
+	            }
+	
+	            t.setAttribute('cy', viewY);
+	            if (annotation.rectangles) {
+	              annotation.rectangles[i].cy = modelY;
+	            } else if (annotation.cy) {
+	              annotation.cy = modelY;
+	            }
+	          }
+	          if (deltaX !== 0) {
+	            var _halfRadius = parseInt(t.getAttribute('r'), 10) / 2;
+	            var modelX = parseInt(t.getAttribute('cx'), 10) + deltaX + _halfRadius;
+	            var viewX = modelX;
+	
+	            if (type === 'point') {
+	              viewX = (0, _utils.scaleUp)(svg, { viewX: viewX }).viewX;
+	            }
+	
+	            t.setAttribute('cx', viewX);
+	            if (annotation.rectangles) {
+	              annotation.rectangles[i].cx = modelX;
+	            } else if (annotation.cx) {
+	              annotation.cx = modelX;
+	            }
+	          }
+	        });
+	      })();
+	    }
 	
 	    _PDFJSAnnotate2.default.getStoreAdapter().editAnnotation(documentId, annotationId, annotation);
 	  });
@@ -3111,7 +3392,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 30 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3287,7 +3568,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 31 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3440,7 +3721,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 32 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3454,6 +3735,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _PDFJSAnnotate = __webpack_require__(1);
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
+	
+	var _config = __webpack_require__(25);
+	
+	var _config2 = _interopRequireDefault(_config);
 	
 	var _appendChild = __webpack_require__(11);
 	
@@ -3497,7 +3782,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function handleDocumentMousedown(e) {
 	  var svg = void 0;
-	  if (_type !== 'area' || !(svg = (0, _utils.findSVGAtPoint)(e.clientX, e.clientY))) {
+	  if (_type !== 'area' && _type !== 'circle' || !(svg = (0, _utils.findSVGAtPoint)(e.clientX, e.clientY))) {
 	    return;
 	  }
 	
@@ -3523,7 +3808,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Event} e The DOM event to handle
 	 */
 	function handleDocumentMousemove(e) {
-	  var svg = overlay.parentNode.querySelector('svg.annotationLayer');
+	  var svg = overlay.parentNode.querySelector(_config2.default.annotationSvgQuery());
 	  var rect = svg.getBoundingClientRect();
 	
 	  if (originX + (e.clientX - originX) < rect.right) {
@@ -3542,7 +3827,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function handleDocumentMouseup(e) {
 	  var rects = void 0;
-	  if (_type !== 'area' && (rects = getSelectionRects())) {
+	  if (_type !== 'area' && _type !== 'circle' && (rects = getSelectionRects())) {
 	    var svg = (0, _utils.findSVGAtPoint)(rects[0].left, rects[0].top);
 	    saveRect(_type, [].concat(_toConsumableArray(rects)).map(function (r) {
 	      return {
@@ -3552,8 +3837,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        height: r.height
 	      };
 	    }));
-	  } else if (_type === 'area' && overlay) {
-	    var _svg = overlay.parentNode.querySelector('svg.annotationLayer');
+	  } else if ((_type === 'area' || _type === 'circle') && overlay) {
+	    var _svg = overlay.parentNode.querySelector(_config2.default.annotationSvgQuery());
 	    var rect = _svg.getBoundingClientRect();
 	    saveRect(_type, [{
 	      top: parseInt(overlay.style.top, 10) + rect.top,
@@ -3651,6 +3936,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    annotation.height = rect.height;
 	  }
 	
+	  if (type === 'circle') {
+	    var _rect = annotation.rectangles[0];
+	    delete annotation.rectangles;
+	    annotation.cx = _rect.x;
+	    annotation.cy = _rect.y;
+	    annotation.r = _rect.width;
+	    annotation.r = _rect.height;
+	  }
+	
 	  var _getMetadata = (0, _utils.getMetadata)(svg);
 	
 	  var documentId = _getMetadata.documentId;
@@ -3694,7 +3988,268 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 33 */
+/* 35 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.enableCircle = enableCircle;
+	exports.disableCircle = disableCircle;
+	
+	var _PDFJSAnnotate = __webpack_require__(1);
+	
+	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
+	
+	var _appendChild = __webpack_require__(11);
+	
+	var _appendChild2 = _interopRequireDefault(_appendChild);
+	
+	var _config = __webpack_require__(25);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _utils = __webpack_require__(6);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+	
+	var _enabled = false;
+	var _type = void 0;
+	var overlay = void 0;
+	var originY = void 0;
+	var originX = void 0;
+	
+	/**
+	 * Get the current window selection as rects
+	 *
+	 * @return {Array} An Array of rects
+	 */
+	function getSelectionRects() {
+	  try {
+	    var selection = window.getSelection();
+	    var range = selection.getRangeAt(0);
+	    var rects = range.getClientRects();
+	
+	    if (rects.length > 0 && rects[0].width > 0 && rects[0].height > 0) {
+	      return rects;
+	    }
+	  } catch (e) {}
+	
+	  return null;
+	}
+	
+	/**
+	 * Handle document.mousedown event
+	 *
+	 * @param {Event} e The DOM event to handle
+	 */
+	function handleDocumentMousedown(e) {
+	  var svg = void 0;
+	  if (_type !== 'circle' || !(svg = (0, _utils.findSVGAtPoint)(e.clientX, e.clientY))) {
+	    return;
+	  }
+	
+	  var rect = svg.getBoundingClientRect();
+	  originY = e.clientY;
+	  originX = e.clientX;
+	
+	  overlay = document.createElement('div');
+	  overlay.style.position = 'absolute';
+	  overlay.style.top = originY - rect.top + 'px';
+	  overlay.style.left = originX - rect.left + 'px';
+	  overlay.style.border = '3px solid ' + _utils.BORDER_COLOR;
+	  overlay.style.borderRadius = '3px';
+	  svg.parentNode.appendChild(overlay);
+	
+	  document.addEventListener('mousemove', handleDocumentMousemove);
+	  (0, _utils.disableUserSelect)();
+	}
+	
+	/**
+	 * Handle document.mousemove event
+	 *
+	 * @param {Event} e The DOM event to handle
+	 */
+	function handleDocumentMousemove(e) {
+	  var svg = overlay.parentNode.querySelector(_config2.default.annotationSvgQuery());
+	  var rect = svg.getBoundingClientRect();
+	
+	  if (originX + (e.clientX - originX) < rect.right) {
+	    overlay.style.width = e.clientX - originX + 'px';
+	  }
+	
+	  if (originY + (e.clientY - originY) < rect.bottom) {
+	    overlay.style.height = e.clientY - originY + 'px';
+	  }
+	}
+	
+	/**
+	 * Handle document.mouseup event
+	 *
+	 * @param {Event} e The DOM event to handle
+	 */
+	function handleDocumentMouseup(e) {
+	  var rects = void 0;
+	  if (_type !== 'circle' && (rects = getSelectionRects())) {
+	    var svg = (0, _utils.findSVGAtPoint)(rects[0].left, rects[0].top);
+	    saveRect(_type, [].concat(_toConsumableArray(rects)).map(function (r) {
+	      return {
+	        top: r.top,
+	        left: r.left,
+	        width: r.width,
+	        height: r.height
+	      };
+	    }));
+	  } else if (_type === 'circle' && overlay) {
+	    var _svg = overlay.parentNode.querySelector(annotationSvgQuery());
+	    var rect = _svg.getBoundingClientRect();
+	    saveRect(_type, [{
+	      top: parseInt(overlay.style.top, 10) + rect.top,
+	      left: parseInt(overlay.style.left, 10) + rect.left,
+	      width: parseInt(overlay.style.width, 10),
+	      height: parseInt(overlay.style.height, 10)
+	    }]);
+	
+	    overlay.parentNode.removeChild(overlay);
+	    overlay = null;
+	
+	    document.removeEventListener('mousemove', handleDocumentMousemove);
+	    (0, _utils.enableUserSelect)();
+	  }
+	}
+	
+	/**
+	 * Handle document.keyup event
+	 *
+	 * @param {Event} e The DOM event to handle
+	 */
+	function handleDocumentKeyup(e) {
+	  // Cancel rect if Esc is pressed
+	  if (e.keyCode === 27) {
+	    var selection = window.getSelection();
+	    selection.removeAllRanges();
+	    if (overlay && overlay.parentNode) {
+	      overlay.parentNode.removeChild(overlay);
+	      overlay = null;
+	      document.removeEventListener('mousemove', handleDocumentMousemove);
+	    }
+	  }
+	}
+	
+	/**
+	 * Save a rect annotation
+	 *
+	 * @param {String} type The type of rect (area, highlight, strikeout)
+	 * @param {Array} rects The rects to use for annotation
+	 * @param {String} color The color of the rects
+	 */
+	function saveRect(type, rects, color) {
+	  var svg = (0, _utils.findSVGAtPoint)(rects[0].left, rects[0].top);
+	  var node = void 0;
+	  var annotation = void 0;
+	
+	  if (!svg) {
+	    return;
+	  }
+	
+	  var boundingRect = svg.getBoundingClientRect();
+	
+	  if (!color) {
+	    if (type === 'highlight') {
+	      color = 'FFFF00';
+	    } else if (type === 'strikeout') {
+	      color = 'FF0000';
+	    }
+	  }
+	
+	  // Initialize the annotation
+	  annotation = {
+	    type: type,
+	    color: color,
+	    rectangles: [].concat(_toConsumableArray(rects)).map(function (r) {
+	      var offset = 0;
+	
+	      if (type === 'strikeout') {
+	        offset = r.height / 2;
+	      }
+	
+	      return (0, _utils.scaleDown)(svg, {
+	        ///*
+	        y: r.top + offset - boundingRect.top,
+	        x: r.left - boundingRect.left,
+	        width: r.width,
+	        height: r.height //*/
+	
+	      });
+	    }).filter(function (r) {
+	      return r.width > 0 && r.height > 0 && r.x > -1 && r.y > -1;
+	    })
+	  };
+	
+	  // Short circuit if no rectangles exist
+	  if (annotation.rectangles.length === 0) {
+	    return;
+	  }
+	
+	  // Special treatment for area as it only supports a single rect
+	  if (true) {
+	    var rect = annotation.rectangles[0];
+	    delete annotation.rectangles;
+	
+	    annotation.cx = rect.x;
+	    annotation.cy = rect.y;
+	    annotation.r = rect.width;
+	    annotation.r = rect.height;
+	  }
+	
+	  var _getMetadata = (0, _utils.getMetadata)(svg);
+	
+	  var documentId = _getMetadata.documentId;
+	  var pageNumber = _getMetadata.pageNumber;
+	
+	  // Add the annotation
+	
+	  _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
+	    (0, _appendChild2.default)(svg, annotation);
+	  });
+	}
+	
+	/**
+	 * Enable rect behavior
+	 */
+	function enableCircle(type) {
+	  _type = type;
+	
+	  if (_enabled) {
+	    return;
+	  }
+	
+	  _enabled = true;
+	  document.addEventListener('mouseup', handleDocumentMouseup);
+	  document.addEventListener('mousedown', handleDocumentMousedown);
+	  document.addEventListener('keyup', handleDocumentKeyup);
+	}
+	
+	/**
+	 * Disable rect behavior
+	 */
+	function disableCircle() {
+	  if (!_enabled) {
+	    return;
+	  }
+	
+	  _enabled = false;
+	  document.removeEventListener('mouseup', handleDocumentMouseup);
+	  document.removeEventListener('mousedown', handleDocumentMousedown);
+	  document.removeEventListener('keyup', handleDocumentKeyup);
+	}
+
+/***/ },
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3868,7 +4423,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 34 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3886,14 +4441,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _renderScreenReaderHints = __webpack_require__(20);
+	var _config = __webpack_require__(25);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _renderScreenReaderHints = __webpack_require__(21);
 	
 	var _renderScreenReaderHints2 = _interopRequireDefault(_renderScreenReaderHints);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	// Template for creating a new page
-	var PAGE_TEMPLATE = '\n  <div style="visibility: hidden;" class="page" data-loaded="false">\n    <div class="canvasWrapper">\n      <canvas></canvas>\n    </div>\n    <svg class="annotationLayer"></svg>\n    <div class="textLayer"></div>\n  </div>\n';
+	var PAGE_TEMPLATE = '\n  <div style="visibility: hidden;" class="page" data-loaded="false">\n    <div class="canvasWrapper">\n      <canvas></canvas>\n    </div>\n    <svg class="' + _config2.default.annotationLayerName + '"></svg>\n    <div class="' + _config2.default.textLayerName + '"></div>\n  </div>\n';
 	
 	/**
 	 * Create a new page to be appended to the DOM.
@@ -3942,7 +4501,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var annotations = _ref2[1];
 	
 	    var page = document.getElementById('pageContainer' + pageNumber);
-	    var svg = page.querySelector('.annotationLayer');
+	    var svg = page.querySelector(_config2.default.annotationClassQuery());
 	    var canvas = page.querySelector('.canvasWrapper canvas');
 	    var canvasContext = canvas.getContext('2d', { alpha: false });
 	    var viewport = pdfPage.getViewport(scale, rotate);
@@ -3955,7 +4514,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return pdfPage.getTextContent({ normalizeWhitespace: true }).then(function (textContent) {
 	        return new Promise(function (resolve, reject) {
 	          // Render text layer for a11y of text content
-	          var textLayer = page.querySelector('.textLayer');
+	          var textLayer = page.querySelector(_config2.default.textClassQuery());
 	          var textLayerFactory = new PDFJS.DefaultTextLayerFactory();
 	          var textLayerBuilder = textLayerFactory.createTextLayerBuilder(textLayer, pageNumber - 1, viewport);
 	          textLayerBuilder.setTextContent(textContent);
@@ -3993,9 +4552,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	function scalePage(pageNumber, viewport, context) {
 	  var page = document.getElementById('pageContainer' + pageNumber);
 	  var canvas = page.querySelector('.canvasWrapper canvas');
-	  var svg = page.querySelector('.annotationLayer');
+	  var svg = page.querySelector(_config2.default.annotationClassQuery());
 	  var wrapper = page.querySelector('.canvasWrapper');
-	  var textLayer = page.querySelector('.textLayer');
+	  var textLayer = page.querySelector(_config2.default.textClassQuery());
 	  var outputScale = getOutputScale(context);
 	  var transform = !outputScale.scaled ? null : [outputScale.sx, 0, 0, outputScale.sy, 0, 0];
 	  var sfx = approximateFraction(outputScale.sx);

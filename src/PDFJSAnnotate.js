@@ -2,6 +2,7 @@ import StoreAdapter from './adapter/StoreAdapter';
 import LocalStoreAdapter from './adapter/LocalStoreAdapter';
 import render from './render';
 import UI from './UI';
+import config from './config';
 
 export default {
   /**
@@ -69,5 +70,7 @@ export default {
    */
   getAnnotations(documentId, pageNumber) {
     return this.getStoreAdapter().getAnnotations(...arguments);
-  }
+  },
+
+  config
 }
