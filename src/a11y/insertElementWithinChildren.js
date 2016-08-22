@@ -1,3 +1,4 @@
+import config from '../config';
 import insertElementWithinElement from './insertElementWithinElement';
 import { pointIntersectsRect } from '../UI/utils';
 import { scaleUp } from '../UI/utils'; 
@@ -22,7 +23,7 @@ export default function insertElementWithinChildren(el, x, y, pageNumber) {
   // Fall back to inserting between elements
   let svg = document.querySelector(`svg[data-pdf-annotate-page="${pageNumber}"]`);
   let rect = svg.getBoundingClientRect();
-  let nodes = [...svg.parentNode.querySelectorAll('.textLayer > div')];
+  let nodes = [...svg.parentNode.querySelectorAll(config.textClassQuery() + ' > div')];
 
   y = scaleUp(svg, {y}).y + rect.top;
   x = scaleUp(svg, {x}).x + rect.left;
@@ -38,7 +39,7 @@ export default function insertElementWithinChildren(el, x, y, pageNumber) {
   }
 
   // If all else fails try to append to the bottom
-  let textLayer = svg.parentNode.querySelector('.textLayer');
+  let textLayer = svg.parentNode.querySelector(config.textClassQuery());
   if (textLayer) {
     let textRect = textLayer.getBoundingClientRect();
     if (pointIntersectsRect(x, y, textRect)) {

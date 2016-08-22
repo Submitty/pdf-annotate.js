@@ -1,4 +1,5 @@
 import PDFJSAnnotate from '../PDFJSAnnotate';
+import config from '../config';
 import renderScreenReaderHints from '../a11y/renderScreenReaderHints';
 
 // Template for creating a new page
@@ -7,8 +8,8 @@ const PAGE_TEMPLATE = `
     <div class="canvasWrapper">
       <canvas></canvas>
     </div>
-    <svg class="annotationLayer"></svg>
-    <div class="textLayer"></div>
+    <svg class="` + config.annotationLayerName + `"></svg>
+    <div class="` + config.textLayerName + `"></div>
   </div>
 `;
 
@@ -58,7 +59,7 @@ export function renderPage(pageNumber, renderOptions) {
     PDFJSAnnotate.getAnnotations(documentId, pageNumber)
   ]).then(([pdfPage, annotations]) => {
     let page = document.getElementById(`pageContainer${pageNumber}`);
-    let svg = page.querySelector('.annotationLayer');
+    let svg = page.querySelector(config.annotationClassQuery());
     let canvas = page.querySelector('.canvasWrapper canvas');
     let canvasContext = canvas.getContext('2d', {alpha: false});
     let viewport = pdfPage.getViewport(scale, rotate);
@@ -74,7 +75,7 @@ export function renderPage(pageNumber, renderOptions) {
       return pdfPage.getTextContent({normalizeWhitespace: true}).then((textContent) => {
         return new Promise((resolve, reject) => {
           // Render text layer for a11y of text content
-          let textLayer = page.querySelector(`.textLayer`);
+          let textLayer = page.querySelector(config.textClassQuery());
           let textLayerFactory = new PDFJS.DefaultTextLayerFactory();
           let textLayerBuilder = textLayerFactory.createTextLayerBuilder(textLayer, pageNumber -1, viewport);
           textLayerBuilder.setTextContent(textContent);
@@ -112,9 +113,9 @@ export function renderPage(pageNumber, renderOptions) {
 function scalePage(pageNumber, viewport, context) {
   let page = document.getElementById(`pageContainer${pageNumber}`);
   let canvas = page.querySelector('.canvasWrapper canvas');
-  let svg = page.querySelector('.annotationLayer');
+  let svg = page.querySelector(config.annotationClassQuery());
   let wrapper = page.querySelector('.canvasWrapper');
-  let textLayer = page.querySelector('.textLayer');
+  let textLayer = page.querySelector(config.textClassQuery());
   let outputScale = getOutputScale(context);
   let transform = !outputScale.scaled ? null : [outputScale.sx, 0, 0, outputScale.sy, 0, 0];
   let sfx = approximateFraction(outputScale.sx);

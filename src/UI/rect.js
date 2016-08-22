@@ -1,4 +1,5 @@
 import PDFJSAnnotate from '../PDFJSAnnotate';
+import config from '../config';
 import appendChild from '../render/appendChild';
 import {
   BORDER_COLOR,
@@ -71,7 +72,7 @@ function handleDocumentMousedown(e) {
  * @param {Event} e The DOM event to handle
  */
 function handleDocumentMousemove(e) {
-  let svg = overlay.parentNode.querySelector('svg.annotationLayer');
+  let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
   let rect = svg.getBoundingClientRect();
 
   if (originX + (e.clientX - originX) < rect.right) {
@@ -101,7 +102,7 @@ function handleDocumentMouseup(e) {
       };
     }));
   } else if ((_type === 'area' || _type === 'circle'|| _type === 'fillcircle'|| _type === 'emptycircle') && overlay) {
-    let svg = overlay.parentNode.querySelector('svg.annotationLayer');
+    let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
     let rect = svg.getBoundingClientRect();
     saveRect(_type, [{
       top: parseInt(overlay.style.top, 10) + rect.top,
