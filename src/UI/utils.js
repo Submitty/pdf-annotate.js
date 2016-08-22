@@ -185,6 +185,24 @@ export function getAnnotationRect(el) {
     x = parseInt(el.getAttribute('cx'), 10)-h/2;
     y = parseInt(el.getAttribute('cy'), 10)-w/2;
     break;
+
+    case 'arrow':
+    let minX1, maxX1, minY1, maxY1;
+
+    el.getAttribute('d').replace(/Z/, '').split('M').splice(1).forEach((p) => {
+      var s = p.split(' ').map(i => parseInt(i, 10));
+
+      if (typeof minX1 === 'undefined' || s[0] < minX1) { minX1 = s[0]; }
+      if (typeof maxX1 === 'undefined' || s[2] > maxX1) { maxX1 = s[2]; }
+      if (typeof minY1 === 'undefined' || s[1] < minY1) { minY1 = s[1]; }
+      if (typeof maxY1 === 'undefined' || s[3] > maxY1) { maxY1 = s[3]; }
+    });
+
+    h = maxY1 - minY1;
+    w = maxX1 - minX1;
+    x = minX1;
+    y = minY1;
+    break;
   }
 
   // Result provides same properties as getBoundingClientRect

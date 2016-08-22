@@ -353,7 +353,27 @@ function handleDocumentMouseup(e) {
           }
         }
       }); 
-    }
+    }else if (type === 'arrow') {
+      let rect = scaleDown(svg, getAnnotationRect(target[0]));
+      let [originX, originY] = annotation.lines[0];
+      let { deltaX, deltaY } = calcDelta(originX, originY);
+
+      // origin isn't necessarily at 0/0 in relation to overlay x/y
+      // adjust the difference between overlay and drawing coords
+      deltaY += (originY - rect.top);
+      deltaX += (originX - rect.left);
+
+      annotation.lines.forEach((line, i) => {
+        let [x, y] = annotation.lines[i];
+        annotation.lines[i][0] = x + deltaX;
+        annotation.lines[i][1] = y + deltaY;
+      });
+
+      target[0].parentNode.removeChild(target[0]);
+      appendChild(svg, annotation);
+    } 
+
+
 
     PDFJSAnnotate.getStoreAdapter().editAnnotation(documentId, annotationId, annotation);
   });
