@@ -91,11 +91,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _render2 = _interopRequireDefault(_render);
 	
-	var _UI = __webpack_require__(30);
+	var _UI = __webpack_require__(31);
 	
 	var _UI2 = _interopRequireDefault(_UI);
 	
-	var _config = __webpack_require__(25);
+	var _config = __webpack_require__(26);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
@@ -1072,11 +1072,44 @@ return /******/ (function(modules) { // webpackBootstrap
 	        break;
 	
 	      case 'circle':
+	      case 'fillcircle':
+	      case 'emptycircle':
 	      case 'svg':
 	        h = parseInt(el.getAttribute('r'), 10) * 2;
 	        w = parseInt(el.getAttribute('r'), 10) * 2;
 	        x = parseInt(el.getAttribute('cx'), 10) - h / 2;
 	        y = parseInt(el.getAttribute('cy'), 10) - w / 2;
+	        break;
+	
+	      case 'arrow':
+	        var minX1 = void 0,
+	            maxX1 = void 0,
+	            minY1 = void 0,
+	            maxY1 = void 0;
+	
+	        el.getAttribute('d').replace(/Z/, '').split('M').splice(1).forEach(function (p) {
+	          var s = p.split(' ').map(function (i) {
+	            return parseInt(i, 10);
+	          });
+	
+	          if (typeof minX1 === 'undefined' || s[0] < minX1) {
+	            minX1 = s[0];
+	          }
+	          if (typeof maxX1 === 'undefined' || s[2] > maxX1) {
+	            maxX1 = s[2];
+	          }
+	          if (typeof minY1 === 'undefined' || s[1] < minY1) {
+	            minY1 = s[1];
+	          }
+	          if (typeof maxY1 === 'undefined' || s[3] > maxY1) {
+	            maxY1 = s[3];
+	          }
+	        });
+	
+	        h = maxY1 - minY1;
+	        w = maxX1 - minX1;
+	        x = minX1;
+	        y = minY1;
 	        break;
 	    }
 	
@@ -1462,7 +1495,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _appendChild = __webpack_require__(11);
 	
-	var _renderScreenReaderHints = __webpack_require__(21);
+	var _renderScreenReaderHints = __webpack_require__(22);
 	
 	var _renderScreenReaderHints2 = _interopRequireDefault(_renderScreenReaderHints);
 	
@@ -1553,6 +1586,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _renderCircle = __webpack_require__(20);
 	
 	var _renderCircle2 = _interopRequireDefault(_renderCircle);
+	
+	var _renderArrow = __webpack_require__(21);
+	
+	var _renderArrow2 = _interopRequireDefault(_renderArrow);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -1670,6 +1707,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      child = (0, _renderRect2.default)(annotation);
 	      break;
 	    case 'circle':
+	    case 'fillcircle':
+	    case 'emptycircle':
 	      child = (0, _renderCircle2.default)(annotation);
 	      break;
 	    case 'strikeout':
@@ -1683,6 +1722,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      break;
 	    case 'drawing':
 	      child = (0, _renderPath2.default)(annotation);
+	      break;
+	    case 'arrow':
+	      child = (0, _renderArrow2.default)(annotation);
 	      break;
 	  }
 	
@@ -1971,53 +2013,56 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var d = [];
 	  var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 	
-	  /*
-	  for (let i=0, l=a.lines.length; i<l; i++) {
+	  for (var i = 0, l = a.lines.length; i < l; i++) {
 	    var p1 = a.lines[i];
-	    var p2 = a.lines[i+1];
+	    var p2 = a.lines[i + 1];
 	    if (p2) {
-	      d.push(`M${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]}`);
-	    }
-	  }*/
-	
-	  if (a.lines.length > 2) {
-	    var p1 = a.lines[0];
-	    var p2 = a.lines[a.lines.length - 1];
-	
-	    var p3 = []; //arrow 
-	    var p4 = [];
-	    var p0 = []; //arrow intersection
-	
-	
-	    if (p2) {
-	      var k = -(p2[0] - p1[0]) / (p2[1] - p1[1]);
-	
-	      var deltaX = 3;
-	      p0[0] = p1[0] + 0.8 * (p2[0] - p1[0]);
-	      p0[1] = p1[1] + 0.8 * (p2[1] - p1[1]);
-	
-	      p3[0] = p0[0] + deltaX;
-	      p3[1] = p0[1] + k * deltaX;
-	
-	      p4[0] = p0[0] - deltaX;
-	      p4[1] = p0[1] - k * deltaX;
-	
-	      if (Math.abs(p2[1] - p1[1]) < 20) {
-	
-	        p3[0] = p0[0];
-	        p3[1] = p0[1] + deltaX * 1;
-	
-	        p4[0] = p0[0];
-	        p4[1] = p0[1] - deltaX * 1;
-	      }
-	
 	      d.push('M' + p1[0] + ' ' + p1[1] + ' ' + p2[0] + ' ' + p2[1]);
-	      //d.push(`M${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]}`);
-	      d.push('M' + p2[0] + ' ' + p2[1] + ' ' + p3[0] + ' ' + p3[1]);
-	      d.push('M' + p3[0] + ' ' + p3[1] + ' ' + p4[0] + ' ' + p4[1]);
-	      d.push('M' + p4[0] + ' ' + p4[1] + ' ' + p2[0] + ' ' + p2[1]);
 	    }
 	  }
+	
+	  /*
+	    
+	     if(a.lines.length>2) {
+	      var p1 = a.lines[0];
+	      var p2 = a.lines[a.lines.length-1];
+	  
+	      var p3 = []; //arrow 
+	      var p4 = [];
+	      var p0 = []; //arrow intersection
+	  
+	  
+	   
+	      if (p2) {
+	        var k = -(p2[0]-p1[0])/(p2[1]-p1[1]);
+	  
+	        var deltaX = 3;
+	        p0[0] = p1[0]+0.8*(p2[0]-p1[0]);
+	        p0[1] = p1[1]+0.8*(p2[1]-p1[1]);
+	  
+	        p3[0] = p0[0] + deltaX;
+	        p3[1] = p0[1] + k*deltaX;
+	  
+	        p4[0] = p0[0] - deltaX;
+	        p4[1] = p0[1] - k*deltaX;
+	  
+	        if(Math.abs(p2[1]-p1[1]) < 20) {
+	  
+	          p3[0] = p0[0] ;
+	          p3[1] = p0[1] + deltaX*1;
+	  
+	          p4[0] = p0[0] ;
+	          p4[1] = p0[1] - deltaX*1;
+	  
+	        }
+	  
+	        d.push(`M${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]}`);
+	         //d.push(`M${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]}`);
+	        d.push(`M${p2[0]} ${p2[1]} ${p3[0]} ${p3[1]}`);
+	        d.push(`M${p3[0]} ${p3[1]} ${p4[0]} ${p4[1]}`);
+	        d.push(`M${p4[0]} ${p4[1]} ${p2[0]} ${p2[1]}`);
+	       }
+	      }*/
 	
 	  (0, _setAttributes2.default)(path, {
 	    d: d.join(' ') + 'Z',
@@ -2270,9 +2315,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
 	  } else {
 	    var circle = createCircle(a);
-	    (0, _setAttributes2.default)(circle, {
+	
+	    if (a.type === 'circle') (0, _setAttributes2.default)(circle, {
 	      stroke: (0, _normalizeColor2.default)(a.color || '#f00'),
-	      fill: 'none'
+	      fill: 'none',
+	      'stroke-width': 5
+	    });
+	    if (a.type === 'emptycircle') (0, _setAttributes2.default)(circle, {
+	      stroke: (0, _normalizeColor2.default)(a.color || '#f00'),
+	      fill: 'none',
+	      'stroke-width': 2
+	    });
+	
+	    if (a.type === 'fillcircle') (0, _setAttributes2.default)(circle, {
+	      stroke: (0, _normalizeColor2.default)(a.color || '#f00'),
+	      fill: '#f00',
+	      'stroke-width': 5
 	    });
 	
 	    return circle;
@@ -2300,13 +2358,107 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.default = renderArrow;
+	
+	var _setAttributes = __webpack_require__(14);
+	
+	var _setAttributes2 = _interopRequireDefault(_setAttributes);
+	
+	var _normalizeColor = __webpack_require__(15);
+	
+	var _normalizeColor2 = _interopRequireDefault(_normalizeColor);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	/**
+	 * Create SVGPathElement from an annotation definition.
+	 * This is used for anntations of type `drawing`.
+	 *
+	 * @param {Object} a The annotation definition
+	 * @return {SVGPathElement} The path to be rendered
+	 */
+	function renderArrow(a) {
+	  var d = [];
+	  var arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+	
+	  /*
+	  for (let i=0, l=a.lines.length; i<l; i++) {
+	    var p1 = a.lines[i];
+	    var p2 = a.lines[i+1];
+	    if (p2) {
+	      d.push(`M${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]}`);
+	    }
+	  }*/
+	
+	  if (a.lines.length > 2) {
+	    var p1 = a.lines[0];
+	    var p2 = a.lines[a.lines.length - 1];
+	
+	    var p3 = []; //arrow 
+	    var p4 = [];
+	    var p0 = []; //arrow intersection
+	
+	
+	    if (p2) {
+	      var k = -(p2[0] - p1[0]) / (p2[1] - p1[1]);
+	
+	      var deltaX = 3;
+	      p0[0] = p1[0] + 0.8 * (p2[0] - p1[0]);
+	      p0[1] = p1[1] + 0.8 * (p2[1] - p1[1]);
+	
+	      p3[0] = p0[0] + deltaX;
+	      p3[1] = p0[1] + k * deltaX;
+	
+	      p4[0] = p0[0] - deltaX;
+	      p4[1] = p0[1] - k * deltaX;
+	
+	      //avoid the fat arrow
+	      var dist = Math.sqrt((p4[0] - p3[0]) * (p4[0] - p3[0]) + (p4[1] - p3[1]) * (p4[1] - p3[1]));
+	
+	      if (Math.abs(p2[1] - p1[1]) < 20 || dist > 8) {
+	
+	        p3[0] = p0[0];
+	        p3[1] = p0[1] + deltaX * 1;
+	
+	        p4[0] = p0[0];
+	        p4[1] = p0[1] - deltaX * 1;
+	      }
+	
+	      d.push('M' + p1[0] + ' ' + p1[1] + ' ' + p2[0] + ' ' + p2[1]);
+	      //d.push(`M${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]}`);
+	      d.push('M' + p2[0] + ' ' + p2[1] + ' ' + p3[0] + ' ' + p3[1]);
+	      d.push('M' + p3[0] + ' ' + p3[1] + ' ' + p4[0] + ' ' + p4[1]);
+	      d.push('M' + p4[0] + ' ' + p4[1] + ' ' + p2[0] + ' ' + p2[1]);
+	    }
+	  }
+	
+	  (0, _setAttributes2.default)(arrow, {
+	    d: d.join(' ') + 'Z',
+	    stroke: (0, _normalizeColor2.default)(a.color || '#000'),
+	    strokeWidth: a.width || 1,
+	    fill: '#000'
+	  });
+	
+	  return arrow;
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 22 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	exports.default = renderScreenReaderHints;
 	
-	var _insertScreenReaderHint = __webpack_require__(22);
+	var _insertScreenReaderHint = __webpack_require__(23);
 	
 	var _insertScreenReaderHint2 = _interopRequireDefault(_insertScreenReaderHint);
 	
-	var _initEventHandlers = __webpack_require__(29);
+	var _initEventHandlers = __webpack_require__(30);
 	
 	var _initEventHandlers2 = _interopRequireDefault(_initEventHandlers);
 	
@@ -2369,7 +2521,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2379,26 +2531,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = insertScreenReaderHint;
 	
-	var _createScreenReaderOnly = __webpack_require__(23);
+	var _createScreenReaderOnly = __webpack_require__(24);
 	
 	var _createScreenReaderOnly2 = _interopRequireDefault(_createScreenReaderOnly);
 	
-	var _insertElementWithinChildren = __webpack_require__(24);
+	var _insertElementWithinChildren = __webpack_require__(25);
 	
 	var _insertElementWithinChildren2 = _interopRequireDefault(_insertElementWithinChildren);
 	
-	var _insertElementWithinElement = __webpack_require__(26);
+	var _insertElementWithinElement = __webpack_require__(27);
 	
 	var _insertElementWithinElement2 = _interopRequireDefault(_insertElementWithinElement);
 	
-	var _renderScreenReaderComments = __webpack_require__(27);
+	var _renderScreenReaderComments = __webpack_require__(28);
 	
 	var _renderScreenReaderComments2 = _interopRequireDefault(_renderScreenReaderComments);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	// Annotation types that support comments
-	var COMMENT_TYPES = ['highlight', 'point', 'area', 'circle'];
+	var COMMENT_TYPES = ['highlight', 'point', 'area', 'circle', 'emptycircle', 'fillcircle'];
 	
 	/**
 	 * Insert a hint into the DOM for screen readers for a specific annotation.
@@ -2437,6 +2589,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      break;
 	
 	    case 'circle':
+	    case 'fillcircle':
+	    case 'emptycircle':
 	      var x2 = typeof annotation.cx !== 'undefined' ? annotation.cx : annotation.lines[0][0];
 	      var y2 = typeof annotation.cy !== 'undefined' ? annotation.cy : annotation.lines[0][1];
 	
@@ -2452,7 +2606,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2484,7 +2638,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2494,11 +2648,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = insertElementWithinChildren;
 	
-	var _config = __webpack_require__(25);
+	var _config = __webpack_require__(26);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
-	var _insertElementWithinElement = __webpack_require__(26);
+	var _insertElementWithinElement = __webpack_require__(27);
 	
 	var _insertElementWithinElement2 = _interopRequireDefault(_insertElementWithinElement);
 	
@@ -2558,7 +2712,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2582,7 +2736,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2592,7 +2746,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = insertElementWithinElement;
 	
-	var _config = __webpack_require__(25);
+	var _config = __webpack_require__(26);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
@@ -2691,7 +2845,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2705,7 +2859,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _insertScreenReaderComment = __webpack_require__(28);
+	var _insertScreenReaderComment = __webpack_require__(29);
 	
 	var _insertScreenReaderComment2 = _interopRequireDefault(_insertScreenReaderComment);
 	
@@ -2759,7 +2913,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2789,7 +2943,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2799,19 +2953,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = initEventHandlers;
 	
-	var _insertScreenReaderHint = __webpack_require__(22);
+	var _insertScreenReaderHint = __webpack_require__(23);
 	
 	var _insertScreenReaderHint2 = _interopRequireDefault(_insertScreenReaderHint);
 	
-	var _renderScreenReaderHints = __webpack_require__(21);
+	var _renderScreenReaderHints = __webpack_require__(22);
 	
 	var _renderScreenReaderHints2 = _interopRequireDefault(_renderScreenReaderHints);
 	
-	var _insertScreenReaderComment = __webpack_require__(28);
+	var _insertScreenReaderComment = __webpack_require__(29);
 	
 	var _insertScreenReaderComment2 = _interopRequireDefault(_insertScreenReaderComment);
 	
-	var _renderScreenReaderComments = __webpack_require__(27);
+	var _renderScreenReaderComments = __webpack_require__(28);
 	
 	var _renderScreenReaderComments2 = _interopRequireDefault(_renderScreenReaderComments);
 	
@@ -2919,7 +3073,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2930,19 +3084,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _event = __webpack_require__(4);
 	
-	var _edit = __webpack_require__(31);
+	var _edit = __webpack_require__(32);
 	
-	var _pen = __webpack_require__(32);
+	var _pen = __webpack_require__(33);
 	
-	var _point = __webpack_require__(33);
+	var _arrow = __webpack_require__(34);
 	
-	var _rect = __webpack_require__(34);
+	var _point = __webpack_require__(35);
 	
-	var _circle = __webpack_require__(35);
+	var _rect = __webpack_require__(36);
 	
-	var _text = __webpack_require__(36);
+	var _circle = __webpack_require__(37);
 	
-	var _page = __webpack_require__(37);
+	var _text = __webpack_require__(38);
+	
+	var _page = __webpack_require__(39);
 	
 	exports.default = {
 	  addEventListener: _event.addEventListener, removeEventListener: _event.removeEventListener, fireEvent: _event.fireEvent,
@@ -2951,13 +3107,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  disablePoint: _point.disablePoint, enablePoint: _point.enablePoint,
 	  disableRect: _rect.disableRect, enableRect: _rect.enableRect,
 	  disableCirle: _circle.disableCirle, enableCircle: _circle.enableCircle,
+	  disableArrow: _arrow.disableArrow, enableArrow: _arrow.enableArrow,
 	  disableText: _text.disableText, enableText: _text.enableText, setText: _text.setText,
 	  createPage: _page.createPage, renderPage: _page.renderPage
 	};
 	module.exports = exports['default'];
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2975,7 +3132,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _config = __webpack_require__(25);
+	var _config = __webpack_require__(26);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
@@ -3325,7 +3482,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        target[0].parentNode.removeChild(target[0]);
 	        (0, _appendChild2.default)(svg, annotation);
 	      })();
-	    } else if (type === 'circle') {
+	    } else if (type === 'circle' || type === 'fillcircle' || type === 'emptycircle') {
 	      (function () {
 	        //boyu adding for handle transform the circle annotation
 	
@@ -3374,6 +3531,39 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	          }
 	        });
+	      })();
+	    } else if (type === 'arrow') {
+	      (function () {
+	        var rect = (0, _utils.scaleDown)(svg, (0, _utils.getAnnotationRect)(target[0]));
+	
+	        var _annotation$lines$2 = _slicedToArray(annotation.lines[0], 2);
+	
+	        var originX = _annotation$lines$2[0];
+	        var originY = _annotation$lines$2[1];
+	
+	        var _calcDelta2 = calcDelta(originX, originY);
+	
+	        var deltaX = _calcDelta2.deltaX;
+	        var deltaY = _calcDelta2.deltaY;
+	
+	        // origin isn't necessarily at 0/0 in relation to overlay x/y
+	        // adjust the difference between overlay and drawing coords
+	
+	        deltaY += originY - rect.top;
+	        deltaX += originX - rect.left;
+	
+	        annotation.lines.forEach(function (line, i) {
+	          var _annotation$lines$i2 = _slicedToArray(annotation.lines[i], 2);
+	
+	          var x = _annotation$lines$i2[0];
+	          var y = _annotation$lines$i2[1];
+	
+	          annotation.lines[i][0] = x + deltaX;
+	          annotation.lines[i][1] = y + deltaY;
+	        });
+	
+	        target[0].parentNode.removeChild(target[0]);
+	        (0, _appendChild2.default)(svg, annotation);
 	      })();
 	    }
 	
@@ -3428,7 +3618,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3604,7 +3794,183 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 33 */
+/* 34 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.setArrow = setArrow;
+	exports.enableArrow = enableArrow;
+	exports.disableArrow = disableArrow;
+	
+	var _PDFJSAnnotate = __webpack_require__(1);
+	
+	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
+	
+	var _appendChild = __webpack_require__(11);
+	
+	var _appendChild2 = _interopRequireDefault(_appendChild);
+	
+	var _utils = __webpack_require__(6);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var _enabled = false;
+	var _penSize = void 0;
+	var _penColor = void 0;
+	var path = void 0;
+	var lines = void 0;
+	
+	/**
+	 * Handle document.mousedown event
+	 */
+	function handleDocumentMousedown() {
+	  path = null;
+	  lines = [];
+	
+	  document.addEventListener('mousemove', handleDocumentMousemove);
+	  document.addEventListener('mouseup', handleDocumentMouseup);
+	}
+	
+	/**
+	 * Handle document.mouseup event
+	 *
+	 * @param {Event} e The DOM event to be handled
+	 */
+	function handleDocumentMouseup(e) {
+	  var svg = void 0;
+	  if (lines.length > 1 && (svg = (0, _utils.findSVGAtPoint)(e.clientX, e.clientY))) {
+	    var _getMetadata = (0, _utils.getMetadata)(svg);
+	
+	    var documentId = _getMetadata.documentId;
+	    var pageNumber = _getMetadata.pageNumber;
+	
+	
+	    _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, {
+	      type: 'arrow',
+	      width: _penSize,
+	      color: _penColor,
+	      lines: lines
+	    }).then(function (annotation) {
+	      if (path) {
+	        svg.removeChild(path);
+	      }
+	
+	      (0, _appendChild2.default)(svg, annotation);
+	    });
+	  }
+	
+	  document.removeEventListener('mousemove', handleDocumentMousemove);
+	  document.removeEventListener('mouseup', handleDocumentMouseup);
+	}
+	
+	/**
+	 * Handle document.mousemove event
+	 *
+	 * @param {Event} e The DOM event to be handled
+	 */
+	function handleDocumentMousemove(e) {
+	  savePoint(e.clientX, e.clientY);
+	}
+	
+	/**
+	 * Handle document.keyup event
+	 *
+	 * @param {Event} e The DOM event to be handled
+	 */
+	function handleDocumentKeyup(e) {
+	  // Cancel rect if Esc is pressed
+	  if (e.keyCode === 27) {
+	    lines = null;
+	    path.parentNode.removeChild(path);
+	    document.removeEventListener('mousemove', handleDocumentMousemove);
+	    document.removeEventListener('mouseup', handleDocumentMouseup);
+	  }
+	}
+	
+	/**
+	 * Save a point to the line being drawn.
+	 *
+	 * @param {Number} x The x coordinate of the point
+	 * @param {Number} y The y coordinate of the point
+	 */
+	function savePoint(x, y) {
+	  var svg = (0, _utils.findSVGAtPoint)(x, y);
+	  if (!svg) {
+	    return;
+	  }
+	
+	  var rect = svg.getBoundingClientRect();
+	  var point = (0, _utils.scaleDown)(svg, {
+	    x: x - rect.left,
+	    y: y - rect.top
+	  });
+	
+	  lines.push([point.x, point.y]);
+	
+	  if (lines.length <= 1) {
+	    return;
+	  }
+	
+	  if (path) {
+	    svg.removeChild(path);
+	  }
+	
+	  path = (0, _appendChild2.default)(svg, {
+	    type: 'arrow',
+	    color: _penColor,
+	    width: _penSize,
+	    lines: lines
+	  });
+	}
+	
+	/**
+	 * Set the attributes of the pen.
+	 *
+	 * @param {Number} penSize The size of the lines drawn by the pen
+	 * @param {String} penColor The color of the lines drawn by the pen
+	 */
+	function setArrow() {
+	  var penSize = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+	  var penColor = arguments.length <= 1 || arguments[1] === undefined ? '000000' : arguments[1];
+	
+	  _penSize = parseInt(penSize, 10);
+	  _penColor = penColor;
+	}
+	
+	/**
+	 * Enable the pen behavior
+	 */
+	function enableArrow() {
+	  if (_enabled) {
+	    return;
+	  }
+	
+	  _enabled = true;
+	  document.addEventListener('mousedown', handleDocumentMousedown);
+	  document.addEventListener('keyup', handleDocumentKeyup);
+	  (0, _utils.disableUserSelect)();
+	}
+	
+	/**
+	 * Disable the pen behavior
+	 */
+	function disableArrow() {
+	  if (!_enabled) {
+	    return;
+	  }
+	
+	  _enabled = false;
+	  document.removeEventListener('mousedown', handleDocumentMousedown);
+	  document.removeEventListener('keyup', handleDocumentKeyup);
+	  (0, _utils.enableUserSelect)();
+	}
+
+/***/ },
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3757,7 +4123,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 34 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3767,12 +4133,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.enableRect = enableRect;
 	exports.disableRect = disableRect;
+	exports.enableCircle = enableCircle;
+	exports.disableCircle = disableCircle;
 	
 	var _PDFJSAnnotate = __webpack_require__(1);
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _config = __webpack_require__(25);
+	var _config = __webpack_require__(26);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
@@ -3818,7 +4186,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function handleDocumentMousedown(e) {
 	  var svg = void 0;
-	  if (_type !== 'area' && _type !== 'circle' || !(svg = (0, _utils.findSVGAtPoint)(e.clientX, e.clientY))) {
+	  if (_type !== 'area' && _type !== 'circle' && _type !== 'fillcircle' && _type !== 'emptycircle' || !(svg = (0, _utils.findSVGAtPoint)(e.clientX, e.clientY))) {
 	    return;
 	  }
 	
@@ -3863,7 +4231,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function handleDocumentMouseup(e) {
 	  var rects = void 0;
-	  if (_type !== 'area' && _type !== 'circle' && (rects = getSelectionRects())) {
+	  if (_type !== 'area' && _type !== 'circle' && _type !== 'fillcircle' && _type !== 'emptycircle' && (rects = getSelectionRects())) {
 	    var svg = (0, _utils.findSVGAtPoint)(rects[0].left, rects[0].top);
 	    saveRect(_type, [].concat(_toConsumableArray(rects)).map(function (r) {
 	      return {
@@ -3873,7 +4241,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        height: r.height
 	      };
 	    }));
-	  } else if ((_type === 'area' || _type === 'circle') && overlay) {
+	  } else if ((_type === 'area' || _type === 'circle' || _type === 'fillcircle' || _type === 'emptycircle') && overlay) {
 	    var _svg = overlay.parentNode.querySelector(_config2.default.annotationSvgQuery());
 	    var rect = _svg.getBoundingClientRect();
 	    saveRect(_type, [{
@@ -3972,7 +4340,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    annotation.height = rect.height;
 	  }
 	
-	  if (type === 'circle') {
+	  if (type === 'circle' || type === 'emptycircle' || type === 'fillcircle') {
 	    var _rect = annotation.rectangles[0];
 	    delete annotation.rectangles;
 	    annotation.cx = _rect.x;
@@ -4022,9 +4390,39 @@ return /******/ (function(modules) { // webpackBootstrap
 	  document.removeEventListener('mousedown', handleDocumentMousedown);
 	  document.removeEventListener('keyup', handleDocumentKeyup);
 	}
+	
+	/**
+	 * Enable circle behavior by boyu
+	 */
+	function enableCircle(type) {
+	  _type = type;
+	
+	  if (_enabled) {
+	    return;
+	  }
+	
+	  _enabled = true;
+	  document.addEventListener('mouseup', handleDocumentMouseup);
+	  document.addEventListener('mousedown', handleDocumentMousedown);
+	  document.addEventListener('keyup', handleDocumentKeyup);
+	}
+	
+	/**
+	 * Disable circle behavior by boyu
+	 */
+	function disableCircle() {
+	  if (!_enabled) {
+	    return;
+	  }
+	
+	  _enabled = false;
+	  document.removeEventListener('mouseup', handleDocumentMouseup);
+	  document.removeEventListener('mousedown', handleDocumentMousedown);
+	  document.removeEventListener('keyup', handleDocumentKeyup);
+	}
 
 /***/ },
-/* 35 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4043,7 +4441,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _appendChild2 = _interopRequireDefault(_appendChild);
 	
-	var _config = __webpack_require__(25);
+	var _config = __webpack_require__(26);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
@@ -4085,7 +4483,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function handleDocumentMousedown(e) {
 	  var svg = void 0;
-	  if (_type !== 'circle' || !(svg = (0, _utils.findSVGAtPoint)(e.clientX, e.clientY))) {
+	  if (_type !== 'circle' && _type !== 'fillcircle' && _type !== 'emptycircle' || !(svg = (0, _utils.findSVGAtPoint)(e.clientX, e.clientY))) {
 	    return;
 	  }
 	
@@ -4130,7 +4528,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function handleDocumentMouseup(e) {
 	  var rects = void 0;
-	  if (_type !== 'circle' && (rects = getSelectionRects())) {
+	  if (_type !== 'circle' && _type !== 'emptycircle' && _type !== 'fillcircle' && (rects = getSelectionRects())) {
 	    var svg = (0, _utils.findSVGAtPoint)(rects[0].left, rects[0].top);
 	    saveRect(_type, [].concat(_toConsumableArray(rects)).map(function (r) {
 	      return {
@@ -4140,7 +4538,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        height: r.height
 	      };
 	    }));
-	  } else if (_type === 'circle' && overlay) {
+	  } else if ((_type === 'circle' || _type === 'emptycircle' || _type === 'fillcircle') && overlay) {
 	    var _svg = overlay.parentNode.querySelector(annotationSvgQuery());
 	    var rect = _svg.getBoundingClientRect();
 	    saveRect(_type, [{
@@ -4285,7 +4683,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 36 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4459,7 +4857,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 37 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4477,11 +4875,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _config = __webpack_require__(25);
+	var _config = __webpack_require__(26);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
-	var _renderScreenReaderHints = __webpack_require__(21);
+	var _renderScreenReaderHints = __webpack_require__(22);
 	
 	var _renderScreenReaderHints2 = _interopRequireDefault(_renderScreenReaderHints);
 	
