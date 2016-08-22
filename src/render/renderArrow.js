@@ -8,20 +8,19 @@ import normalizeColor from '../utils/normalizeColor';
  * @param {Object} a The annotation definition
  * @return {SVGPathElement} The path to be rendered
  */
-export default function renderPath(a) {
+export default function renderArrow(a) {
   let d = [];
-  let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  let arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   
-  
+  /*
   for (let i=0, l=a.lines.length; i<l; i++) {
     var p1 = a.lines[i];
     var p2 = a.lines[i+1];
     if (p2) {
       d.push(`M${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]}`);
     }
-  }
+  }*/
 
-/*
   
    if(a.lines.length>2) {
     var p1 = a.lines[0];
@@ -62,14 +61,14 @@ export default function renderPath(a) {
       d.push(`M${p3[0]} ${p3[1]} ${p4[0]} ${p4[1]}`);
       d.push(`M${p4[0]} ${p4[1]} ${p2[0]} ${p2[1]}`);
      }
-    }*/
+    }
   
-  setAttributes(path, {
+  setAttributes(arrow, {
     d: `${d.join(' ')}Z`,
     stroke: normalizeColor(a.color || '#000'),
     strokeWidth: a.width || 1,
-    fill: 'none'
+    fill: '#000'
   });
 
-  return path;
+  return arrow;
 }

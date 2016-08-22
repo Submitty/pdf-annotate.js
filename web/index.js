@@ -193,6 +193,9 @@ render();
         case 'draw':
           UI.disablePen();
           break;
+        case 'arrow':
+          UI.disableArrow();
+          break;
         case 'text':
           UI.disableText();
           break;
@@ -222,6 +225,9 @@ render();
         break;
       case 'draw':
         UI.enablePen();
+        break;
+      case 'arrow':
+        UI.enableArrow();
         break;
       case 'text':
         UI.enableText();
