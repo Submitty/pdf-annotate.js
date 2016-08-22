@@ -204,6 +204,8 @@ render();
           break;
         case 'area':
         case 'circle':
+        case 'emptycircle':
+        case 'fillcircle':
         case 'highlight':
         case 'strikeout':
           UI.disableRect();
@@ -237,6 +239,8 @@ render();
         break;
       case 'area':
       case 'circle':
+      case 'emptycircle':
+      case 'fillcircle':
       case 'highlight':
       case 'strikeout':
         UI.enableRect(type);

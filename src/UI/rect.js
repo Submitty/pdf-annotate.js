@@ -46,7 +46,7 @@ function getSelectionRects() {
  */
 function handleDocumentMousedown(e) {
   let svg;
-  if ((_type !== 'area' && _type !== 'circle')|| !(svg = findSVGAtPoint(e.clientX, e.clientY))) {
+  if ((_type !== 'area' && _type !== 'circle' && _type !== 'fillcircle' && _type !== 'emptycircle')|| !(svg = findSVGAtPoint(e.clientX, e.clientY))) {
     return;
   }
 
@@ -91,7 +91,7 @@ function handleDocumentMousemove(e) {
  */
 function handleDocumentMouseup(e) {
   let rects;
-  if ((_type !== 'area' && _type !== 'circle') && (rects = getSelectionRects())) {
+  if ((_type !== 'area' && _type !== 'circle'&& _type !== 'fillcircle'&& _type !== 'emptycircle') && (rects = getSelectionRects())) {
     let svg = findSVGAtPoint(rects[0].left, rects[0].top);
     saveRect(_type, [...rects].map((r) => {
       return {
@@ -101,7 +101,7 @@ function handleDocumentMouseup(e) {
         height: r.height
       };
     }));
-  } else if ((_type === 'area' || _type === 'circle') && overlay) {
+  } else if ((_type === 'area' || _type === 'circle'|| _type === 'fillcircle'|| _type === 'emptycircle') && overlay) {
     let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
     let rect = svg.getBoundingClientRect();
     saveRect(_type, [{
@@ -198,7 +198,7 @@ function saveRect(type, rects, color) {
     annotation.height = rect.height;
   }
 
-   if (type === 'circle') {
+   if (type === 'circle'||type === 'emptycircle'||type === 'fillcircle') {
     let rect = annotation.rectangles[0];
     delete annotation.rectangles;
     annotation.cx = rect.x;
@@ -242,3 +242,28 @@ export function disableRect() {
   document.removeEventListener('keyup', handleDocumentKeyup);
 }
 
+/**
+ * Enable circle behavior by boyu
+ */
+export function enableCircle(type) {
+  _type = type;
+  
+  if (_enabled) { return; }
+
+  _enabled = true;
+  document.addEventListener('mouseup', handleDocumentMouseup);
+  document.addEventListener('mousedown', handleDocumentMousedown);
+  document.addEventListener('keyup', handleDocumentKeyup);
+}
+
+/**
+ * Disable circle behavior by boyu
+ */
+export function disableCircle() {
+  if (!_enabled) { return; }
+
+  _enabled = false;
+  document.removeEventListener('mouseup', handleDocumentMouseup);
+  document.removeEventListener('mousedown', handleDocumentMousedown);
+  document.removeEventListener('keyup', handleDocumentKeyup);
+}

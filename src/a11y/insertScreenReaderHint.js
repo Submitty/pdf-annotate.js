@@ -4,7 +4,7 @@ import insertElementWithinElement from './insertElementWithinElement';
 import renderScreenReaderComments from './renderScreenReaderComments';
 
 // Annotation types that support comments
-const COMMENT_TYPES = ['highlight', 'point', 'area','circle'];
+const COMMENT_TYPES = ['highlight', 'point', 'area','circle','emptycircle','fillcircle'];
 
 /**
  * Insert a hint into the DOM for screen readers for a specific annotation.
@@ -53,6 +53,8 @@ export default function insertScreenReaderHint(annotation, num = 0) {
       break;
 
     case 'circle':
+    case 'fillcircle':
+    case 'emptycircle':
       let x2 = typeof annotation.cx !== 'undefined' ? annotation.cx : annotation.lines[0][0];
       let y2 = typeof annotation.cy !== 'undefined' ? annotation.cy : annotation.lines[0][1];
 

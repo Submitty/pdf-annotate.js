@@ -46,7 +46,7 @@ function getSelectionRects() {
  */
 function handleDocumentMousedown(e) {
   let svg;
-  if (_type !== 'circle' || !(svg = findSVGAtPoint(e.clientX, e.clientY))) {
+  if ((_type !== 'circle' && _type !== 'fillcircle' && _type !== 'emptycircle') || !(svg = findSVGAtPoint(e.clientX, e.clientY))) {
     return;
   }
 
@@ -91,7 +91,7 @@ function handleDocumentMousemove(e) {
  */
 function handleDocumentMouseup(e) {
   let rects;
-  if (_type !== 'circle' && (rects = getSelectionRects())) {
+  if ((_type !== 'circle' && _type !== 'emptycircle' && _type !== 'fillcircle') && (rects = getSelectionRects())) {
     let svg = findSVGAtPoint(rects[0].left, rects[0].top);
     saveRect(_type, [...rects].map((r) => {
       return {
@@ -101,7 +101,7 @@ function handleDocumentMouseup(e) {
         height: r.height
       };
     }));
-  } else if (_type === 'circle' && overlay) {
+  } else if ((_type === 'circle' || _type === 'emptycircle' || _type === 'fillcircle') && overlay) {
     let svg = overlay.parentNode.querySelector(annotationSvgQuery());
     let rect = svg.getBoundingClientRect();
     saveRect(_type, [{
