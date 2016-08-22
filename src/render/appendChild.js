@@ -121,6 +121,8 @@ export default function appendChild(svg, annotation, viewport) {
       child = renderRect(annotation);
       break;
     case 'circle':
+    case 'fillcircle':
+    case 'emptycircle':
       child = renderCircle(annotation);
       break;
     case 'strikeout':

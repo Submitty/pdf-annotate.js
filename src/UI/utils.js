@@ -179,6 +179,8 @@ export function getAnnotationRect(el) {
     break;
 
     case 'circle':
+    case 'fillcircle':
+    case 'emptycircle':
     case 'svg':
     h = parseInt(el.getAttribute('r'), 10)*2;
     w = parseInt(el.getAttribute('r'), 10)*2;
