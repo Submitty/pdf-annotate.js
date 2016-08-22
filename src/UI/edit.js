@@ -1,5 +1,5 @@
 import PDFJSAnnotate from '../PDFJSAnnotate';
-
+import config from '../config';
 import appendChild from '../render/appendChild';
 import {
   addEventListener,
@@ -114,7 +114,7 @@ function deleteAnnotation() {
 
   let annotationId = overlay.getAttribute('data-target-id');
   let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
-  let svg = overlay.parentNode.querySelector('svg.annotationLayer');
+  let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
   let { documentId } = getMetadata(svg);
 
   [...nodes].forEach((n) => {
@@ -223,7 +223,7 @@ function handleDocumentMouseup(e) {
   let annotationId = overlay.getAttribute('data-target-id');
   let target = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
   let type = target[0].getAttribute('data-pdf-annotate-type');
-  let svg = overlay.parentNode.querySelector('svg.annotationLayer');
+  let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
   let { documentId } = getMetadata(svg);
   
   overlay.querySelector('a').style.display = '';

@@ -1,3 +1,4 @@
+import config from '../config'
 import {
   pointIntersectsRect,
   scaleUp,
@@ -86,7 +87,7 @@ function textLayerElementFromPoint(x, y, pageNumber) {
   let rect = svg.getBoundingClientRect();
   y = scaleUp(svg, {y}).y + rect.top;
   x = scaleUp(svg, {x}).x + rect.left;
-  return [...svg.parentNode.querySelectorAll('.textLayer [data-canvas-width]')].filter((el) => {
+  return [...svg.parentNode.querySelectorAll(config.textClassQuery() + ' [data-canvas-width]')].filter((el) => {
     return pointIntersectsRect(x, y, el.getBoundingClientRect());
   })[0];
 }
