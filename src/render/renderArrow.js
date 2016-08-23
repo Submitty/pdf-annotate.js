@@ -45,7 +45,11 @@ export default function renderArrow(a) {
       p4[0] = p0[0] - deltaX;
       p4[1] = p0[1] - k*deltaX;
 
-      if(Math.abs(p2[1]-p1[1]) < 20) {
+
+      //avoid the fat arrow
+      var dist = Math.sqrt((p4[0]-p3[0])*(p4[0]-p3[0])+(p4[1]-p3[1])*(p4[1]-p3[1]))
+
+      if(Math.abs(p2[1]-p1[1]) < 20 || dist>8 ) {
 
         p3[0] = p0[0] ;
         p3[1] = p0[1] + deltaX*1;
@@ -54,7 +58,6 @@ export default function renderArrow(a) {
         p4[1] = p0[1] - deltaX*1;
 
       }
-
       d.push(`M${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]}`);
        //d.push(`M${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]}`);
       d.push(`M${p2[0]} ${p2[1]} ${p3[0]} ${p3[1]}`);

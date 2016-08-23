@@ -310,7 +310,7 @@ function handleDocumentMouseup(e) {
 
       target[0].parentNode.removeChild(target[0]);
       appendChild(svg, annotation);
-    } else if (type === 'circle') {//boyu adding for handle transform the circle annotation
+    } else if (type === 'circle' || type === 'fillcircle' || type === 'emptycircle') {//boyu adding for handle transform the circle annotation
     
     let { deltaX, deltaY } = getDelta('cx', 'cy');
       [...target].forEach((t, i) => {

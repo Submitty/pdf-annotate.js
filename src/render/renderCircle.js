@@ -23,9 +23,25 @@ export default function renderCircle(a) {
     return group;
   } else {
     let circle = createCircle(a);
+
+    if (a.type === 'circle')
     setAttributes(circle, {
       stroke: normalizeColor(a.color || '#f00'),
-      fill: 'none'
+      fill: 'none',
+      'stroke-width': 5
+    });
+    if (a.type === 'emptycircle')
+    setAttributes(circle, {
+      stroke: normalizeColor(a.color || '#f00'),
+      fill: 'none',
+      'stroke-width': 2
+    });
+
+    if (a.type === 'fillcircle')
+    setAttributes(circle, {
+      stroke: normalizeColor(a.color || '#f00'),
+      fill: '#f00',
+      'stroke-width': 5
     });
 
     return circle;
