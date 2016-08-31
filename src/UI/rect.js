@@ -1,6 +1,6 @@
 import PDFJSAnnotate from '../PDFJSAnnotate';
 import config from '../config';
-import appendChild from '../render/appendChild';
+import { appendChild } from '../render/appendChild';
 import {
   BORDER_COLOR,
   disableUserSelect,

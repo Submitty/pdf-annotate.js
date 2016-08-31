@@ -1,4 +1,4 @@
-import appendChild from '../../src/render/appendChild';
+import { appendChild } from '../../src/render/appendChild';
 import mockViewport from '../mockViewport';
 import { equal } from 'assert';
 

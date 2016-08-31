@@ -1558,6 +1558,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.appendChild = appendChild;
+	exports.transformChild = transformChild;
 	
 	var _objectAssign = __webpack_require__(12);
 	
@@ -1775,7 +1777,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	   */
 	  transformChild: transformChild
 	};
-	module.exports = exports['default'];
 
 /***/ },
 /* 12 */
@@ -2423,7 +2424,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        p4[0] = p0[0];
 	        p4[1] = p0[1] - deltaX * 1;
 	      }
-	
 	      d.push('M' + p1[0] + ' ' + p1[1] + ' ' + p2[0] + ' ' + p2[1]);
 	      //d.push(`M${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]}`);
 	      d.push('M' + p2[0] + ' ' + p2[1] + ' ' + p3[0] + ' ' + p3[1]);
@@ -3138,8 +3138,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _appendChild = __webpack_require__(11);
 	
-	var _appendChild2 = _interopRequireDefault(_appendChild);
-	
 	var _event = __webpack_require__(4);
 	
 	var _utils = __webpack_require__(6);
@@ -3480,7 +3478,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        });
 	
 	        target[0].parentNode.removeChild(target[0]);
-	        (0, _appendChild2.default)(svg, annotation);
+	        (0, _appendChild.appendChild)(svg, annotation);
 	      })();
 	    } else if (type === 'circle' || type === 'fillcircle' || type === 'emptycircle') {
 	      (function () {
@@ -3563,7 +3561,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        });
 	
 	        target[0].parentNode.removeChild(target[0]);
-	        (0, _appendChild2.default)(svg, annotation);
+	        (0, _appendChild.appendChild)(svg, annotation);
 	      })();
 	    }
 	
@@ -3636,8 +3634,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _appendChild = __webpack_require__(11);
 	
-	var _appendChild2 = _interopRequireDefault(_appendChild);
-	
 	var _utils = __webpack_require__(6);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -3683,7 +3679,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        svg.removeChild(path);
 	      }
 	
-	      (0, _appendChild2.default)(svg, annotation);
+	      (0, _appendChild.appendChild)(svg, annotation);
 	    });
 	  }
 	
@@ -3743,7 +3739,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    svg.removeChild(path);
 	  }
 	
-	  path = (0, _appendChild2.default)(svg, {
+	  path = (0, _appendChild.appendChild)(svg, {
 	    type: 'drawing',
 	    color: _penColor,
 	    width: _penSize,
@@ -3812,8 +3808,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _appendChild = __webpack_require__(11);
 	
-	var _appendChild2 = _interopRequireDefault(_appendChild);
-	
 	var _utils = __webpack_require__(6);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -3859,7 +3853,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        svg.removeChild(path);
 	      }
 	
-	      (0, _appendChild2.default)(svg, annotation);
+	      (0, _appendChild.appendChild)(svg, annotation);
 	    });
 	  }
 	
@@ -3919,7 +3913,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    svg.removeChild(path);
 	  }
 	
-	  path = (0, _appendChild2.default)(svg, {
+	  path = (0, _appendChild.appendChild)(svg, {
 	    type: 'arrow',
 	    color: _penColor,
 	    width: _penSize,
@@ -3989,8 +3983,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
 	var _appendChild = __webpack_require__(11);
-	
-	var _appendChild2 = _interopRequireDefault(_appendChild);
 	
 	var _utils = __webpack_require__(6);
 	
@@ -4078,7 +4070,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
 	        _PDFJSAnnotate2.default.getStoreAdapter().addComment(documentId, annotation.uuid, content);
 	
-	        (0, _appendChild2.default)(svg, annotation);
+	        (0, _appendChild.appendChild)(svg, annotation);
 	      });
 	    }();
 	
@@ -4145,8 +4137,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _config2 = _interopRequireDefault(_config);
 	
 	var _appendChild = __webpack_require__(11);
-	
-	var _appendChild2 = _interopRequireDefault(_appendChild);
 	
 	var _utils = __webpack_require__(6);
 	
@@ -4357,7 +4347,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // Add the annotation
 	
 	  _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
-	    (0, _appendChild2.default)(svg, annotation);
+	    (0, _appendChild.appendChild)(svg, annotation);
 	  });
 	}
 	
@@ -4438,8 +4428,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
 	var _appendChild = __webpack_require__(11);
-	
-	var _appendChild2 = _interopRequireDefault(_appendChild);
 	
 	var _config = __webpack_require__(26);
 	
@@ -4648,7 +4636,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // Add the annotation
 	
 	  _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
-	    (0, _appendChild2.default)(svg, annotation);
+	    (0, _appendChild.appendChild)(svg, annotation);
 	  });
 	}
 	
@@ -4703,8 +4691,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
 	var _appendChild = __webpack_require__(11);
-	
-	var _appendChild2 = _interopRequireDefault(_appendChild);
 	
 	var _utils = __webpack_require__(6);
 	
@@ -4796,7 +4782,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }));
 	
 	      _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
-	        (0, _appendChild2.default)(svg, annotation);
+	        (0, _appendChild.appendChild)(svg, annotation);
 	      });
 	    }();
 	

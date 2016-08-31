@@ -109,7 +109,7 @@ function transform(node, viewport) {
  * @param {Object} viewport The page's viewport data
  * @return {SVGElement} A node that was created and appended by this function
  */
-function appendChild(svg, annotation, viewport) {
+export function appendChild(svg, annotation, viewport) {
   if (!viewport) {
     viewport = JSON.parse(svg.getAttribute('data-pdf-annotate-viewport'));
   }
@@ -164,7 +164,7 @@ function appendChild(svg, annotation, viewport) {
  * @param {Object} viewport The page's viewport data
  * @return {SVGElement} A node that was transformed by this function
  */
-function transformChild(svg, child, viewport) {
+export function transformChild(svg, child, viewport) {
   if (!viewport) {
     viewport = JSON.parse(svg.getAttribute('data-pdf-annotate-viewport'));
   }

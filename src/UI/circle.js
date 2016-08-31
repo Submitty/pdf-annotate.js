@@ -1,5 +1,5 @@
 import PDFJSAnnotate from '../PDFJSAnnotate';
-import appendChild from '../render/appendChild';
+import { appendChild } from '../render/appendChild';
 import config from '../config';
 import {
   BORDER_COLOR,
