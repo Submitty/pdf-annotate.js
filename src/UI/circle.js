@@ -9,7 +9,8 @@ import {
   getMetadata,
   getOffset,
   scaleDown,
-  scaleUp
+  scaleUp,
+  screenToPdf
 } from './utils';
 
 let _enabled = false;

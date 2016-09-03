@@ -246,6 +246,65 @@ export function scaleUp(svg, rect) {
   return result;
 }
 
+// Transform point by matrix inverse
+//
+function applyInverseTransform(p, m) {
+  var d = m[0] * m[3] - m[1] * m[2];
+  var xt = (p[0] * m[3] - p[1] * m[2] + m[2] * m[5] - m[4] * m[3]) / d;
+  var yt = (-p[0] * m[1] + p[1] * m[0] + m[4] * m[1] - m[5] * m[0]) / d;
+  return [xt, yt];
+};
+
+//
+//
+function screenToPdfTranslation(viewport, pt, width, height) {
+  let x = pt[0];
+  let y = pt[1];
+
+  // Modulus 360 on the rotation so that we only
+  // have to worry about four possible values.
+  switch(viewport.rotation % 360) {
+    case 0:
+      y = y - (viewport.height / viewport.scale);
+      break;
+    case 90:
+      y = (viewport.width / viewport.scale) - y - height;
+      break;
+    case 180:
+      x = pt[0] - width;
+      y = (viewport.height / viewport.scale) - y - height;
+      break;
+    case 270:
+      x = pt[0] - width;
+      y = (viewport.width / viewport.scale) - y;
+      break;
+  }
+
+  return { x, y };
+}
+
+export function screenToPdf(svg, rect) {
+  let result = {};
+  let { viewport } = getMetadata(svg);
+
+  var pt1 = [ rect.x, rect.y ];
+  var pt2 = [ rect.x + rect.width, rect.y + rect.height ];
+
+  pt1 = applyInverseTransform(pt1, viewport.transform)
+  pt2 = applyInverseTransform(pt2, viewport.transform)
+
+  var width = Math.abs(pt2[0] - pt1[0]);
+  var height = Math.abs(pt2[1] - pt1[1]);
+  var trans = screenToPdfTranslation(viewport, pt1, width, height);
+
+  result.x = Math.abs(trans.x);
+  result.y = Math.abs(trans.y);
+  result.width = width;
+  result.height = height;
+
+  return result;
+}
+
 /**
  * Adjust scale from rendered scale to a normalized scale (100%).
  *

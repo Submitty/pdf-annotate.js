@@ -9,7 +9,8 @@ import {
   getMetadata,
   getOffset,
   scaleDown,
-  scaleUp
+  scaleUp,
+  screenToPdf
 } from './utils';
 
 let _enabled = false;
@@ -174,7 +175,7 @@ function saveRect(type, rects, color) {
         offset = r.height / 2;
       }
 
-      return scaleDown(svg, {
+      return screenToPdf(svg, {
         y: (r.top + offset) - boundingRect.top,
         x: r.left - boundingRect.left,
         width: r.width,

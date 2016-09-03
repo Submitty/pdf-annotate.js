@@ -4,7 +4,8 @@ import {
   BORDER_COLOR,
   findSVGAtPoint,
   getMetadata,
-  scaleDown
+  scaleDown,
+  screenToPdf
 } from './utils';
 
 let _enabled = false;
@@ -78,7 +79,7 @@ function saveText() {
         size: _textSize,
         color: _textColor,
         content: input.value.trim()
-      }, scaleDown(svg, {
+      }, screenToPdf(svg, {
         x: clientX - rect.left,
         y: clientY -  rect.top,
         width: input.offsetWidth,
