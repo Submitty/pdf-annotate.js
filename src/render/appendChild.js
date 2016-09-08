@@ -16,7 +16,7 @@ const isFirefox = /firefox/i.test(navigator.userAgent);
  * @param {Object} viewport The viewport data from the page
  * @return {Object}
  */
-function getTranslation(viewport) {
+export function getTranslation(viewport) {
   let x;
   let y;
 
@@ -179,6 +179,12 @@ export function transformChild(svg, child, viewport) {
 }
 
 export default {
+  /**
+   * Get the x/y translation to be used for transforming the annotations
+   * based on the rotation of the viewport.
+   */
+  getTranslation,
+  
   /**
    * Append an SVG child for an annotation
    */

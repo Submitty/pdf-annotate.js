@@ -15,7 +15,6 @@ import {
   scaleUp,
   scaleDown,
   getScroll,
-  getOffset,
   disableUserSelect,
   enableUserSelect,
   getMetadata
@@ -296,17 +295,6 @@ describe('UI::utils', function () {
 
     equal(scrollLeft, 25);
     equal(scrollTop, 10);
-  });
-
-  it('should get offset', function () {
-    svg.appendChild(text);
-    document.body.appendChild(svg);
-
-    let rect = svg.getBoundingClientRect();
-    let { offsetLeft, offsetTop } = getOffset(text);
-
-    equal(offsetTop, rect.top);
-    equal(offsetLeft, rect.left);
   });
 
   it('should disable user select', function () {

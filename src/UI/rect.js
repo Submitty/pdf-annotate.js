@@ -7,7 +7,6 @@ import {
   enableUserSelect,
   findSVGAtPoint,
   getMetadata,
-  getOffset,
   scaleDown,
   scaleUp,
   screenToPdf
@@ -243,28 +242,3 @@ export function disableRect() {
   document.removeEventListener('keyup', handleDocumentKeyup);
 }
 
-/**
- * Enable circle behavior by boyu
- */
-export function enableCircle(type) {
-  _type = type;
-  
-  if (_enabled) { return; }
-
-  _enabled = true;
-  document.addEventListener('mouseup', handleDocumentMouseup);
-  document.addEventListener('mousedown', handleDocumentMousedown);
-  document.addEventListener('keyup', handleDocumentKeyup);
-}
-
-/**
- * Disable circle behavior by boyu
- */
-export function disableCircle() {
-  if (!_enabled) { return; }
-
-  _enabled = false;
-  document.removeEventListener('mouseup', handleDocumentMouseup);
-  document.removeEventListener('mousedown', handleDocumentMousedown);
-  document.removeEventListener('keyup', handleDocumentKeyup);
-}

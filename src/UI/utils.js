@@ -1,4 +1,6 @@
 import createStyleSheet from 'create-stylesheet';
+import { getTranslation } from '../render/appendChild';
+
 
 export const BORDER_COLOR = '#00BFFF';
 
@@ -47,7 +49,6 @@ export function findSVGAtPoint(x, y) {
     let rect = el.getBoundingClientRect();
 
     if (pointIntersectsRect(x, y, rect)) {
-
       return el;
     }
   }
@@ -70,7 +71,7 @@ export function findAnnotationAtPoint(x, y) {
   // Find a target element within SVG
   for (let i=0, l=elements.length; i<l; i++) {
     let el = elements[i];
-    if (pointIntersectsRect(x, y, getOffsetAnnotationRect(el))) {   
+    if (pointIntersectsRect(x, y, el.getBoundingClientRect())) {   
       return el;
     }
   }
@@ -97,13 +98,15 @@ export function pointIntersectsRect(x, y, rect) {
  * @return {Object} The dimensions of the element
  */
 export function getOffsetAnnotationRect(el) {
-  let rect = getAnnotationRect(el);
+  let rect = el.getBoundingClientRect();
   let { offsetLeft, offsetTop } = getOffset(el);
   return {
-    top: rect.top + offsetTop,
-    left: rect.left + offsetLeft,
-    right: rect.right + offsetLeft,
-    bottom: rect.bottom + offsetTop
+    top: rect.top - offsetTop,
+    left: rect.left - offsetLeft,
+    right: rect.right - offsetLeft,
+    bottom: rect.bottom - offsetTop,
+    width: rect.width,
+    height: rect.height
   };
 }
 
@@ -114,6 +117,7 @@ export function getOffsetAnnotationRect(el) {
  * @return {Object} The dimensions of the element
  */
 export function getAnnotationRect(el) {
+  // findSVGContainer(target)
   let h = 0, w = 0, x = 0, y = 0;
   let rect = el.getBoundingClientRect();
   // TODO this should be calculated somehow
@@ -255,55 +259,128 @@ function applyInverseTransform(p, m) {
   return [xt, yt];
 };
 
-//
-//
-function screenToPdfTranslation(viewport, pt, width, height) {
-  let x = pt[0];
-  let y = pt[1];
 
-  // Modulus 360 on the rotation so that we only
-  // have to worry about four possible values.
-  switch(viewport.rotation % 360) {
-    case 0:
-      y = y - (viewport.height / viewport.scale);
-      break;
-    case 90:
-      y = (viewport.width / viewport.scale) - y - height;
-      break;
-    case 180:
-      x = pt[0] - width;
-      y = (viewport.height / viewport.scale) - y - height;
-      break;
-    case 270:
-      x = pt[0] - width;
-      y = (viewport.width / viewport.scale) - y;
-      break;
-  }
+// Concatenates two transformation matrices together and returns the result.
+function transform(m1, m2) {
+  return [
+    m1[0] * m2[0] + m1[2] * m2[1],
+    m1[1] * m2[0] + m1[3] * m2[1],
+    m1[0] * m2[2] + m1[2] * m2[3],
+    m1[1] * m2[2] + m1[3] * m2[3],
+    m1[0] * m2[4] + m1[2] * m2[5] + m1[4],
+    m1[1] * m2[4] + m1[3] * m2[5] + m1[5]
+  ];
+};
 
-  return { x, y };
-}
+function translate(m, x, y) {
+  return [
+    m[0],
+    m[1],
+    m[2],
+    m[3],
+    m[0] * x + m[2] * y + m[4],
+    m[1] * x + m[3] * y + m[5]
+  ];
+};
+
+
+function rotate(m, angle) {
+  angle = angle * Math.PI / 180;
+
+  var cosValue = Math.cos(angle);
+  var sinValue = Math.sin(angle);
+
+  return [
+    m[0] * cosValue + m[2] * sinValue,
+    m[1] * cosValue + m[3] * sinValue,
+    m[0] * (-sinValue) + m[2] * cosValue,
+    m[1] * (-sinValue) + m[3] * cosValue,
+    m[4],
+    m[5]
+  ];
+};
+
+function scale(m, x, y) {
+  return [
+    m[0] * x,
+    m[1] * x,
+    m[2] * y,
+    m[3] * y,
+    m[4],
+    m[5]
+  ];
+};
+  
+
+function inverseTransform(m) {
+  var d = m[0] * m[3] - m[1] * m[2];
+  return [m[3] / d, -m[1] / d, -m[2] / d, m[0] / d,
+    (m[2] * m[5] - m[4] * m[3]) / d, (m[4] * m[1] - m[5] * m[0]) / d];
+};
+
 
 export function screenToPdf(svg, rect) {
   let result = {};
   let { viewport } = getMetadata(svg);
 
-  var pt1 = [ rect.x, rect.y ];
-  var pt2 = [ rect.x + rect.width, rect.y + rect.height ];
+  let xform = [ 1, 0, 0, 1, 0, 0 ];
+  let trans = getTranslation(viewport);
+  xform = scale(xform, viewport.scale, viewport.scale);
+  xform = rotate(xform, viewport.rotation);
+  xform = translate(xform, trans.x, trans.y);
 
-  pt1 = applyInverseTransform(pt1, viewport.transform)
-  pt2 = applyInverseTransform(pt2, viewport.transform)
+	  var pt1 = [rect.x, rect.y];
+	  var pt2 = [rect.x + rect.width, rect.y + rect.height];
+
+	  pt1 = applyInverseTransform(pt1, xform);
+	  pt2 = applyInverseTransform(pt2, xform);
+
 
   var width = Math.abs(pt2[0] - pt1[0]);
   var height = Math.abs(pt2[1] - pt1[1]);
-  var trans = screenToPdfTranslation(viewport, pt1, width, height);
 
-  result.x = Math.abs(trans.x);
-  result.y = Math.abs(trans.y);
+  //result.x = pt1[0];
+  //result.y = pt1[1];
+
+  switch (viewport.rotation % 360) {
+    case 0:
+      result.x = pt1[0];
+      result.y = pt1[1];
+      break;
+    case 90:
+      result.x = pt1[0];
+      result.y = pt1[1] - height;
+      break;
+    case 180:
+      result.x = pt1[0] - width;
+      result.y = pt1[1] - height;
+      break;
+    case 270:
+      result.x = pt1[0] - width;
+      result.y = pt1[1];
+      break;
+  }
+  
   result.width = width;
   result.height = height;
 
   return result;
 }
+
+export function convertToSvgPoint(pt, svg) {
+  let result = {};
+  let { viewport } = getMetadata(svg);
+
+  let xform = [ 1, 0, 0, 1, 0, 0 ];
+  xform = scale(xform, viewport.scale, viewport.scale);
+  xform = rotate(xform, viewport.rotation);
+
+  let offset = getTranslation(viewport);
+  xform = translate(xform, offset.x, offset.y);
+
+  return applyInverseTransform(pt, xform);
+}
+
 
 /**
  * Adjust scale from rendered scale to a normalized scale (100%).

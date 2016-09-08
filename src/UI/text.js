@@ -79,7 +79,7 @@ function saveText() {
         size: _textSize,
         color: _textColor,
         content: input.value.trim()
-      }, screenToPdf(svg, {
+      }, scaleDown(svg, {
         x: clientX - rect.left,
         y: clientY -  rect.top,
         width: input.offsetWidth,

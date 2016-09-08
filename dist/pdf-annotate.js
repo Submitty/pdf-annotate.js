@@ -83,11 +83,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _StoreAdapter2 = _interopRequireDefault(_StoreAdapter);
 	
-	var _LocalStoreAdapter = __webpack_require__(8);
+	var _LocalStoreAdapter = __webpack_require__(19);
 	
 	var _LocalStoreAdapter2 = _interopRequireDefault(_LocalStoreAdapter);
 	
-	var _render = __webpack_require__(10);
+	var _render = __webpack_require__(21);
 	
 	var _render2 = _interopRequireDefault(_render);
 	
@@ -854,6 +854,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.getOffsetAnnotationRect = getOffsetAnnotationRect;
 	exports.getAnnotationRect = getAnnotationRect;
 	exports.scaleUp = scaleUp;
+	exports.screenToPdf = screenToPdf;
+	exports.convertToSvgPoint = convertToSvgPoint;
 	exports.scaleDown = scaleDown;
 	exports.getScroll = getScroll;
 	exports.getOffset = getOffset;
@@ -864,6 +866,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _createStylesheet = __webpack_require__(7);
 	
 	var _createStylesheet2 = _interopRequireDefault(_createStylesheet);
+	
+	var _appendChild = __webpack_require__(8);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -912,7 +916,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var rect = el.getBoundingClientRect();
 	
 	    if (pointIntersectsRect(x, y, rect)) {
-	
 	      return el;
 	    }
 	  }
@@ -937,7 +940,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // Find a target element within SVG
 	  for (var i = 0, l = elements.length; i < l; i++) {
 	    var el = elements[i];
-	    if (pointIntersectsRect(x, y, getOffsetAnnotationRect(el))) {
+	    if (pointIntersectsRect(x, y, el.getBoundingClientRect())) {
 	      return el;
 	    }
 	  }
@@ -964,7 +967,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @return {Object} The dimensions of the element
 	 */
 	function getOffsetAnnotationRect(el) {
-	  var rect = getAnnotationRect(el);
+	  var rect = el.getBoundingClientRect();
 	
 	  var _getOffset = getOffset(el);
 	
@@ -972,10 +975,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var offsetTop = _getOffset.offsetTop;
 	
 	  return {
-	    top: rect.top + offsetTop,
-	    left: rect.left + offsetLeft,
-	    right: rect.right + offsetLeft,
-	    bottom: rect.bottom + offsetTop
+	    top: rect.top - offsetTop,
+	    left: rect.left - offsetLeft,
+	    right: rect.right - offsetLeft,
+	    bottom: rect.bottom - offsetTop,
+	    width: rect.width,
+	    height: rect.height
 	  };
 	}
 	
@@ -986,6 +991,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @return {Object} The dimensions of the element
 	 */
 	function getAnnotationRect(el) {
+	  // findSVGContainer(target)
 	  var h = 0,
 	      w = 0,
 	      x = 0,
@@ -1158,6 +1164,111 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return result;
 	}
 	
+	// Transform point by matrix inverse
+	//
+	function applyInverseTransform(p, m) {
+	  var d = m[0] * m[3] - m[1] * m[2];
+	  var xt = (p[0] * m[3] - p[1] * m[2] + m[2] * m[5] - m[4] * m[3]) / d;
+	  var yt = (-p[0] * m[1] + p[1] * m[0] + m[4] * m[1] - m[5] * m[0]) / d;
+	  return [xt, yt];
+	};
+	
+	// Concatenates two transformation matrices together and returns the result.
+	function transform(m1, m2) {
+	  return [m1[0] * m2[0] + m1[2] * m2[1], m1[1] * m2[0] + m1[3] * m2[1], m1[0] * m2[2] + m1[2] * m2[3], m1[1] * m2[2] + m1[3] * m2[3], m1[0] * m2[4] + m1[2] * m2[5] + m1[4], m1[1] * m2[4] + m1[3] * m2[5] + m1[5]];
+	};
+	
+	function translate(m, x, y) {
+	  return [m[0], m[1], m[2], m[3], m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
+	};
+	
+	function rotate(m, angle) {
+	  angle = angle * Math.PI / 180;
+	
+	  var cosValue = Math.cos(angle);
+	  var sinValue = Math.sin(angle);
+	
+	  return [m[0] * cosValue + m[2] * sinValue, m[1] * cosValue + m[3] * sinValue, m[0] * -sinValue + m[2] * cosValue, m[1] * -sinValue + m[3] * cosValue, m[4], m[5]];
+	};
+	
+	function scale(m, x, y) {
+	  return [m[0] * x, m[1] * x, m[2] * y, m[3] * y, m[4], m[5]];
+	};
+	
+	function inverseTransform(m) {
+	  var d = m[0] * m[3] - m[1] * m[2];
+	  return [m[3] / d, -m[1] / d, -m[2] / d, m[0] / d, (m[2] * m[5] - m[4] * m[3]) / d, (m[4] * m[1] - m[5] * m[0]) / d];
+	};
+	
+	function screenToPdf(svg, rect) {
+	  var result = {};
+	
+	  var _getMetadata2 = getMetadata(svg);
+	
+	  var viewport = _getMetadata2.viewport;
+	
+	
+	  var xform = [1, 0, 0, 1, 0, 0];
+	  var trans = (0, _appendChild.getTranslation)(viewport);
+	  xform = scale(xform, viewport.scale, viewport.scale);
+	  xform = rotate(xform, viewport.rotation);
+	  xform = translate(xform, trans.x, trans.y);
+	
+	  var pt1 = [rect.x, rect.y];
+	  var pt2 = [rect.x + rect.width, rect.y + rect.height];
+	
+	  pt1 = applyInverseTransform(pt1, xform);
+	  pt2 = applyInverseTransform(pt2, xform);
+	
+	  var width = Math.abs(pt2[0] - pt1[0]);
+	  var height = Math.abs(pt2[1] - pt1[1]);
+	
+	  //result.x = pt1[0];
+	  //result.y = pt1[1];
+	
+	  switch (viewport.rotation % 360) {
+	    case 0:
+	      result.x = pt1[0];
+	      result.y = pt1[1];
+	      break;
+	    case 90:
+	      result.x = pt1[0];
+	      result.y = pt1[1] - height;
+	      break;
+	    case 180:
+	      result.x = pt1[0] - width;
+	      result.y = pt1[1] - height;
+	      break;
+	    case 270:
+	      result.x = pt1[0] - width;
+	      result.y = pt1[1];
+	      break;
+	  }
+	
+	  result.width = width;
+	  result.height = height;
+	
+	  return result;
+	}
+	
+	function convertToSvgPoint(pt, svg) {
+	  var result = {};
+	
+	  var _getMetadata3 = getMetadata(svg);
+	
+	  var viewport = _getMetadata3.viewport;
+	
+	
+	  var xform = [1, 0, 0, 1, 0, 0];
+	  xform = scale(xform, viewport.scale, viewport.scale);
+	  xform = rotate(xform, viewport.rotation);
+	
+	  var offset = (0, _appendChild.getTranslation)(viewport);
+	  xform = translate(xform, offset.x, offset.y);
+	
+	  return applyInverseTransform(pt, xform);
+	}
+	
 	/**
 	 * Adjust scale from rendered scale to a normalized scale (100%).
 	 *
@@ -1168,9 +1279,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	function scaleDown(svg, rect) {
 	  var result = {};
 	
-	  var _getMetadata2 = getMetadata(svg);
+	  var _getMetadata4 = getMetadata(svg);
 	
-	  var viewport = _getMetadata2.viewport;
+	  var viewport = _getMetadata4.viewport;
 	
 	
 	  Object.keys(rect).forEach(function (key) {
@@ -1300,296 +1411,39 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	
-	var _uuid = __webpack_require__(9);
-	
-	var _uuid2 = _interopRequireDefault(_uuid);
-	
-	var _StoreAdapter2 = __webpack_require__(2);
-	
-	var _StoreAdapter3 = _interopRequireDefault(_StoreAdapter2);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	// StoreAdapter for working with localStorage
-	// This is ideal for testing, examples, and prototyping
-	var LocalStoreAdapter = function (_StoreAdapter) {
-	  _inherits(LocalStoreAdapter, _StoreAdapter);
-	
-	  function LocalStoreAdapter() {
-	    _classCallCheck(this, LocalStoreAdapter);
-	
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(LocalStoreAdapter).call(this, {
-	      getAnnotations: function getAnnotations(documentId, pageNumber) {
-	        return new Promise(function (resolve, reject) {
-	          var annotations = _getAnnotations(documentId).filter(function (i) {
-	            return i.page === pageNumber && i.class === 'Annotation';
-	          });
-	
-	          resolve({
-	            documentId: documentId,
-	            pageNumber: pageNumber,
-	            annotations: annotations
-	          });
-	        });
-	      },
-	      getAnnotation: function getAnnotation(documentId, annotationId) {
-	        return Promise.resolve(_getAnnotations(documentId)[findAnnotation(documentId, annotationId)]);
-	      },
-	      addAnnotation: function addAnnotation(documentId, pageNumber, annotation) {
-	        return new Promise(function (resolve, reject) {
-	          annotation.class = 'Annotation';
-	          annotation.uuid = (0, _uuid2.default)();
-	          annotation.page = pageNumber;
-	
-	          var annotations = _getAnnotations(documentId);
-	          annotations.push(annotation);
-	          updateAnnotations(documentId, annotations);
-	
-	          resolve(annotation);
-	        });
-	      },
-	      editAnnotation: function editAnnotation(documentId, annotationId, annotation) {
-	        return new Promise(function (resolve, reject) {
-	          var annotations = _getAnnotations(documentId);
-	          annotations[findAnnotation(documentId, annotationId)] = annotation;
-	          updateAnnotations(documentId, annotations);
-	
-	          resolve(annotation);
-	        });
-	      },
-	      deleteAnnotation: function deleteAnnotation(documentId, annotationId) {
-	        return new Promise(function (resolve, reject) {
-	          var index = findAnnotation(documentId, annotationId);
-	          if (index > -1) {
-	            var annotations = _getAnnotations(documentId);
-	            annotations.splice(index, 1);
-	            updateAnnotations(documentId, annotations);
-	          }
-	
-	          resolve(true);
-	        });
-	      },
-	      getComments: function getComments(documentId, annotationId) {
-	        return new Promise(function (resolve, reject) {
-	          resolve(_getAnnotations(documentId).filter(function (i) {
-	            return i.class === 'Comment' && i.annotation === annotationId;
-	          }));
-	        });
-	      },
-	      addComment: function addComment(documentId, annotationId, content) {
-	        return new Promise(function (resolve, reject) {
-	          var comment = {
-	            class: 'Comment',
-	            uuid: (0, _uuid2.default)(),
-	            annotation: annotationId,
-	            content: content
-	          };
-	
-	          var annotations = _getAnnotations(documentId);
-	          annotations.push(comment);
-	          updateAnnotations(documentId, annotations);
-	
-	          resolve(comment);
-	        });
-	      },
-	      deleteComment: function deleteComment(documentId, commentId) {
-	        return new Promise(function (resolve, reject) {
-	          _getAnnotations(documentId);
-	          var index = -1;
-	          var annotations = _getAnnotations(documentId);
-	          for (var i = 0, l = annotations.length; i < l; i++) {
-	            if (annotations[i].uuid === commentId) {
-	              index = i;
-	              break;
-	            }
-	          }
-	
-	          if (index > -1) {
-	            annotations.splice(index, 1);
-	            updateAnnotations(documentId, annotations);
-	          }
-	
-	          resolve(true);
-	        });
-	      }
-	    }));
-	  }
-	
-	  return LocalStoreAdapter;
-	}(_StoreAdapter3.default);
-	
-	exports.default = LocalStoreAdapter;
-	
-	
-	function _getAnnotations(documentId) {
-	  return JSON.parse(localStorage.getItem(documentId + '/annotations')) || [];
-	}
-	
-	function updateAnnotations(documentId, annotations) {
-	  localStorage.setItem(documentId + '/annotations', JSON.stringify(annotations));
-	}
-	
-	function findAnnotation(documentId, annotationId) {
-	  var index = -1;
-	  var annotations = _getAnnotations(documentId);
-	  for (var i = 0, l = annotations.length; i < l; i++) {
-	    if (annotations[i].uuid === annotationId) {
-	      index = i;
-	      break;
-	    }
-	  }
-	  return index;
-	}
-	module.exports = exports['default'];
-
-/***/ },
-/* 9 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = uuid;
-	var REGEXP = /[xy]/g;
-	var PATTERN = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
-	
-	function replacement(c) {
-	  var r = Math.random() * 16 | 0;
-	  var v = c == 'x' ? r : r & 0x3 | 0x8;
-	  return v.toString(16);
-	}
-	
-	/**
-	 * Generate a univierally unique identifier
-	 *
-	 * @return {String}
-	 */
-	function uuid() {
-	  return PATTERN.replace(REGEXP, replacement);
-	}
-	module.exports = exports['default'];
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = render;
-	
-	var _PDFJSAnnotate = __webpack_require__(1);
-	
-	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
-	
-	var _appendChild = __webpack_require__(11);
-	
-	var _renderScreenReaderHints = __webpack_require__(22);
-	
-	var _renderScreenReaderHints2 = _interopRequireDefault(_renderScreenReaderHints);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	/**
-	 * Render the response from PDFJSAnnotate.getStoreAdapter().getAnnotations to SVG
-	 *
-	 * @param {SVGElement} svg The SVG element to render the annotations to
-	 * @param {Object} viewport The page viewport data
-	 * @param {Object} data The response from PDFJSAnnotate.getStoreAdapter().getAnnotations
-	 * @return {Promise} Settled once rendering has completed
-	 *  A settled Promise will be either:
-	 *    - fulfilled: SVGElement
-	 *    - rejected: Error
-	 */
-	function render(svg, viewport, data) {
-	  return new Promise(function (resolve, reject) {
-	    // Reset the content of the SVG
-	    svg.setAttribute('data-pdf-annotate-container', true);
-	    svg.setAttribute('data-pdf-annotate-viewport', JSON.stringify(viewport));
-	    svg.removeAttribute('data-pdf-annotate-document');
-	    svg.removeAttribute('data-pdf-annotate-page');
-	
-	    // If there's no data nothing can be done
-	    if (!data) {
-	      svg.innerHTML = '';
-	      return resolve(svg);
-	    }
-	
-	    svg.setAttribute('data-pdf-annotate-document', data.documentId);
-	    svg.setAttribute('data-pdf-annotate-page', data.pageNumber);
-	
-	    // Make sure annotations is an array
-	    if (!Array.isArray(data.annotations) || data.annotations.length === 0) {
-	      return resolve(svg);
-	    }
-	
-	    // Append or transform annotation to svg
-	    data.annotations.forEach(function (a) {
-	      var node = svg.querySelector('[data-pdf-annotate-id="' + a.uuid + '"]');
-	      if (node) {
-	        (0, _appendChild.transformChild)(svg, node, viewport);
-	      } else {
-	        (0, _appendChild.appendChild)(svg, a, viewport);
-	      }
-	    });
-	
-	    resolve(svg);
-	  });
-	}
-	module.exports = exports['default'];
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
+	exports.getTranslation = getTranslation;
 	exports.appendChild = appendChild;
 	exports.transformChild = transformChild;
 	
-	var _objectAssign = __webpack_require__(12);
+	var _objectAssign = __webpack_require__(9);
 	
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 	
-	var _renderLine = __webpack_require__(13);
+	var _renderLine = __webpack_require__(10);
 	
 	var _renderLine2 = _interopRequireDefault(_renderLine);
 	
-	var _renderPath = __webpack_require__(16);
+	var _renderPath = __webpack_require__(13);
 	
 	var _renderPath2 = _interopRequireDefault(_renderPath);
 	
-	var _renderPoint = __webpack_require__(17);
+	var _renderPoint = __webpack_require__(14);
 	
 	var _renderPoint2 = _interopRequireDefault(_renderPoint);
 	
-	var _renderRect = __webpack_require__(18);
+	var _renderRect = __webpack_require__(15);
 	
 	var _renderRect2 = _interopRequireDefault(_renderRect);
 	
-	var _renderText = __webpack_require__(19);
+	var _renderText = __webpack_require__(16);
 	
 	var _renderText2 = _interopRequireDefault(_renderText);
 	
-	var _renderCircle = __webpack_require__(20);
+	var _renderCircle = __webpack_require__(17);
 	
 	var _renderCircle2 = _interopRequireDefault(_renderCircle);
 	
-	var _renderArrow = __webpack_require__(21);
+	var _renderArrow = __webpack_require__(18);
 	
 	var _renderArrow2 = _interopRequireDefault(_renderArrow);
 	
@@ -1768,6 +1622,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = {
 	  /**
+	   * Get the x/y translation to be used for transforming the annotations
+	   * based on the rotation of the viewport.
+	   */
+	  getTranslation: getTranslation,
+	
+	  /**
 	   * Append an SVG child for an annotation
 	   */
 	  appendChild: appendChild,
@@ -1779,7 +1639,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 12 */
+/* 9 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1868,7 +1728,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 13 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1878,11 +1738,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = renderLine;
 	
-	var _setAttributes = __webpack_require__(14);
+	var _setAttributes = __webpack_require__(11);
 	
 	var _setAttributes2 = _interopRequireDefault(_setAttributes);
 	
-	var _normalizeColor = __webpack_require__(15);
+	var _normalizeColor = __webpack_require__(12);
 	
 	var _normalizeColor2 = _interopRequireDefault(_normalizeColor);
 	
@@ -1920,7 +1780,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 14 */
+/* 11 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1957,7 +1817,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 15 */
+/* 12 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1983,7 +1843,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 16 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1993,11 +1853,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = renderPath;
 	
-	var _setAttributes = __webpack_require__(14);
+	var _setAttributes = __webpack_require__(11);
 	
 	var _setAttributes2 = _interopRequireDefault(_setAttributes);
 	
-	var _normalizeColor = __webpack_require__(15);
+	var _normalizeColor = __webpack_require__(12);
 	
 	var _normalizeColor2 = _interopRequireDefault(_normalizeColor);
 	
@@ -2077,7 +1937,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 17 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2087,7 +1947,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = renderPoint;
 	
-	var _setAttributes = __webpack_require__(14);
+	var _setAttributes = __webpack_require__(11);
 	
 	var _setAttributes2 = _interopRequireDefault(_setAttributes);
 	
@@ -2147,7 +2007,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 18 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2160,11 +2020,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = renderRect;
 	
-	var _setAttributes = __webpack_require__(14);
+	var _setAttributes = __webpack_require__(11);
 	
 	var _setAttributes2 = _interopRequireDefault(_setAttributes);
 	
-	var _normalizeColor = __webpack_require__(15);
+	var _normalizeColor = __webpack_require__(12);
 	
 	var _normalizeColor2 = _interopRequireDefault(_normalizeColor);
 	
@@ -2222,7 +2082,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 19 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2232,11 +2092,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = renderText;
 	
-	var _setAttributes = __webpack_require__(14);
+	var _setAttributes = __webpack_require__(11);
 	
 	var _setAttributes2 = _interopRequireDefault(_setAttributes);
 	
-	var _normalizeColor = __webpack_require__(15);
+	var _normalizeColor = __webpack_require__(12);
 	
 	var _normalizeColor2 = _interopRequireDefault(_normalizeColor);
 	
@@ -2265,7 +2125,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 20 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2273,16 +2133,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-	
 	exports.default = renderCircle;
 	
-	var _setAttributes = __webpack_require__(14);
+	var _setAttributes = __webpack_require__(11);
 	
 	var _setAttributes2 = _interopRequireDefault(_setAttributes);
 	
-	var _normalizeColor = __webpack_require__(15);
+	var _normalizeColor = __webpack_require__(12);
 	
 	var _normalizeColor2 = _interopRequireDefault(_normalizeColor);
 	
@@ -2290,52 +2147,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	/**
 	 * Create SVGRectElements from an annotation definition.
-	 * This is used for anntations of type `area` and `highlight`.
+	 * This is used for annotations of type `circle`.
 	 *
 	 * @param {Object} a The annotation definition
-	 * @return {SVGGElement|SVGRectElement} A group of all rects to be rendered
+	 * @return {SVGGElement|SVGCircleElement} A circle to be rendered
 	 */
 	function renderCircle(a) {
-	  if (a.type === 'highlight') {
-	    var _ret = function () {
-	      var group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-	      (0, _setAttributes2.default)(group, {
-	        fill: (0, _normalizeColor2.default)(a.color || '#ff0'),
-	        fillOpacity: 0.2
-	      });
+	  var circle = createCircle(a);
 	
-	      a.rectangles.forEach(function (r) {
-	        group.appendChild(createCircle(r));
-	      });
+	  if (a.type === 'circle') (0, _setAttributes2.default)(circle, {
+	    stroke: (0, _normalizeColor2.default)(a.color || '#f00'),
+	    fill: 'none',
+	    'stroke-width': 5
+	  });
+	  if (a.type === 'emptycircle') (0, _setAttributes2.default)(circle, {
+	    stroke: (0, _normalizeColor2.default)(a.color || '#f00'),
+	    fill: 'none',
+	    'stroke-width': 2
+	  });
 	
-	      return {
-	        v: group
-	      };
-	    }();
+	  if (a.type === 'fillcircle') (0, _setAttributes2.default)(circle, {
+	    stroke: (0, _normalizeColor2.default)(a.color || '#f00'),
+	    fill: '#f00',
+	    'stroke-width': 5
+	  });
 	
-	    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
-	  } else {
-	    var circle = createCircle(a);
-	
-	    if (a.type === 'circle') (0, _setAttributes2.default)(circle, {
-	      stroke: (0, _normalizeColor2.default)(a.color || '#f00'),
-	      fill: 'none',
-	      'stroke-width': 5
-	    });
-	    if (a.type === 'emptycircle') (0, _setAttributes2.default)(circle, {
-	      stroke: (0, _normalizeColor2.default)(a.color || '#f00'),
-	      fill: 'none',
-	      'stroke-width': 2
-	    });
-	
-	    if (a.type === 'fillcircle') (0, _setAttributes2.default)(circle, {
-	      stroke: (0, _normalizeColor2.default)(a.color || '#f00'),
-	      fill: '#f00',
-	      'stroke-width': 5
-	    });
-	
-	    return circle;
-	  }
+	  return circle;
 	}
 	
 	function createCircle(r) {
@@ -2351,7 +2188,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 21 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2361,11 +2198,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = renderArrow;
 	
-	var _setAttributes = __webpack_require__(14);
+	var _setAttributes = __webpack_require__(11);
 	
 	var _setAttributes2 = _interopRequireDefault(_setAttributes);
 	
-	var _normalizeColor = __webpack_require__(15);
+	var _normalizeColor = __webpack_require__(12);
 	
 	var _normalizeColor2 = _interopRequireDefault(_normalizeColor);
 	
@@ -2440,6 +2277,264 @@ return /******/ (function(modules) { // webpackBootstrap
 	  });
 	
 	  return arrow;
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _uuid = __webpack_require__(20);
+	
+	var _uuid2 = _interopRequireDefault(_uuid);
+	
+	var _StoreAdapter2 = __webpack_require__(2);
+	
+	var _StoreAdapter3 = _interopRequireDefault(_StoreAdapter2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	// StoreAdapter for working with localStorage
+	// This is ideal for testing, examples, and prototyping
+	var LocalStoreAdapter = function (_StoreAdapter) {
+	  _inherits(LocalStoreAdapter, _StoreAdapter);
+	
+	  function LocalStoreAdapter() {
+	    _classCallCheck(this, LocalStoreAdapter);
+	
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(LocalStoreAdapter).call(this, {
+	      getAnnotations: function getAnnotations(documentId, pageNumber) {
+	        return new Promise(function (resolve, reject) {
+	          var annotations = _getAnnotations(documentId).filter(function (i) {
+	            return i.page === pageNumber && i.class === 'Annotation';
+	          });
+	
+	          resolve({
+	            documentId: documentId,
+	            pageNumber: pageNumber,
+	            annotations: annotations
+	          });
+	        });
+	      },
+	      getAnnotation: function getAnnotation(documentId, annotationId) {
+	        return Promise.resolve(_getAnnotations(documentId)[findAnnotation(documentId, annotationId)]);
+	      },
+	      addAnnotation: function addAnnotation(documentId, pageNumber, annotation) {
+	        return new Promise(function (resolve, reject) {
+	          annotation.class = 'Annotation';
+	          annotation.uuid = (0, _uuid2.default)();
+	          annotation.page = pageNumber;
+	
+	          var annotations = _getAnnotations(documentId);
+	          annotations.push(annotation);
+	          updateAnnotations(documentId, annotations);
+	
+	          resolve(annotation);
+	        });
+	      },
+	      editAnnotation: function editAnnotation(documentId, annotationId, annotation) {
+	        return new Promise(function (resolve, reject) {
+	          var annotations = _getAnnotations(documentId);
+	          annotations[findAnnotation(documentId, annotationId)] = annotation;
+	          updateAnnotations(documentId, annotations);
+	
+	          resolve(annotation);
+	        });
+	      },
+	      deleteAnnotation: function deleteAnnotation(documentId, annotationId) {
+	        return new Promise(function (resolve, reject) {
+	          var index = findAnnotation(documentId, annotationId);
+	          if (index > -1) {
+	            var annotations = _getAnnotations(documentId);
+	            annotations.splice(index, 1);
+	            updateAnnotations(documentId, annotations);
+	          }
+	
+	          resolve(true);
+	        });
+	      },
+	      getComments: function getComments(documentId, annotationId) {
+	        return new Promise(function (resolve, reject) {
+	          resolve(_getAnnotations(documentId).filter(function (i) {
+	            return i.class === 'Comment' && i.annotation === annotationId;
+	          }));
+	        });
+	      },
+	      addComment: function addComment(documentId, annotationId, content) {
+	        return new Promise(function (resolve, reject) {
+	          var comment = {
+	            class: 'Comment',
+	            uuid: (0, _uuid2.default)(),
+	            annotation: annotationId,
+	            content: content
+	          };
+	
+	          var annotations = _getAnnotations(documentId);
+	          annotations.push(comment);
+	          updateAnnotations(documentId, annotations);
+	
+	          resolve(comment);
+	        });
+	      },
+	      deleteComment: function deleteComment(documentId, commentId) {
+	        return new Promise(function (resolve, reject) {
+	          _getAnnotations(documentId);
+	          var index = -1;
+	          var annotations = _getAnnotations(documentId);
+	          for (var i = 0, l = annotations.length; i < l; i++) {
+	            if (annotations[i].uuid === commentId) {
+	              index = i;
+	              break;
+	            }
+	          }
+	
+	          if (index > -1) {
+	            annotations.splice(index, 1);
+	            updateAnnotations(documentId, annotations);
+	          }
+	
+	          resolve(true);
+	        });
+	      }
+	    }));
+	  }
+	
+	  return LocalStoreAdapter;
+	}(_StoreAdapter3.default);
+	
+	exports.default = LocalStoreAdapter;
+	
+	
+	function _getAnnotations(documentId) {
+	  return JSON.parse(localStorage.getItem(documentId + '/annotations')) || [];
+	}
+	
+	function updateAnnotations(documentId, annotations) {
+	  localStorage.setItem(documentId + '/annotations', JSON.stringify(annotations));
+	}
+	
+	function findAnnotation(documentId, annotationId) {
+	  var index = -1;
+	  var annotations = _getAnnotations(documentId);
+	  for (var i = 0, l = annotations.length; i < l; i++) {
+	    if (annotations[i].uuid === annotationId) {
+	      index = i;
+	      break;
+	    }
+	  }
+	  return index;
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 20 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = uuid;
+	var REGEXP = /[xy]/g;
+	var PATTERN = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
+	
+	function replacement(c) {
+	  var r = Math.random() * 16 | 0;
+	  var v = c == 'x' ? r : r & 0x3 | 0x8;
+	  return v.toString(16);
+	}
+	
+	/**
+	 * Generate a univierally unique identifier
+	 *
+	 * @return {String}
+	 */
+	function uuid() {
+	  return PATTERN.replace(REGEXP, replacement);
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = render;
+	
+	var _PDFJSAnnotate = __webpack_require__(1);
+	
+	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
+	
+	var _appendChild = __webpack_require__(8);
+	
+	var _renderScreenReaderHints = __webpack_require__(22);
+	
+	var _renderScreenReaderHints2 = _interopRequireDefault(_renderScreenReaderHints);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	/**
+	 * Render the response from PDFJSAnnotate.getStoreAdapter().getAnnotations to SVG
+	 *
+	 * @param {SVGElement} svg The SVG element to render the annotations to
+	 * @param {Object} viewport The page viewport data
+	 * @param {Object} data The response from PDFJSAnnotate.getStoreAdapter().getAnnotations
+	 * @return {Promise} Settled once rendering has completed
+	 *  A settled Promise will be either:
+	 *    - fulfilled: SVGElement
+	 *    - rejected: Error
+	 */
+	function render(svg, viewport, data) {
+	  return new Promise(function (resolve, reject) {
+	    // Reset the content of the SVG
+	    svg.setAttribute('data-pdf-annotate-container', true);
+	    svg.setAttribute('data-pdf-annotate-viewport', JSON.stringify(viewport));
+	    svg.removeAttribute('data-pdf-annotate-document');
+	    svg.removeAttribute('data-pdf-annotate-page');
+	
+	    // If there's no data nothing can be done
+	    if (!data) {
+	      svg.innerHTML = '';
+	      return resolve(svg);
+	    }
+	
+	    svg.setAttribute('data-pdf-annotate-document', data.documentId);
+	    svg.setAttribute('data-pdf-annotate-page', data.pageNumber);
+	
+	    // Make sure annotations is an array
+	    if (!Array.isArray(data.annotations) || data.annotations.length === 0) {
+	      return resolve(svg);
+	    }
+	
+	    // Append or transform annotation to svg
+	    data.annotations.forEach(function (a) {
+	      var node = svg.querySelector('[data-pdf-annotate-id="' + a.uuid + '"]');
+	      if (node) {
+	        (0, _appendChild.transformChild)(svg, node, viewport);
+	      } else {
+	        (0, _appendChild.appendChild)(svg, a, viewport);
+	      }
+	    });
+	
+	    resolve(svg);
+	  });
 	}
 	module.exports = exports['default'];
 
@@ -3094,11 +3189,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _rect = __webpack_require__(36);
 	
-	var _circle = __webpack_require__(37);
+	var _text = __webpack_require__(37);
 	
-	var _text = __webpack_require__(38);
-	
-	var _page = __webpack_require__(39);
+	var _page = __webpack_require__(38);
 	
 	exports.default = {
 	  addEventListener: _event.addEventListener, removeEventListener: _event.removeEventListener, fireEvent: _event.fireEvent,
@@ -3106,7 +3199,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  disablePen: _pen.disablePen, enablePen: _pen.enablePen, setPen: _pen.setPen,
 	  disablePoint: _point.disablePoint, enablePoint: _point.enablePoint,
 	  disableRect: _rect.disableRect, enableRect: _rect.enableRect,
-	  disableCirle: _circle.disableCirle, enableCircle: _circle.enableCircle,
 	  disableArrow: _arrow.disableArrow, enableArrow: _arrow.enableArrow,
 	  disableText: _text.disableText, enableText: _text.enableText, setText: _text.setText,
 	  createPage: _page.createPage, renderPage: _page.renderPage
@@ -3136,7 +3228,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _config2 = _interopRequireDefault(_config);
 	
-	var _appendChild = __webpack_require__(11);
+	var _appendChild = __webpack_require__(8);
 	
 	var _event = __webpack_require__(4);
 	
@@ -3167,7 +3259,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var anchor = document.createElement('a');
 	  var parentNode = (0, _utils.findSVGContainer)(target).parentNode;
 	  var id = target.getAttribute('data-pdf-annotate-id');
-	  var rect = (0, _utils.getAnnotationRect)(target);
+	  var rect = (0, _utils.getOffsetAnnotationRect)(target);
 	  var styleLeft = rect.left - OVERLAY_BORDER_SIZE;
 	  var styleTop = rect.top - OVERLAY_BORDER_SIZE;
 	
@@ -3377,28 +3469,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  overlay.querySelector('a').style.display = '';
 	
-	  function getDelta(propX, propY) {
-	    return calcDelta(parseInt(target[0].getAttribute(propX), 10), parseInt(target[0].getAttribute(propY), 10));
-	  }
-	
-	  function calcDelta(x, y) {
-	    return {
-	      deltaX: OVERLAY_BORDER_SIZE + (0, _utils.scaleDown)(svg, { x: overlay.offsetLeft }).x - x,
-	      deltaY: OVERLAY_BORDER_SIZE + (0, _utils.scaleDown)(svg, { y: overlay.offsetTop }).y - y
-	    };
-	  }
-	
 	  _PDFJSAnnotate2.default.getStoreAdapter().getAnnotation(documentId, annotationId).then(function (annotation) {
-	    if (['area', 'highlight', 'point', 'textbox'].indexOf(type) > -1) {
+	    var attribX = 'x';
+	    var attribY = 'y';
+	    if (['circle', 'fillcircle', 'emptycircle'].indexOf(type) > -1) {
+	      attribX = 'cx';
+	      attribY = 'cy';
+	    }
+	    if (['area', 'highlight', 'point', 'textbox', 'circle', 'fillcircle', 'emptycircle'].indexOf(type) > -1) {
 	      (function () {
-	        var _getDelta = getDelta('x', 'y');
-	
-	        var deltaX = _getDelta.deltaX;
-	        var deltaY = _getDelta.deltaY;
+	        var modelStart = (0, _utils.convertToSvgPoint)([dragStartX, dragStartY], svg);
+	        var modelEnd = (0, _utils.convertToSvgPoint)([overlay.offsetLeft, overlay.offsetTop], svg);
+	        var modelDelta = {
+	          x: modelEnd[0] - modelStart[0],
+	          y: modelEnd[1] - modelStart[1]
+	        };
 	
 	        [].concat(_toConsumableArray(target)).forEach(function (t, i) {
-	          if (deltaY !== 0) {
-	            var modelY = parseInt(t.getAttribute('y'), 10) + deltaY;
+	          var modelX = parseInt(t.getAttribute(attribX), 10);
+	          var modelY = parseInt(t.getAttribute(attribY), 10);
+	          if (modelDelta.y !== 0) {
+	            modelY = modelY + modelDelta.y;
 	            var viewY = modelY;
 	
 	            if (type === 'textbox') {
@@ -3409,26 +3500,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	              viewY = (0, _utils.scaleUp)(svg, { viewY: viewY }).viewY;
 	            }
 	
-	            t.setAttribute('y', viewY);
+	            t.setAttribute(attribY, viewY);
 	            if (annotation.rectangles) {
 	              annotation.rectangles[i].y = modelY;
-	            } else if (annotation.y) {
-	              annotation.y = modelY;
+	            } else if (annotation[attribY]) {
+	              annotation[attribY] = modelY;
 	            }
 	          }
-	          if (deltaX !== 0) {
-	            var modelX = parseInt(t.getAttribute('x'), 10) + deltaX;
+	          if (modelDelta.x !== 0) {
+	            modelX = modelX + modelDelta.x;
 	            var viewX = modelX;
 	
 	            if (type === 'point') {
 	              viewX = (0, _utils.scaleUp)(svg, { viewX: viewX }).viewX;
 	            }
 	
-	            t.setAttribute('x', viewX);
+	            t.setAttribute(attribX, viewX);
 	            if (annotation.rectangles) {
 	              annotation.rectangles[i].x = modelX;
-	            } else if (annotation.x) {
-	              annotation.x = modelX;
+	            } else if (annotation[attribX]) {
+	              annotation[attribX] = modelX;
 	            }
 	          }
 	        });
@@ -3479,56 +3570,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        target[0].parentNode.removeChild(target[0]);
 	        (0, _appendChild.appendChild)(svg, annotation);
-	      })();
-	    } else if (type === 'circle' || type === 'fillcircle' || type === 'emptycircle') {
-	      (function () {
-	        //boyu adding for handle transform the circle annotation
-	
-	        var _getDelta2 = getDelta('cx', 'cy');
-	
-	        var deltaX = _getDelta2.deltaX;
-	        var deltaY = _getDelta2.deltaY;
-	
-	        [].concat(_toConsumableArray(target)).forEach(function (t, i) {
-	          if (deltaY !== 0) {
-	
-	            var halfRadius = parseInt(t.getAttribute('r'), 10) / 2;
-	
-	            var modelY = parseInt(t.getAttribute('cy'), 10) + deltaY + halfRadius;
-	            var viewY = modelY;
-	
-	            if (type === 'textbox') {
-	              viewY += annotation.size;
-	            }
-	
-	            if (type === 'point') {
-	              viewY = (0, _utils.scaleUp)(svg, { viewY: viewY }).viewY;
-	            }
-	
-	            t.setAttribute('cy', viewY);
-	            if (annotation.rectangles) {
-	              annotation.rectangles[i].cy = modelY;
-	            } else if (annotation.cy) {
-	              annotation.cy = modelY;
-	            }
-	          }
-	          if (deltaX !== 0) {
-	            var _halfRadius = parseInt(t.getAttribute('r'), 10) / 2;
-	            var modelX = parseInt(t.getAttribute('cx'), 10) + deltaX + _halfRadius;
-	            var viewX = modelX;
-	
-	            if (type === 'point') {
-	              viewX = (0, _utils.scaleUp)(svg, { viewX: viewX }).viewX;
-	            }
-	
-	            t.setAttribute('cx', viewX);
-	            if (annotation.rectangles) {
-	              annotation.rectangles[i].cx = modelX;
-	            } else if (annotation.cx) {
-	              annotation.cx = modelX;
-	            }
-	          }
-	        });
 	      })();
 	    } else if (type === 'arrow') {
 	      (function () {
@@ -3632,7 +3673,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _appendChild = __webpack_require__(11);
+	var _appendChild = __webpack_require__(8);
 	
 	var _utils = __webpack_require__(6);
 	
@@ -3806,7 +3847,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _appendChild = __webpack_require__(11);
+	var _appendChild = __webpack_require__(8);
 	
 	var _utils = __webpack_require__(6);
 	
@@ -3982,7 +4023,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _appendChild = __webpack_require__(11);
+	var _appendChild = __webpack_require__(8);
 	
 	var _utils = __webpack_require__(6);
 	
@@ -4125,8 +4166,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.enableRect = enableRect;
 	exports.disableRect = disableRect;
-	exports.enableCircle = enableCircle;
-	exports.disableCircle = disableCircle;
 	
 	var _PDFJSAnnotate = __webpack_require__(1);
 	
@@ -4136,7 +4175,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _config2 = _interopRequireDefault(_config);
 	
-	var _appendChild = __webpack_require__(11);
+	var _appendChild = __webpack_require__(8);
 	
 	var _utils = __webpack_require__(6);
 	
@@ -4304,7 +4343,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        offset = r.height / 2;
 	      }
 	
-	      return (0, _utils.scaleDown)(svg, {
+	      return (0, _utils.screenToPdf)(svg, {
 	        y: r.top + offset - boundingRect.top,
 	        x: r.left - boundingRect.left,
 	        width: r.width,
@@ -4380,298 +4419,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  document.removeEventListener('mousedown', handleDocumentMousedown);
 	  document.removeEventListener('keyup', handleDocumentKeyup);
 	}
-	
-	/**
-	 * Enable circle behavior by boyu
-	 */
-	function enableCircle(type) {
-	  _type = type;
-	
-	  if (_enabled) {
-	    return;
-	  }
-	
-	  _enabled = true;
-	  document.addEventListener('mouseup', handleDocumentMouseup);
-	  document.addEventListener('mousedown', handleDocumentMousedown);
-	  document.addEventListener('keyup', handleDocumentKeyup);
-	}
-	
-	/**
-	 * Disable circle behavior by boyu
-	 */
-	function disableCircle() {
-	  if (!_enabled) {
-	    return;
-	  }
-	
-	  _enabled = false;
-	  document.removeEventListener('mouseup', handleDocumentMouseup);
-	  document.removeEventListener('mousedown', handleDocumentMousedown);
-	  document.removeEventListener('keyup', handleDocumentKeyup);
-	}
 
 /***/ },
 /* 37 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.enableCircle = enableCircle;
-	exports.disableCircle = disableCircle;
-	
-	var _PDFJSAnnotate = __webpack_require__(1);
-	
-	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
-	
-	var _appendChild = __webpack_require__(11);
-	
-	var _config = __webpack_require__(26);
-	
-	var _config2 = _interopRequireDefault(_config);
-	
-	var _utils = __webpack_require__(6);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-	
-	var _enabled = false;
-	var _type = void 0;
-	var overlay = void 0;
-	var originY = void 0;
-	var originX = void 0;
-	
-	/**
-	 * Get the current window selection as rects
-	 *
-	 * @return {Array} An Array of rects
-	 */
-	function getSelectionRects() {
-	  try {
-	    var selection = window.getSelection();
-	    var range = selection.getRangeAt(0);
-	    var rects = range.getClientRects();
-	
-	    if (rects.length > 0 && rects[0].width > 0 && rects[0].height > 0) {
-	      return rects;
-	    }
-	  } catch (e) {}
-	
-	  return null;
-	}
-	
-	/**
-	 * Handle document.mousedown event
-	 *
-	 * @param {Event} e The DOM event to handle
-	 */
-	function handleDocumentMousedown(e) {
-	  var svg = void 0;
-	  if (_type !== 'circle' && _type !== 'fillcircle' && _type !== 'emptycircle' || !(svg = (0, _utils.findSVGAtPoint)(e.clientX, e.clientY))) {
-	    return;
-	  }
-	
-	  var rect = svg.getBoundingClientRect();
-	  originY = e.clientY;
-	  originX = e.clientX;
-	
-	  overlay = document.createElement('div');
-	  overlay.style.position = 'absolute';
-	  overlay.style.top = originY - rect.top + 'px';
-	  overlay.style.left = originX - rect.left + 'px';
-	  overlay.style.border = '3px solid ' + _utils.BORDER_COLOR;
-	  overlay.style.borderRadius = '3px';
-	  svg.parentNode.appendChild(overlay);
-	
-	  document.addEventListener('mousemove', handleDocumentMousemove);
-	  (0, _utils.disableUserSelect)();
-	}
-	
-	/**
-	 * Handle document.mousemove event
-	 *
-	 * @param {Event} e The DOM event to handle
-	 */
-	function handleDocumentMousemove(e) {
-	  var svg = overlay.parentNode.querySelector(_config2.default.annotationSvgQuery());
-	  var rect = svg.getBoundingClientRect();
-	
-	  if (originX + (e.clientX - originX) < rect.right) {
-	    overlay.style.width = e.clientX - originX + 'px';
-	  }
-	
-	  if (originY + (e.clientY - originY) < rect.bottom) {
-	    overlay.style.height = e.clientY - originY + 'px';
-	  }
-	}
-	
-	/**
-	 * Handle document.mouseup event
-	 *
-	 * @param {Event} e The DOM event to handle
-	 */
-	function handleDocumentMouseup(e) {
-	  var rects = void 0;
-	  if (_type !== 'circle' && _type !== 'emptycircle' && _type !== 'fillcircle' && (rects = getSelectionRects())) {
-	    var svg = (0, _utils.findSVGAtPoint)(rects[0].left, rects[0].top);
-	    saveRect(_type, [].concat(_toConsumableArray(rects)).map(function (r) {
-	      return {
-	        top: r.top,
-	        left: r.left,
-	        width: r.width,
-	        height: r.height
-	      };
-	    }));
-	  } else if ((_type === 'circle' || _type === 'emptycircle' || _type === 'fillcircle') && overlay) {
-	    var _svg = overlay.parentNode.querySelector(annotationSvgQuery());
-	    var rect = _svg.getBoundingClientRect();
-	    saveRect(_type, [{
-	      top: parseInt(overlay.style.top, 10) + rect.top,
-	      left: parseInt(overlay.style.left, 10) + rect.left,
-	      width: parseInt(overlay.style.width, 10),
-	      height: parseInt(overlay.style.height, 10)
-	    }]);
-	
-	    overlay.parentNode.removeChild(overlay);
-	    overlay = null;
-	
-	    document.removeEventListener('mousemove', handleDocumentMousemove);
-	    (0, _utils.enableUserSelect)();
-	  }
-	}
-	
-	/**
-	 * Handle document.keyup event
-	 *
-	 * @param {Event} e The DOM event to handle
-	 */
-	function handleDocumentKeyup(e) {
-	  // Cancel rect if Esc is pressed
-	  if (e.keyCode === 27) {
-	    var selection = window.getSelection();
-	    selection.removeAllRanges();
-	    if (overlay && overlay.parentNode) {
-	      overlay.parentNode.removeChild(overlay);
-	      overlay = null;
-	      document.removeEventListener('mousemove', handleDocumentMousemove);
-	    }
-	  }
-	}
-	
-	/**
-	 * Save a rect annotation
-	 *
-	 * @param {String} type The type of rect (area, highlight, strikeout)
-	 * @param {Array} rects The rects to use for annotation
-	 * @param {String} color The color of the rects
-	 */
-	function saveRect(type, rects, color) {
-	  var svg = (0, _utils.findSVGAtPoint)(rects[0].left, rects[0].top);
-	  var node = void 0;
-	  var annotation = void 0;
-	
-	  if (!svg) {
-	    return;
-	  }
-	
-	  var boundingRect = svg.getBoundingClientRect();
-	
-	  if (!color) {
-	    if (type === 'highlight') {
-	      color = 'FFFF00';
-	    } else if (type === 'strikeout') {
-	      color = 'FF0000';
-	    }
-	  }
-	
-	  // Initialize the annotation
-	  annotation = {
-	    type: type,
-	    color: color,
-	    rectangles: [].concat(_toConsumableArray(rects)).map(function (r) {
-	      var offset = 0;
-	
-	      if (type === 'strikeout') {
-	        offset = r.height / 2;
-	      }
-	
-	      return (0, _utils.scaleDown)(svg, {
-	        ///*
-	        y: r.top + offset - boundingRect.top,
-	        x: r.left - boundingRect.left,
-	        width: r.width,
-	        height: r.height //*/
-	
-	      });
-	    }).filter(function (r) {
-	      return r.width > 0 && r.height > 0 && r.x > -1 && r.y > -1;
-	    })
-	  };
-	
-	  // Short circuit if no rectangles exist
-	  if (annotation.rectangles.length === 0) {
-	    return;
-	  }
-	
-	  // Special treatment for area as it only supports a single rect
-	  if (true) {
-	    var rect = annotation.rectangles[0];
-	    delete annotation.rectangles;
-	
-	    annotation.cx = rect.x;
-	    annotation.cy = rect.y;
-	    annotation.r = rect.width;
-	    annotation.r = rect.height;
-	  }
-	
-	  var _getMetadata = (0, _utils.getMetadata)(svg);
-	
-	  var documentId = _getMetadata.documentId;
-	  var pageNumber = _getMetadata.pageNumber;
-	
-	  // Add the annotation
-	
-	  _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
-	    (0, _appendChild.appendChild)(svg, annotation);
-	  });
-	}
-	
-	/**
-	 * Enable rect behavior
-	 */
-	function enableCircle(type) {
-	  _type = type;
-	
-	  if (_enabled) {
-	    return;
-	  }
-	
-	  _enabled = true;
-	  document.addEventListener('mouseup', handleDocumentMouseup);
-	  document.addEventListener('mousedown', handleDocumentMousedown);
-	  document.addEventListener('keyup', handleDocumentKeyup);
-	}
-	
-	/**
-	 * Disable rect behavior
-	 */
-	function disableCircle() {
-	  if (!_enabled) {
-	    return;
-	  }
-	
-	  _enabled = false;
-	  document.removeEventListener('mouseup', handleDocumentMouseup);
-	  document.removeEventListener('mousedown', handleDocumentMousedown);
-	  document.removeEventListener('keyup', handleDocumentKeyup);
-	}
-
-/***/ },
-/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4690,7 +4440,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _appendChild = __webpack_require__(11);
+	var _appendChild = __webpack_require__(8);
 	
 	var _utils = __webpack_require__(6);
 	
@@ -4843,7 +4593,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 39 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4924,7 +4674,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var svg = page.querySelector(_config2.default.annotationClassQuery());
 	    var canvas = page.querySelector('.canvasWrapper canvas');
 	    var canvasContext = canvas.getContext('2d', { alpha: false });
-	    var viewport = pdfPage.getViewport(scale, rotate);
+	    var totalRotation = (rotate + pdfPage.rotate) % 360;
+	    var viewport = pdfPage.getViewport(scale, totalRotation);
 	    var transform = scalePage(pageNumber, viewport, canvasContext);
 	
 	    // Render the page
