@@ -3507,7 +3507,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	
 	            t.setAttribute(attribY, viewY);
-	            if (annotation.rectangles) {
+	            if (annotation.rectangles && i < annotation.rectangles.length) {
 	              annotation.rectangles[i].y = modelY;
 	            } else if (annotation[attribY]) {
 	              annotation[attribY] = modelY;
@@ -3522,7 +3522,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	
 	            t.setAttribute(attribX, viewX);
-	            if (annotation.rectangles) {
+	            if (annotation.rectangles && i < annotation.rectangles.length) {
 	              annotation.rectangles[i].x = modelX;
 	            } else if (annotation[attribX]) {
 	              annotation[attribX] = modelX;
