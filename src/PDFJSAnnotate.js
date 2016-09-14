@@ -3,6 +3,7 @@ import LocalStoreAdapter from './adapter/LocalStoreAdapter';
 import render from './render';
 import UI from './UI';
 import config from './config';
+import uuid from './utils/uuid'
 
 export default {
   /**
@@ -72,5 +73,7 @@ export default {
     return this.getStoreAdapter().getAnnotations(...arguments);
   },
 
-  config
+  config,
+
+  uuid
 }

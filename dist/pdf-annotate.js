@@ -99,6 +99,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _config2 = _interopRequireDefault(_config);
 	
+	var _uuid = __webpack_require__(20);
+	
+	var _uuid2 = _interopRequireDefault(_uuid);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	exports.default = {
@@ -174,7 +178,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 	
 	
-	  config: _config2.default
+	  config: _config2.default,
+	
+	  uuid: _uuid2.default
 	};
 	module.exports = exports['default'];
 
