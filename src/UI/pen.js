@@ -5,7 +5,7 @@ import {
   enableUserSelect,
   findSVGAtPoint,
   getMetadata,
-  scaleDown
+  convertToSvgPoint
 } from './utils';
 
 let _enabled = false;
@@ -91,12 +91,12 @@ function savePoint(x, y) {
   }
 
   let rect = svg.getBoundingClientRect();
-  let point = scaleDown(svg, {
-    x: x - rect.left,
-    y: y - rect.top
-  });
+  let point = convertToSvgPoint([
+    x - rect.left,
+    y - rect.top
+  ], svg);
 
-  lines.push([point.x, point.y]);
+  lines.push(point);
 
   if (lines.length <= 1) {
     return;

@@ -3544,25 +3544,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        //     }
 	        //   });
 	      })();
-	    } else if (type === 'drawing') {
+	    } else if (type === 'drawing' || type === 'arrow') {
 	      (function () {
-	        var rect = (0, _utils.scaleDown)(svg, (0, _utils.getAnnotationRect)(target[0]));
-	
-	        var _annotation$lines$ = _slicedToArray(annotation.lines[0], 2);
-	
-	        var originX = _annotation$lines$[0];
-	        var originY = _annotation$lines$[1];
-	
-	        var _calcDelta = calcDelta(originX, originY);
-	
-	        var deltaX = _calcDelta.deltaX;
-	        var deltaY = _calcDelta.deltaY;
-	
-	        // origin isn't necessarily at 0/0 in relation to overlay x/y
-	        // adjust the difference between overlay and drawing coords
-	
-	        deltaY += originY - rect.top;
-	        deltaX += originX - rect.left;
+	        var modelStart = (0, _utils.convertToSvgPoint)([dragStartX, dragStartY], svg);
+	        var modelEnd = (0, _utils.convertToSvgPoint)([overlay.offsetLeft, overlay.offsetTop], svg);
+	        var modelDelta = {
+	          x: modelEnd[0] - modelStart[0],
+	          y: modelEnd[1] - modelStart[1]
+	        };
 	
 	        annotation.lines.forEach(function (line, i) {
 	          var _annotation$lines$i = _slicedToArray(annotation.lines[i], 2);
@@ -3570,41 +3559,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	          var x = _annotation$lines$i[0];
 	          var y = _annotation$lines$i[1];
 	
-	          annotation.lines[i][0] = x + deltaX;
-	          annotation.lines[i][1] = y + deltaY;
-	        });
-	
-	        target[0].parentNode.removeChild(target[0]);
-	        (0, _appendChild.appendChild)(svg, annotation);
-	      })();
-	    } else if (type === 'arrow') {
-	      (function () {
-	        var rect = (0, _utils.scaleDown)(svg, (0, _utils.getAnnotationRect)(target[0]));
-	
-	        var _annotation$lines$2 = _slicedToArray(annotation.lines[0], 2);
-	
-	        var originX = _annotation$lines$2[0];
-	        var originY = _annotation$lines$2[1];
-	
-	        var _calcDelta2 = calcDelta(originX, originY);
-	
-	        var deltaX = _calcDelta2.deltaX;
-	        var deltaY = _calcDelta2.deltaY;
-	
-	        // origin isn't necessarily at 0/0 in relation to overlay x/y
-	        // adjust the difference between overlay and drawing coords
-	
-	        deltaY += originY - rect.top;
-	        deltaX += originX - rect.left;
-	
-	        annotation.lines.forEach(function (line, i) {
-	          var _annotation$lines$i2 = _slicedToArray(annotation.lines[i], 2);
-	
-	          var x = _annotation$lines$i2[0];
-	          var y = _annotation$lines$i2[1];
-	
-	          annotation.lines[i][0] = x + deltaX;
-	          annotation.lines[i][1] = y + deltaY;
+	          annotation.lines[i][0] = x + modelDelta.x;
+	          annotation.lines[i][1] = y + modelDelta.y;
 	        });
 	
 	        target[0].parentNode.removeChild(target[0]);
@@ -3771,12 +3727,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	
 	  var rect = svg.getBoundingClientRect();
-	  var point = (0, _utils.scaleDown)(svg, {
-	    x: x - rect.left,
-	    y: y - rect.top
-	  });
+	  var point = (0, _utils.convertToSvgPoint)([x - rect.left, y - rect.top], svg);
 	
-	  lines.push([point.x, point.y]);
+	  lines.push(point);
 	
 	  if (lines.length <= 1) {
 	    return;
@@ -3945,12 +3898,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	
 	  var rect = svg.getBoundingClientRect();
-	  var point = (0, _utils.scaleDown)(svg, {
-	    x: x - rect.left,
-	    y: y - rect.top
-	  });
+	  var point = (0, _utils.convertToSvgPoint)([x - rect.left, y - rect.top], svg);
 	
-	  lines.push([point.x, point.y]);
+	  lines.push(point);
 	
 	  if (lines.length <= 1) {
 	    return;

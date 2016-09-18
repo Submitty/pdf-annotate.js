@@ -297,38 +297,18 @@ function handleDocumentMouseup(e) {
     //       annotation.rectangles[i].x = parseInt(t.getAttribute('x1'), 10);
     //     }
     //   });
-    } else if (type === 'drawing') {
-      let rect = scaleDown(svg, getAnnotationRect(target[0]));
-      let [originX, originY] = annotation.lines[0];
-      let { deltaX, deltaY } = calcDelta(originX, originY);
-
-      // origin isn't necessarily at 0/0 in relation to overlay x/y
-      // adjust the difference between overlay and drawing coords
-      deltaY += (originY - rect.top);
-      deltaX += (originX - rect.left);
+    } else if (type === 'drawing' || type === 'arrow') {
+      let modelStart = convertToSvgPoint([dragStartX, dragStartY], svg);
+      let modelEnd = convertToSvgPoint([overlay.offsetLeft, overlay.offsetTop], svg);
+      let modelDelta = {
+        x: modelEnd[0] - modelStart[0],
+        y: modelEnd[1] - modelStart[1]
+      };
 
       annotation.lines.forEach((line, i) => {
         let [x, y] = annotation.lines[i];
-        annotation.lines[i][0] = x + deltaX;
-        annotation.lines[i][1] = y + deltaY;
-      });
-
-      target[0].parentNode.removeChild(target[0]);
-      appendChild(svg, annotation);
-    } else if (type === 'arrow') {
-      let rect = scaleDown(svg, getAnnotationRect(target[0]));
-      let [originX, originY] = annotation.lines[0];
-      let { deltaX, deltaY } = calcDelta(originX, originY);
-
-      // origin isn't necessarily at 0/0 in relation to overlay x/y
-      // adjust the difference between overlay and drawing coords
-      deltaY += (originY - rect.top);
-      deltaX += (originX - rect.left);
-
-      annotation.lines.forEach((line, i) => {
-        let [x, y] = annotation.lines[i];
-        annotation.lines[i][0] = x + deltaX;
-        annotation.lines[i][1] = y + deltaY;
+        annotation.lines[i][0] = x + modelDelta.x;
+        annotation.lines[i][1] = y + modelDelta.y;
       });
 
       target[0].parentNode.removeChild(target[0]);

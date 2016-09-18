@@ -7,8 +7,6 @@ import {
   enableUserSelect,
   findSVGAtPoint,
   getMetadata,
-  scaleDown,
-  scaleUp,
   screenToPdf
 } from './utils';
 
