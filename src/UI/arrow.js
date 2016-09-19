@@ -4,8 +4,11 @@ import {
   disableUserSelect,
   enableUserSelect,
   findSVGAtPoint,
+  findSVGContainer,
   getMetadata,
-  convertToSvgPoint
+  convertToSvgPoint,
+  convertToScreenPoint,
+  findAnnotationAtPoint
 } from './utils';
 
 let _enabled = false;
@@ -13,16 +16,46 @@ let _penSize;
 let _penColor;
 let path;
 let lines;
+let originY;
+let originX;
 
 /**
  * Handle document.mousedown event
  */
-function handleDocumentMousedown() {
-  path = null;
-  lines = [];
+function handleDocumentMousedown(e) {
+  let target = findAnnotationAtPoint(e.clientX, e.clientY);
+  if (target === null)
+    return;
 
-  document.addEventListener('mousemove', handleDocumentMousemove);
-  document.addEventListener('mouseup', handleDocumentMouseup);
+  let type = target.getAttribute('data-pdf-annotate-type');
+  if (type !== 'circle' && type !== 'fillcircle' && type !== 'emptycircle') {
+    return;
+  }
+
+  let svg = findSVGContainer(target);
+  let { documentId } = getMetadata(svg);
+  let annotationId = target.getAttribute('data-pdf-annotate-id');
+
+  let event = e;
+  PDFJSAnnotate.getStoreAdapter().getAnnotation(documentId, annotationId).then((annotation) => {
+    if (annotation) {
+      path = null;
+      lines = [];
+
+      let point = convertToScreenPoint([
+        annotation.cx,
+        annotation.cy
+      ], svg);
+
+      let rect = svg.getBoundingClientRect();
+
+      originX = point[0] + rect.left;
+      originY = point[1] + rect.top;    
+
+      document.addEventListener('mousemove', handleDocumentMousemove);
+      document.addEventListener('mouseup', handleDocumentMouseup);
+    }
+  });
 }
 
 /**
@@ -60,7 +93,10 @@ function handleDocumentMouseup(e) {
  * @param {Event} e The DOM event to be handled
  */
 function handleDocumentMousemove(e) {
-  savePoint(e.clientX, e.clientY);
+  let x = lines.length === 0 ? originX : e.clientX;
+  let y = lines.length === 0 ? originY : e.clientY;
+
+  savePoint(x, y);
 }
 
 /**

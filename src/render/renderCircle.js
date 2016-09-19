@@ -37,8 +37,8 @@ export default function renderCircle(a) {
 function createCircle(r) {
   let circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
   setAttributes(circle, {
-    cx: r.cx+15,
-    cy: r.cy+15,
+    cx: r.cx,
+    cy: r.cy,
     r:30
   });
 

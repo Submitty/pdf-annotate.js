@@ -250,6 +250,14 @@ export function scaleUp(svg, rect) {
   return result;
 }
 
+// Transform point by matrix
+//
+function applyTransform(p, m) {
+  var xt = p[0] * m[0] + p[1] * m[2] + m[4];
+  var yt = p[0] * m[1] + p[1] * m[3] + m[5];
+  return [xt, yt];
+};
+
 // Transform point by matrix inverse
 //
 function applyInverseTransform(p, m) {
@@ -381,6 +389,19 @@ export function convertToSvgPoint(pt, svg) {
   return applyInverseTransform(pt, xform);
 }
 
+export function convertToScreenPoint(pt, svg) {
+  let result = {};
+  let { viewport } = getMetadata(svg);
+
+  let xform = [ 1, 0, 0, 1, 0, 0 ];
+  xform = scale(xform, viewport.scale, viewport.scale);
+  xform = rotate(xform, viewport.rotation);
+
+  let offset = getTranslation(viewport);
+  xform = translate(xform, offset.x, offset.y);
+
+  return applyTransform(pt, xform);
+}
 
 /**
  * Adjust scale from rendered scale to a normalized scale (100%).
