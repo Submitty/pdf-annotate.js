@@ -3,9 +3,13 @@ import LocalStoreAdapter from './adapter/LocalStoreAdapter';
 import render from './render';
 import UI from './UI';
 import config from './config';
-import uuid from './utils/uuid'
+import uuid from './utils/uuid';
+import { findAnnotationAtPoint, findSVGContainer } from './UI/utils';
 
 export default {
+  findAnnotationAtPoint,
+  findSVGContainer,
+
   /**
    * Abstract class that needs to be defined so PDFJSAnnotate
    * knows how to communicate with your server.

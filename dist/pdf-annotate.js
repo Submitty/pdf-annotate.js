@@ -83,29 +83,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _StoreAdapter2 = _interopRequireDefault(_StoreAdapter);
 	
-	var _LocalStoreAdapter = __webpack_require__(19);
+	var _LocalStoreAdapter = __webpack_require__(20);
 	
 	var _LocalStoreAdapter2 = _interopRequireDefault(_LocalStoreAdapter);
 	
-	var _render = __webpack_require__(21);
+	var _render = __webpack_require__(22);
 	
 	var _render2 = _interopRequireDefault(_render);
 	
-	var _UI = __webpack_require__(31);
+	var _UI = __webpack_require__(32);
 	
 	var _UI2 = _interopRequireDefault(_UI);
 	
-	var _config = __webpack_require__(26);
+	var _config = __webpack_require__(27);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
-	var _uuid = __webpack_require__(20);
+	var _uuid = __webpack_require__(21);
 	
 	var _uuid2 = _interopRequireDefault(_uuid);
+	
+	var _utils = __webpack_require__(6);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	exports.default = {
+	  findAnnotationAtPoint: _utils.findAnnotationAtPoint,
+	  findSVGContainer: _utils.findSVGContainer,
+	
 	  /**
 	   * Abstract class that needs to be defined so PDFJSAnnotate
 	   * knows how to communicate with your server.
@@ -876,6 +881,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _appendChild = __webpack_require__(8);
 	
+	var _mathUtils = __webpack_require__(19);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var BORDER_COLOR = exports.BORDER_COLOR = '#00BFFF';
@@ -1171,50 +1178,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return result;
 	}
 	
-	// Transform point by matrix
-	//
-	function applyTransform(p, m) {
-	  var xt = p[0] * m[0] + p[1] * m[2] + m[4];
-	  var yt = p[0] * m[1] + p[1] * m[3] + m[5];
-	  return [xt, yt];
-	};
-	
-	// Transform point by matrix inverse
-	//
-	function applyInverseTransform(p, m) {
-	  var d = m[0] * m[3] - m[1] * m[2];
-	  var xt = (p[0] * m[3] - p[1] * m[2] + m[2] * m[5] - m[4] * m[3]) / d;
-	  var yt = (-p[0] * m[1] + p[1] * m[0] + m[4] * m[1] - m[5] * m[0]) / d;
-	  return [xt, yt];
-	};
-	
-	// Concatenates two transformation matrices together and returns the result.
-	function transform(m1, m2) {
-	  return [m1[0] * m2[0] + m1[2] * m2[1], m1[1] * m2[0] + m1[3] * m2[1], m1[0] * m2[2] + m1[2] * m2[3], m1[1] * m2[2] + m1[3] * m2[3], m1[0] * m2[4] + m1[2] * m2[5] + m1[4], m1[1] * m2[4] + m1[3] * m2[5] + m1[5]];
-	};
-	
-	function translate(m, x, y) {
-	  return [m[0], m[1], m[2], m[3], m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
-	};
-	
-	function rotate(m, angle) {
-	  angle = angle * Math.PI / 180;
-	
-	  var cosValue = Math.cos(angle);
-	  var sinValue = Math.sin(angle);
-	
-	  return [m[0] * cosValue + m[2] * sinValue, m[1] * cosValue + m[3] * sinValue, m[0] * -sinValue + m[2] * cosValue, m[1] * -sinValue + m[3] * cosValue, m[4], m[5]];
-	};
-	
-	function scale(m, x, y) {
-	  return [m[0] * x, m[1] * x, m[2] * y, m[3] * y, m[4], m[5]];
-	};
-	
-	function inverseTransform(m) {
-	  var d = m[0] * m[3] - m[1] * m[2];
-	  return [m[3] / d, -m[1] / d, -m[2] / d, m[0] / d, (m[2] * m[5] - m[4] * m[3]) / d, (m[4] * m[1] - m[5] * m[0]) / d];
-	};
-	
 	function screenToPdf(svg, rect) {
 	  var result = {};
 	
@@ -1225,15 +1188,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  var xform = [1, 0, 0, 1, 0, 0];
 	  var trans = (0, _appendChild.getTranslation)(viewport);
-	  xform = scale(xform, viewport.scale, viewport.scale);
-	  xform = rotate(xform, viewport.rotation);
-	  xform = translate(xform, trans.x, trans.y);
+	  xform = (0, _mathUtils.scale)(xform, viewport.scale, viewport.scale);
+	  xform = (0, _mathUtils.rotate)(xform, viewport.rotation);
+	  xform = (0, _mathUtils.translate)(xform, trans.x, trans.y);
 	
 	  var pt1 = [rect.x, rect.y];
 	  var pt2 = [rect.x + rect.width, rect.y + rect.height];
 	
-	  pt1 = applyInverseTransform(pt1, xform);
-	  pt2 = applyInverseTransform(pt2, xform);
+	  pt1 = (0, _mathUtils.applyInverseTransform)(pt1, xform);
+	  pt2 = (0, _mathUtils.applyInverseTransform)(pt2, xform);
 	
 	  var width = Math.abs(pt2[0] - pt1[0]);
 	  var height = Math.abs(pt2[1] - pt1[1]);
@@ -1275,13 +1238,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	
 	  var xform = [1, 0, 0, 1, 0, 0];
-	  xform = scale(xform, viewport.scale, viewport.scale);
-	  xform = rotate(xform, viewport.rotation);
+	  xform = (0, _mathUtils.scale)(xform, viewport.scale, viewport.scale);
+	  xform = (0, _mathUtils.rotate)(xform, viewport.rotation);
 	
 	  var offset = (0, _appendChild.getTranslation)(viewport);
-	  xform = translate(xform, offset.x, offset.y);
+	  xform = (0, _mathUtils.translate)(xform, offset.x, offset.y);
 	
-	  return applyInverseTransform(pt, xform);
+	  return (0, _mathUtils.applyInverseTransform)(pt, xform);
 	}
 	
 	function convertToScreenPoint(pt, svg) {
@@ -1293,13 +1256,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	
 	  var xform = [1, 0, 0, 1, 0, 0];
-	  xform = scale(xform, viewport.scale, viewport.scale);
-	  xform = rotate(xform, viewport.rotation);
+	  xform = (0, _mathUtils.scale)(xform, viewport.scale, viewport.scale);
+	  xform = (0, _mathUtils.rotate)(xform, viewport.rotation);
 	
 	  var offset = (0, _appendChild.getTranslation)(viewport);
-	  xform = translate(xform, offset.x, offset.y);
+	  xform = (0, _mathUtils.translate)(xform, offset.x, offset.y);
 	
-	  return applyTransform(pt, xform);
+	  return (0, _mathUtils.applyTransform)(pt, xform);
 	}
 	
 	/**
@@ -2315,6 +2278,65 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 19 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.applyTransform = applyTransform;
+	exports.applyInverseTransform = applyInverseTransform;
+	exports.transform = transform;
+	exports.translate = translate;
+	exports.rotate = rotate;
+	exports.scale = scale;
+	// Transform point by matrix
+	//
+	function applyTransform(p, m) {
+	  var xt = p[0] * m[0] + p[1] * m[2] + m[4];
+	  var yt = p[0] * m[1] + p[1] * m[3] + m[5];
+	  return [xt, yt];
+	};
+	
+	// Transform point by matrix inverse
+	//
+	function applyInverseTransform(p, m) {
+	  var d = m[0] * m[3] - m[1] * m[2];
+	  var xt = (p[0] * m[3] - p[1] * m[2] + m[2] * m[5] - m[4] * m[3]) / d;
+	  var yt = (-p[0] * m[1] + p[1] * m[0] + m[4] * m[1] - m[5] * m[0]) / d;
+	  return [xt, yt];
+	};
+	
+	// Concatenates two transformation matrices together and returns the result.
+	function transform(m1, m2) {
+	  return [m1[0] * m2[0] + m1[2] * m2[1], m1[1] * m2[0] + m1[3] * m2[1], m1[0] * m2[2] + m1[2] * m2[3], m1[1] * m2[2] + m1[3] * m2[3], m1[0] * m2[4] + m1[2] * m2[5] + m1[4], m1[1] * m2[4] + m1[3] * m2[5] + m1[5]];
+	};
+	
+	function translate(m, x, y) {
+	  return [m[0], m[1], m[2], m[3], m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
+	};
+	
+	function rotate(m, angle) {
+	  angle = angle * Math.PI / 180;
+	
+	  var cosValue = Math.cos(angle);
+	  var sinValue = Math.sin(angle);
+	
+	  return [m[0] * cosValue + m[2] * sinValue, m[1] * cosValue + m[3] * sinValue, m[0] * -sinValue + m[2] * cosValue, m[1] * -sinValue + m[3] * cosValue, m[4], m[5]];
+	};
+	
+	function scale(m, x, y) {
+	  return [m[0] * x, m[1] * x, m[2] * y, m[3] * y, m[4], m[5]];
+	};
+	
+	function getInverseTransform(m) {
+	  var d = m[0] * m[3] - m[1] * m[2];
+	  return [m[3] / d, -m[1] / d, -m[2] / d, m[0] / d, (m[2] * m[5] - m[4] * m[3]) / d, (m[4] * m[1] - m[5] * m[0]) / d];
+	};
+
+/***/ },
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2323,7 +2345,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 	
-	var _uuid = __webpack_require__(20);
+	var _uuid = __webpack_require__(21);
 	
 	var _uuid2 = _interopRequireDefault(_uuid);
 	
@@ -2472,7 +2494,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2501,7 +2523,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2517,7 +2539,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _appendChild = __webpack_require__(8);
 	
-	var _renderScreenReaderHints = __webpack_require__(22);
+	var _renderScreenReaderHints = __webpack_require__(23);
 	
 	var _renderScreenReaderHints2 = _interopRequireDefault(_renderScreenReaderHints);
 	
@@ -2572,7 +2594,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2582,11 +2604,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = renderScreenReaderHints;
 	
-	var _insertScreenReaderHint = __webpack_require__(23);
+	var _insertScreenReaderHint = __webpack_require__(24);
 	
 	var _insertScreenReaderHint2 = _interopRequireDefault(_insertScreenReaderHint);
 	
-	var _initEventHandlers = __webpack_require__(30);
+	var _initEventHandlers = __webpack_require__(31);
 	
 	var _initEventHandlers2 = _interopRequireDefault(_initEventHandlers);
 	
@@ -2649,7 +2671,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2659,19 +2681,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = insertScreenReaderHint;
 	
-	var _createScreenReaderOnly = __webpack_require__(24);
+	var _createScreenReaderOnly = __webpack_require__(25);
 	
 	var _createScreenReaderOnly2 = _interopRequireDefault(_createScreenReaderOnly);
 	
-	var _insertElementWithinChildren = __webpack_require__(25);
+	var _insertElementWithinChildren = __webpack_require__(26);
 	
 	var _insertElementWithinChildren2 = _interopRequireDefault(_insertElementWithinChildren);
 	
-	var _insertElementWithinElement = __webpack_require__(27);
+	var _insertElementWithinElement = __webpack_require__(28);
 	
 	var _insertElementWithinElement2 = _interopRequireDefault(_insertElementWithinElement);
 	
-	var _renderScreenReaderComments = __webpack_require__(28);
+	var _renderScreenReaderComments = __webpack_require__(29);
 	
 	var _renderScreenReaderComments2 = _interopRequireDefault(_renderScreenReaderComments);
 	
@@ -2734,7 +2756,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2766,7 +2788,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2776,11 +2798,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = insertElementWithinChildren;
 	
-	var _config = __webpack_require__(26);
+	var _config = __webpack_require__(27);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
-	var _insertElementWithinElement = __webpack_require__(27);
+	var _insertElementWithinElement = __webpack_require__(28);
 	
 	var _insertElementWithinElement2 = _interopRequireDefault(_insertElementWithinElement);
 	
@@ -2840,7 +2862,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2864,7 +2886,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2874,7 +2896,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = insertElementWithinElement;
 	
-	var _config = __webpack_require__(26);
+	var _config = __webpack_require__(27);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
@@ -2973,7 +2995,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2987,7 +3009,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _insertScreenReaderComment = __webpack_require__(29);
+	var _insertScreenReaderComment = __webpack_require__(30);
 	
 	var _insertScreenReaderComment2 = _interopRequireDefault(_insertScreenReaderComment);
 	
@@ -3041,7 +3063,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -3071,7 +3093,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3081,19 +3103,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = initEventHandlers;
 	
-	var _insertScreenReaderHint = __webpack_require__(23);
+	var _insertScreenReaderHint = __webpack_require__(24);
 	
 	var _insertScreenReaderHint2 = _interopRequireDefault(_insertScreenReaderHint);
 	
-	var _renderScreenReaderHints = __webpack_require__(22);
+	var _renderScreenReaderHints = __webpack_require__(23);
 	
 	var _renderScreenReaderHints2 = _interopRequireDefault(_renderScreenReaderHints);
 	
-	var _insertScreenReaderComment = __webpack_require__(29);
+	var _insertScreenReaderComment = __webpack_require__(30);
 	
 	var _insertScreenReaderComment2 = _interopRequireDefault(_insertScreenReaderComment);
 	
-	var _renderScreenReaderComments = __webpack_require__(28);
+	var _renderScreenReaderComments = __webpack_require__(29);
 	
 	var _renderScreenReaderComments2 = _interopRequireDefault(_renderScreenReaderComments);
 	
@@ -3201,7 +3223,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3212,19 +3234,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _event = __webpack_require__(4);
 	
-	var _edit = __webpack_require__(32);
+	var _edit = __webpack_require__(33);
 	
-	var _pen = __webpack_require__(33);
+	var _pen = __webpack_require__(34);
 	
-	var _arrow = __webpack_require__(34);
+	var _arrow = __webpack_require__(35);
 	
-	var _point = __webpack_require__(35);
+	var _point = __webpack_require__(36);
 	
-	var _rect = __webpack_require__(36);
+	var _rect = __webpack_require__(37);
 	
-	var _text = __webpack_require__(37);
+	var _text = __webpack_require__(38);
 	
-	var _page = __webpack_require__(38);
+	var _page = __webpack_require__(39);
 	
 	exports.default = {
 	  addEventListener: _event.addEventListener, removeEventListener: _event.removeEventListener, fireEvent: _event.fireEvent,
@@ -3239,7 +3261,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3257,7 +3279,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _config = __webpack_require__(26);
+	var _config = __webpack_require__(27);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
@@ -3646,7 +3668,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3817,7 +3839,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4021,7 +4043,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 35 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4172,7 +4194,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 36 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4187,7 +4209,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _config = __webpack_require__(26);
+	var _config = __webpack_require__(27);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
@@ -4437,7 +4459,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 37 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4609,7 +4631,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 38 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4627,11 +4649,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _config = __webpack_require__(26);
+	var _config = __webpack_require__(27);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
-	var _renderScreenReaderHints = __webpack_require__(22);
+	var _renderScreenReaderHints = __webpack_require__(23);
 	
 	var _renderScreenReaderHints2 = _interopRequireDefault(_renderScreenReaderHints);
 	
