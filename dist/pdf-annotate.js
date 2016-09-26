@@ -862,6 +862,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.scaleUp = scaleUp;
 	exports.screenToPdf = screenToPdf;
 	exports.convertToSvgPoint = convertToSvgPoint;
+	exports.convertToScreenPoint = convertToScreenPoint;
 	exports.scaleDown = scaleDown;
 	exports.getScroll = getScroll;
 	exports.getOffset = getOffset;
@@ -1170,6 +1171,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return result;
 	}
 	
+	// Transform point by matrix
+	//
+	function applyTransform(p, m) {
+	  var xt = p[0] * m[0] + p[1] * m[2] + m[4];
+	  var yt = p[0] * m[1] + p[1] * m[3] + m[5];
+	  return [xt, yt];
+	};
+	
 	// Transform point by matrix inverse
 	//
 	function applyInverseTransform(p, m) {
@@ -1275,6 +1284,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return applyInverseTransform(pt, xform);
 	}
 	
+	function convertToScreenPoint(pt, svg) {
+	  var result = {};
+	
+	  var _getMetadata4 = getMetadata(svg);
+	
+	  var viewport = _getMetadata4.viewport;
+	
+	
+	  var xform = [1, 0, 0, 1, 0, 0];
+	  xform = scale(xform, viewport.scale, viewport.scale);
+	  xform = rotate(xform, viewport.rotation);
+	
+	  var offset = (0, _appendChild.getTranslation)(viewport);
+	  xform = translate(xform, offset.x, offset.y);
+	
+	  return applyTransform(pt, xform);
+	}
+	
 	/**
 	 * Adjust scale from rendered scale to a normalized scale (100%).
 	 *
@@ -1285,9 +1312,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	function scaleDown(svg, rect) {
 	  var result = {};
 	
-	  var _getMetadata4 = getMetadata(svg);
+	  var _getMetadata5 = getMetadata(svg);
 	
-	  var viewport = _getMetadata4.viewport;
+	  var viewport = _getMetadata5.viewport;
 	
 	
 	  Object.keys(rect).forEach(function (key) {
@@ -2184,8 +2211,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	function createCircle(r) {
 	  var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
 	  (0, _setAttributes2.default)(circle, {
-	    cx: r.cx + 15,
-	    cy: r.cy + 15,
+	    cx: r.cx,
+	    cy: r.cy,
 	    r: 30
 	  });
 	
@@ -3817,16 +3844,46 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _penColor = void 0;
 	var path = void 0;
 	var lines = void 0;
+	var originY = void 0;
+	var originX = void 0;
 	
 	/**
 	 * Handle document.mousedown event
 	 */
-	function handleDocumentMousedown() {
-	  path = null;
-	  lines = [];
+	function handleDocumentMousedown(e) {
+	  var target = (0, _utils.findAnnotationAtPoint)(e.clientX, e.clientY);
+	  if (target === null) return;
 	
-	  document.addEventListener('mousemove', handleDocumentMousemove);
-	  document.addEventListener('mouseup', handleDocumentMouseup);
+	  var type = target.getAttribute('data-pdf-annotate-type');
+	  if (type !== 'circle' && type !== 'fillcircle' && type !== 'emptycircle') {
+	    return;
+	  }
+	
+	  var svg = (0, _utils.findSVGContainer)(target);
+	
+	  var _getMetadata = (0, _utils.getMetadata)(svg);
+	
+	  var documentId = _getMetadata.documentId;
+	
+	  var annotationId = target.getAttribute('data-pdf-annotate-id');
+	
+	  var event = e;
+	  _PDFJSAnnotate2.default.getStoreAdapter().getAnnotation(documentId, annotationId).then(function (annotation) {
+	    if (annotation) {
+	      path = null;
+	      lines = [];
+	
+	      var point = (0, _utils.convertToScreenPoint)([annotation.cx, annotation.cy], svg);
+	
+	      var rect = svg.getBoundingClientRect();
+	
+	      originX = point[0] + rect.left;
+	      originY = point[1] + rect.top;
+	
+	      document.addEventListener('mousemove', handleDocumentMousemove);
+	      document.addEventListener('mouseup', handleDocumentMouseup);
+	    }
+	  });
 	}
 	
 	/**
@@ -3837,10 +3894,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	function handleDocumentMouseup(e) {
 	  var svg = void 0;
 	  if (lines.length > 1 && (svg = (0, _utils.findSVGAtPoint)(e.clientX, e.clientY))) {
-	    var _getMetadata = (0, _utils.getMetadata)(svg);
+	    var _getMetadata2 = (0, _utils.getMetadata)(svg);
 	
-	    var documentId = _getMetadata.documentId;
-	    var pageNumber = _getMetadata.pageNumber;
+	    var documentId = _getMetadata2.documentId;
+	    var pageNumber = _getMetadata2.pageNumber;
 	
 	
 	    _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, {
@@ -3867,7 +3924,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Event} e The DOM event to be handled
 	 */
 	function handleDocumentMousemove(e) {
-	  savePoint(e.clientX, e.clientY);
+	  var x = lines.length === 0 ? originX : e.clientX;
+	  var y = lines.length === 0 ? originY : e.clientY;
+	
+	  savePoint(x, y);
 	}
 	
 	/**
@@ -4328,10 +4388,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (type === 'circle' || type === 'emptycircle' || type === 'fillcircle') {
 	    var _rect = annotation.rectangles[0];
 	    delete annotation.rectangles;
-	    annotation.cx = _rect.x;
-	    annotation.cy = _rect.y;
-	    annotation.r = _rect.width;
-	    annotation.r = _rect.height;
+	    annotation.cx = _rect.x + _rect.width / 2;
+	    annotation.cy = _rect.y + _rect.height / 2;
+	    annotation.r = _rect.width; // ignored right now
+	    annotation.r = _rect.height; // ignored right now
 	  }
 	
 	  var _getMetadata = (0, _utils.getMetadata)(svg);

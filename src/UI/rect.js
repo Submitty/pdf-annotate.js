@@ -199,10 +199,10 @@ function saveRect(type, rects, color) {
    if (type === 'circle'||type === 'emptycircle'||type === 'fillcircle') {
     let rect = annotation.rectangles[0];
     delete annotation.rectangles;
-    annotation.cx = rect.x;
-    annotation.cy = rect.y;
-    annotation.r = rect.width;
-    annotation.r = rect.height;
+    annotation.cx = rect.x + rect.width / 2;
+    annotation.cy = rect.y + rect.height / 2;
+    annotation.r = rect.width;    // ignored right now
+    annotation.r = rect.height;   // ignored right now
   }
 
   let { documentId, pageNumber } = getMetadata(svg);
