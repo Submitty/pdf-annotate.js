@@ -39,7 +39,7 @@ function createCircle(r) {
   setAttributes(circle, {
     cx: r.cx,
     cy: r.cy,
-    r:30
+    r:15
   });
 
   return circle;
