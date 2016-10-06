@@ -203,12 +203,14 @@ render();
           UI.disablePoint();
           break;
         case 'area':
-        case 'circle':
-        case 'emptycircle':
-        case 'fillcircle':
         case 'highlight':
         case 'strikeout':
           UI.disableRect();
+          break;
+        case 'circle':
+        case 'emptycircle':
+        case 'fillcircle':
+          UI.disableCircle();
           break;
       }
     }
@@ -238,12 +240,14 @@ render();
         UI.enablePoint();
         break;
       case 'area':
-      case 'circle':
-      case 'emptycircle':
-      case 'fillcircle':
       case 'highlight':
       case 'strikeout':
         UI.enableRect(type);
+        break;
+      case 'circle':
+      case 'emptycircle':
+      case 'fillcircle':
+        UI.enableCircle(type);
         break;
     }
   }

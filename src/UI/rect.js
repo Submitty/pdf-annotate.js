@@ -44,7 +44,7 @@ function getSelectionRects() {
  */
 function handleDocumentMousedown(e) {
   let svg;
-  if ((_type !== 'area' && _type !== 'circle' && _type !== 'fillcircle' && _type !== 'emptycircle')|| !(svg = findSVGAtPoint(e.clientX, e.clientY))) {
+  if (_type !== 'area' || !(svg = findSVGAtPoint(e.clientX, e.clientY))) {
     return;
   }
 
@@ -89,7 +89,7 @@ function handleDocumentMousemove(e) {
  */
 function handleDocumentMouseup(e) {
   let rects;
-  if ((_type !== 'area' && _type !== 'circle'&& _type !== 'fillcircle'&& _type !== 'emptycircle') && (rects = getSelectionRects())) {
+  if (_type !== 'area' && (rects = getSelectionRects())) {
     let svg = findSVGAtPoint(rects[0].left, rects[0].top);
     saveRect(_type, [...rects].map((r) => {
       return {
@@ -99,7 +99,7 @@ function handleDocumentMouseup(e) {
         height: r.height
       };
     }));
-  } else if ((_type === 'area' || _type === 'circle'|| _type === 'fillcircle'|| _type === 'emptycircle') && overlay) {
+  } else if (_type === 'area' && overlay) {
     let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
     let rect = svg.getBoundingClientRect();
     saveRect(_type, [{
@@ -144,7 +144,6 @@ function handleDocumentKeyup(e) {
  */
 function saveRect(type, rects, color) {
   let svg = findSVGAtPoint(rects[0].left, rects[0].top);
-  let node;
   let annotation;
 
   if (!svg) {
@@ -194,15 +193,6 @@ function saveRect(type, rects, color) {
     annotation.y = rect.y;
     annotation.width = rect.width;
     annotation.height = rect.height;
-  }
-
-   if (type === 'circle'||type === 'emptycircle'||type === 'fillcircle') {
-    let rect = annotation.rectangles[0];
-    delete annotation.rectangles;
-    annotation.cx = rect.x + rect.width / 2;
-    annotation.cy = rect.y + rect.height / 2;
-    annotation.r = rect.width;    // ignored right now
-    annotation.r = rect.height;   // ignored right now
   }
 
   let { documentId, pageNumber } = getMetadata(svg);

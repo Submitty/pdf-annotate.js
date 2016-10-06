@@ -2142,7 +2142,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	/**
-	 * Create SVGRectElements from an annotation definition.
+	 * Create an SVGCircleElement from an annotation definition.
 	 * This is used for annotations of type `circle`.
 	 *
 	 * @param {Object} a The annotation definition
@@ -2150,33 +2150,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function renderCircle(a) {
 	  var circle = createCircle(a);
+	  var color = (0, _normalizeColor2.default)(a.color || '#f00');
 	
 	  if (a.type === 'circle') (0, _setAttributes2.default)(circle, {
-	    stroke: (0, _normalizeColor2.default)(a.color || '#f00'),
+	    stroke: color,
 	    fill: 'none',
 	    'stroke-width': 5
 	  });
 	  if (a.type === 'emptycircle') (0, _setAttributes2.default)(circle, {
-	    stroke: (0, _normalizeColor2.default)(a.color || '#f00'),
+	    stroke: color,
 	    fill: 'none',
 	    'stroke-width': 2
 	  });
 	
 	  if (a.type === 'fillcircle') (0, _setAttributes2.default)(circle, {
-	    stroke: (0, _normalizeColor2.default)(a.color || '#f00'),
-	    fill: '#f00',
+	    stroke: color,
+	    fill: color,
 	    'stroke-width': 5
 	  });
 	
 	  return circle;
 	}
 	
-	function createCircle(r) {
+	function createCircle(a) {
 	  var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
 	  (0, _setAttributes2.default)(circle, {
-	    cx: r.cx,
-	    cy: r.cy,
-	    r: 30
+	    cx: a.cx,
+	    cy: a.cy,
+	    r: a.r
 	  });
 	
 	  return circle;
@@ -3244,9 +3245,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _rect = __webpack_require__(37);
 	
-	var _text = __webpack_require__(38);
+	var _circle = __webpack_require__(38);
 	
-	var _page = __webpack_require__(39);
+	var _text = __webpack_require__(39);
+	
+	var _page = __webpack_require__(40);
 	
 	exports.default = {
 	  addEventListener: _event.addEventListener, removeEventListener: _event.removeEventListener, fireEvent: _event.fireEvent,
@@ -3254,6 +3257,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  disablePen: _pen.disablePen, enablePen: _pen.enablePen, setPen: _pen.setPen,
 	  disablePoint: _point.disablePoint, enablePoint: _point.enablePoint,
 	  disableRect: _rect.disableRect, enableRect: _rect.enableRect,
+	  disableCircle: _circle.disableCircle, enableCircle: _circle.enableCircle,
 	  disableArrow: _arrow.disableArrow, enableArrow: _arrow.enableArrow,
 	  disableText: _text.disableText, enableText: _text.enableText, setText: _text.setText,
 	  createPage: _page.createPage, renderPage: _page.renderPage
@@ -4253,7 +4257,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function handleDocumentMousedown(e) {
 	  var svg = void 0;
-	  if (_type !== 'area' && _type !== 'circle' && _type !== 'fillcircle' && _type !== 'emptycircle' || !(svg = (0, _utils.findSVGAtPoint)(e.clientX, e.clientY))) {
+	  if (_type !== 'area' || !(svg = (0, _utils.findSVGAtPoint)(e.clientX, e.clientY))) {
 	    return;
 	  }
 	
@@ -4298,7 +4302,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function handleDocumentMouseup(e) {
 	  var rects = void 0;
-	  if (_type !== 'area' && _type !== 'circle' && _type !== 'fillcircle' && _type !== 'emptycircle' && (rects = getSelectionRects())) {
+	  if (_type !== 'area' && (rects = getSelectionRects())) {
 	    var svg = (0, _utils.findSVGAtPoint)(rects[0].left, rects[0].top);
 	    saveRect(_type, [].concat(_toConsumableArray(rects)).map(function (r) {
 	      return {
@@ -4308,7 +4312,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        height: r.height
 	      };
 	    }));
-	  } else if ((_type === 'area' || _type === 'circle' || _type === 'fillcircle' || _type === 'emptycircle') && overlay) {
+	  } else if (_type === 'area' && overlay) {
 	    var _svg = overlay.parentNode.querySelector(_config2.default.annotationSvgQuery());
 	    var rect = _svg.getBoundingClientRect();
 	    saveRect(_type, [{
@@ -4353,7 +4357,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function saveRect(type, rects, color) {
 	  var svg = (0, _utils.findSVGAtPoint)(rects[0].left, rects[0].top);
-	  var node = void 0;
 	  var annotation = void 0;
 	
 	  if (!svg) {
@@ -4407,15 +4410,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    annotation.height = rect.height;
 	  }
 	
-	  if (type === 'circle' || type === 'emptycircle' || type === 'fillcircle') {
-	    var _rect = annotation.rectangles[0];
-	    delete annotation.rectangles;
-	    annotation.cx = _rect.x + _rect.width / 2;
-	    annotation.cy = _rect.y + _rect.height / 2;
-	    annotation.r = _rect.width; // ignored right now
-	    annotation.r = _rect.height; // ignored right now
-	  }
-	
 	  var _getMetadata = (0, _utils.getMetadata)(svg);
 	
 	  var documentId = _getMetadata.documentId;
@@ -4460,6 +4454,108 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 38 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.enableCircle = enableCircle;
+	exports.disableCircle = disableCircle;
+	
+	var _PDFJSAnnotate = __webpack_require__(1);
+	
+	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
+	
+	var _config = __webpack_require__(27);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
+	var _appendChild = __webpack_require__(8);
+	
+	var _utils = __webpack_require__(6);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var _enabled = false;
+	var _type = void 0;
+	
+	/**
+	 * Handle document.mouseup event
+	 *
+	 * @param {Event} e The DOM event to handle
+	 */
+	function handleDocumentMouseup(e) {
+	  var svg = (0, _utils.findSVGAtPoint)(e.clientX, e.clientY);
+	  if (!svg) {
+	    return;
+	  }
+	  var rect = svg.getBoundingClientRect();
+	  saveCircle(svg, _type, {
+	    x: e.clientX - rect.left,
+	    y: e.clientY - rect.top
+	  }, "0000FF");
+	}
+	
+	/**
+	 * Save a circle annotation
+	 *
+	 * @param {String} type The type of circle (circle, emptycircle, fillcircle)
+	 * @param {Object} pt The point to use for annotation
+	 * @param {String} color The color of the rects
+	 */
+	function saveCircle(svg, type, pt, color) {
+	  // Initialize the annotation
+	  var svg_pt = (0, _utils.convertToSvgPoint)([pt.x, pt.y], svg);
+	  var annotation = {
+	    type: type,
+	    color: color,
+	    cx: svg_pt[0],
+	    cy: svg_pt[1],
+	    r: 10
+	  };
+	
+	  var _getMetadata = (0, _utils.getMetadata)(svg);
+	
+	  var documentId = _getMetadata.documentId;
+	  var pageNumber = _getMetadata.pageNumber;
+	
+	  // Add the annotation
+	
+	  _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
+	    (0, _appendChild.appendChild)(svg, annotation);
+	  });
+	}
+	
+	/**
+	 * Enable circle behavior
+	 */
+	function enableCircle(type) {
+	  _type = type;
+	
+	  if (_enabled) {
+	    return;
+	  }
+	
+	  _enabled = true;
+	  document.addEventListener('mouseup', handleDocumentMouseup);
+	}
+	
+	/**
+	 * Disable circle behavior
+	 */
+	function disableCircle() {
+	  if (!_enabled) {
+	    return;
+	  }
+	
+	  _enabled = false;
+	  document.removeEventListener('mouseup', handleDocumentMouseup);
+	}
+
+/***/ },
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4631,7 +4727,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 39 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
