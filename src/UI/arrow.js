@@ -132,10 +132,11 @@ function savePoint(x, y) {
     y - rect.top
   ], svg);
 
-  lines.push(point);
-
-  if (lines.length <= 1) {
+  if (lines.length < 2) {
+    lines.push(point);
     return;
+  } else {
+    lines[1] = point; // update end point
   }
 
   if (path) {
@@ -156,7 +157,7 @@ function savePoint(x, y) {
  * @param {Number} penSize The size of the lines drawn by the pen
  * @param {String} penColor The color of the lines drawn by the pen
  */
-export function setArrow(penSize = 1, penColor = '000000') {
+export function setArrow(penSize = 10, penColor = '0000FF') {
   _penSize = parseInt(penSize, 10);
   _penColor = penColor;
 }

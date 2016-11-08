@@ -22,9 +22,10 @@ function handleDocumentMouseup(e) {
   }
   let rect = svg.getBoundingClientRect();
   saveCircle(svg, _type, {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top
-  }, "0000FF");
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    }, 15, "0000FF"
+  );
 }
 
 /**
@@ -34,7 +35,7 @@ function handleDocumentMouseup(e) {
  * @param {Object} pt The point to use for annotation
  * @param {String} color The color of the rects
  */
-function saveCircle(svg, type, pt, color) {
+function saveCircle(svg, type, pt, radius, color) {
   // Initialize the annotation
   let svg_pt = convertToSvgPoint([ pt.x, pt.y ], svg)
   let annotation = {
@@ -42,7 +43,7 @@ function saveCircle(svg, type, pt, color) {
     color,
     cx: svg_pt[0],
     cy: svg_pt[1],
-    r: 10
+    r: radius
   };
 
   let { documentId, pageNumber } = getMetadata(svg);

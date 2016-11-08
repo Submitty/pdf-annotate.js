@@ -367,4 +367,7 @@ render();
 
   UI.addEventListener('annotation:click', handleAnnotationClick);
   UI.addEventListener('annotation:blur', handleAnnotationBlur);
+
+  UI.setArrow(10, '#0000FF');
+
 })(window, document);

@@ -15,7 +15,7 @@ export default {
   disablePoint, enablePoint,
   disableRect, enableRect,
   disableCircle, enableCircle,
-  disableArrow, enableArrow,
+  disableArrow, enableArrow, setArrow,
   disableText, enableText, setText,
   createPage, renderPage
 };
