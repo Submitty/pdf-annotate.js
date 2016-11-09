@@ -11,7 +11,6 @@ import {
   enableUserSelect,
   findSVGContainer,
   findSVGAtPoint,
-  getAnnotationRect,
   getOffsetAnnotationRect,
   getMetadata,
   scaleDown,
