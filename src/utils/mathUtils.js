@@ -72,3 +72,59 @@ function getInverseTransform(m) {
   return [m[3] / d, -m[1] / d, -m[2] / d, m[0] / d,
     (m[2] * m[5] - m[4] * m[3]) / d, (m[4] * m[1] - m[5] * m[0]) / d];
 };
+
+
+export function makePoint(x, y, z) {
+  return { x: x, y: y, z: z }
+}
+
+export function makeVector(xcoord, ycoord, zcoord) {
+  return { xcoord: xcoord, ycoord: ycoord, zcoord: zcoord }
+}
+
+export function makeVectorFromPoints(pt1, pt2)
+{
+  let xcoord = pt2.x - pt1.x;
+  let ycoord = pt2.y - pt1.y;
+  let zcoord = pt2.z - pt1.z;
+  return makeVector(xcoord, ycoord, zcoord);
+}
+
+export function addVector(pt, v) {
+  return makePoint(pt.x + v.xcoord, pt.y + v.ycoord, pt.z + v.zcoord);
+}
+
+export function multiplyVector(v, scalar) {
+  return makeVector(v.xcoord * scalar, v.ycoord * scalar, v.zcoord * scalar);
+}
+
+export function magnitude(v)
+{
+  return Math.sqrt(
+    Math.pow(v.xcoord, 2) + Math.pow(v.ycoord, 2) + Math.pow(v.zcoord, 2)
+  );
+}
+
+export function negateVector(v) {
+  return multiplyVector(v, -1);
+}
+
+export function unitVector(v) {
+  let mag = magnitude(v);
+  let xcoord = v.xcoord / mag;
+  let ycoord = v.ycoord / mag;
+  let zcoord = v.zcoord / mag;
+  return makeVector(xcoord, ycoord, zcoord);
+} 
+
+export function crossProduct(u, v) {
+  //
+  // u X v = < u2*v3 - u3*v2,
+  //           u3*v1 - u1*v3,
+  //           u1*v2 - u2*v1 >
+  let xcoord = u.ycoord * v.zcoord - u.zcoord * v.ycoord;
+  let ycoord = u.zcoord * v.xcoord - u.xcoord * v.zcoord;
+  let zcoord = u.xcoord * v.ycoord - u.ycoord * v.xcoord;
+  return makeVector(xcoord, ycoord, zcoord);
+}
+

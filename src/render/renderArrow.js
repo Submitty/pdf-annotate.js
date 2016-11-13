@@ -1,5 +1,10 @@
 import setAttributes from '../utils/setAttributes';
 import normalizeColor from '../utils/normalizeColor';
+import { 
+  makePoint, makeVector, makeVectorFromPoints,
+  magnitude, unitVector, crossProduct,
+  addVector, multiplyVector, negateVector
+} from '../utils/mathUtils';
 
 /**
  * Create SVGPathElement from an annotation definition.
@@ -10,20 +15,44 @@ import normalizeColor from '../utils/normalizeColor';
  */
 export default function renderArrow(a) {
   let d = [];
-  let arrow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  let arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
 
   if (a.lines.length == 2) {
-    var p1 = a.lines[0];
-    var p2 = a.lines[a.lines.length - 1];
+    let p1 = a.lines[0];
+    let p2 = a.lines[a.lines.length - 1];
+
+    let arrowLength = 40;
+    let pt0 = makePoint(p1[0], p1[1], 0);
+    let pt1 = makePoint(p2[0], p2[1], 0);
+    let x = makeVectorFromPoints(pt0, pt1);
+    let unitX = unitVector(x);
+    pt1 = addVector(pt0, multiplyVector(unitX, arrowLength));
+    x = makeVectorFromPoints(pt0, pt1);
+    let unitZ = makeVector(0, 0, 1);
+    let unitY = unitVector(crossProduct(unitX, unitZ));
+    let thickness = a.width || 10;
+
+    let A = addVector(pt0, multiplyVector(unitY, thickness * 0.5)); 
+    let B = addVector(A, multiplyVector(unitX, magnitude(x) - thickness)); 
+    let C = addVector(B, multiplyVector(unitY, thickness * 0.5)); 
+    let D = pt1;
+    let G = addVector(pt0, multiplyVector(negateVector(unitY), thickness * 0.5)); 
+    let F = addVector(G, multiplyVector(unitX, magnitude(x) - thickness)); 
+    let E = addVector(F, multiplyVector(negateVector(unitY), thickness * 0.5)); 
+
+    let points = '' + 
+      A.x + ',' + A.y + ' ' +
+      B.x + ',' + B.y + ' ' +
+      C.x + ',' + C.y + ' ' +
+      D.x + ',' + D.y + ' ' +
+      E.x + ',' + E.y + ' ' +
+      F.x + ',' + F.y + ' ' +
+      G.x + ',' + G.y
 
     setAttributes(arrow, {
-      x1: p1[0],
-      y1: p1[1],
-      x2: p2[0],
-      y2: p2[1],
+      points: points,
       stroke: normalizeColor(a.color || '#000'),
-      strokeWidth: a.width || 1,
-      fill: '#000'
+      fill: normalizeColor(a.color || '#000')
     });
   }
 
