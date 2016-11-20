@@ -110,6 +110,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = {
 	  findAnnotationAtPoint: _utils.findAnnotationAtPoint,
 	  findSVGContainer: _utils.findSVGContainer,
+	  convertToScreenPoint: _utils.convertToScreenPoint,
 	
 	  /**
 	   * Abstract class that needs to be defined so PDFJSAnnotate
@@ -221,7 +222,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  function StoreAdapter() {
 	    var _this = this;
 	
-	    var definition = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	    var definition = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	
 	    _classCallCheck(this, StoreAdapter);
 	
@@ -979,10 +980,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	function getOffsetAnnotationRect(el) {
 	  var rect = el.getBoundingClientRect();
 	
-	  var _getOffset = getOffset(el);
-	
-	  var offsetLeft = _getOffset.offsetLeft;
-	  var offsetTop = _getOffset.offsetTop;
+	  var _getOffset = getOffset(el),
+	      offsetLeft = _getOffset.offsetLeft,
+	      offsetTop = _getOffset.offsetTop;
 	
 	  return {
 	    top: rect.top - offsetTop,
@@ -1004,10 +1004,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	function scaleUp(svg, rect) {
 	  var result = {};
 	
-	  var _getMetadata = getMetadata(svg);
-	
-	  var viewport = _getMetadata.viewport;
-	
+	  var _getMetadata = getMetadata(svg),
+	      viewport = _getMetadata.viewport;
 	
 	  Object.keys(rect).forEach(function (key) {
 	    result[key] = rect[key] * viewport.scale;
@@ -1019,10 +1017,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	function screenToPdf(svg, rect) {
 	  var result = {};
 	
-	  var _getMetadata2 = getMetadata(svg);
-	
-	  var viewport = _getMetadata2.viewport;
-	
+	  var _getMetadata2 = getMetadata(svg),
+	      viewport = _getMetadata2.viewport;
 	
 	  var xform = [1, 0, 0, 1, 0, 0];
 	  var trans = (0, _appendChild.getTranslation)(viewport);
@@ -1038,9 +1034,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  var width = Math.abs(pt2[0] - pt1[0]);
 	  var height = Math.abs(pt2[1] - pt1[1]);
-	
-	  //result.x = pt1[0];
-	  //result.y = pt1[1];
 	
 	  switch (viewport.rotation % 360) {
 	    case 0:
@@ -1070,10 +1063,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	function convertToSvgPoint(pt, svg) {
 	  var result = {};
 	
-	  var _getMetadata3 = getMetadata(svg);
-	
-	  var viewport = _getMetadata3.viewport;
-	
+	  var _getMetadata3 = getMetadata(svg),
+	      viewport = _getMetadata3.viewport;
 	
 	  var xform = [1, 0, 0, 1, 0, 0];
 	  xform = (0, _mathUtils.scale)(xform, viewport.scale, viewport.scale);
@@ -1085,13 +1076,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return (0, _mathUtils.applyInverseTransform)(pt, xform);
 	}
 	
-	function convertToScreenPoint(pt, svg) {
+	function convertToScreenPoint(pt, svg, viewport) {
 	  var result = {};
-	
-	  var _getMetadata4 = getMetadata(svg);
-	
-	  var viewport = _getMetadata4.viewport;
-	
+	  viewport = viewport || getMetadata(svg).viewport;
 	
 	  var xform = [1, 0, 0, 1, 0, 0];
 	  xform = (0, _mathUtils.scale)(xform, viewport.scale, viewport.scale);
@@ -1113,10 +1100,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	function scaleDown(svg, rect) {
 	  var result = {};
 	
-	  var _getMetadata5 = getMetadata(svg);
-	
-	  var viewport = _getMetadata5.viewport;
-	
+	  var _getMetadata4 = getMetadata(svg),
+	      viewport = _getMetadata4.viewport;
 	
 	  Object.keys(rect).forEach(function (key) {
 	    result[key] = rect[key] / viewport.scale;
@@ -1850,7 +1835,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 	
 	exports.default = renderRect;
 	
@@ -2244,7 +2229,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  function LocalStoreAdapter() {
 	    _classCallCheck(this, LocalStoreAdapter);
 	
-	    return _possibleConstructorReturn(this, Object.getPrototypeOf(LocalStoreAdapter).call(this, {
+	    return _possibleConstructorReturn(this, (LocalStoreAdapter.__proto__ || Object.getPrototypeOf(LocalStoreAdapter)).call(this, {
 	      getAnnotations: function getAnnotations(documentId, pageNumber) {
 	        return new Promise(function (resolve, reject) {
 	          var annotations = _getAnnotations(documentId).filter(function (i) {
@@ -2584,7 +2569,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Number} num The number of the annotation out of all annotations of the same type
 	 */
 	function insertScreenReaderHint(annotation) {
-	  var num = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+	  var num = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 	
 	  switch (annotation.type) {
 	    case 'highlight':
@@ -3278,10 +3263,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var nodes = document.querySelectorAll('[data-pdf-annotate-id="' + annotationId + '"]');
 	  var svg = overlay.parentNode.querySelector(_config2.default.annotationSvgQuery());
 	
-	  var _getMetadata = (0, _utils.getMetadata)(svg);
-	
-	  var documentId = _getMetadata.documentId;
-	
+	  var _getMetadata = (0, _utils.getMetadata)(svg),
+	      documentId = _getMetadata.documentId;
 	
 	  [].concat(_toConsumableArray(nodes)).forEach(function (n) {
 	    n.parentNode.removeChild(n);
@@ -3395,10 +3378,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var type = target[0].getAttribute('data-pdf-annotate-type');
 	  var svg = overlay.parentNode.querySelector(_config2.default.annotationSvgQuery());
 	
-	  var _getMetadata2 = (0, _utils.getMetadata)(svg);
-	
-	  var documentId = _getMetadata2.documentId;
-	
+	  var _getMetadata2 = (0, _utils.getMetadata)(svg),
+	      documentId = _getMetadata2.documentId;
 	
 	  overlay.querySelector('a').style.display = '';
 	
@@ -3481,10 +3462,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        };
 	
 	        annotation.lines.forEach(function (line, i) {
-	          var _annotation$lines$i = _slicedToArray(annotation.lines[i], 2);
-	
-	          var x = _annotation$lines$i[0];
-	          var y = _annotation$lines$i[1];
+	          var _annotation$lines$i = _slicedToArray(annotation.lines[i], 2),
+	              x = _annotation$lines$i[0],
+	              y = _annotation$lines$i[1];
 	
 	          annotation.lines[i][0] = x + modelDelta.x;
 	          annotation.lines[i][1] = y + modelDelta.y;
@@ -3593,11 +3573,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	function handleDocumentMouseup(e) {
 	  var svg = void 0;
 	  if (lines.length > 1 && (svg = (0, _utils.findSVGAtPoint)(e.clientX, e.clientY))) {
-	    var _getMetadata = (0, _utils.getMetadata)(svg);
-	
-	    var documentId = _getMetadata.documentId;
-	    var pageNumber = _getMetadata.pageNumber;
-	
+	    var _getMetadata = (0, _utils.getMetadata)(svg),
+	        documentId = _getMetadata.documentId,
+	        pageNumber = _getMetadata.pageNumber;
 	
 	    _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, {
 	      type: 'drawing',
@@ -3681,8 +3659,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {String} penColor The color of the lines drawn by the pen
 	 */
 	function setPen() {
-	  var penSize = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
-	  var penColor = arguments.length <= 1 || arguments[1] === undefined ? '000000' : arguments[1];
+	  var penSize = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+	  var penColor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '000000';
 	
 	  _penSize = parseInt(penSize, 10);
 	  _penColor = penColor;
@@ -3761,9 +3739,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  var svg = (0, _utils.findSVGContainer)(target);
 	
-	  var _getMetadata = (0, _utils.getMetadata)(svg);
-	
-	  var documentId = _getMetadata.documentId;
+	  var _getMetadata = (0, _utils.getMetadata)(svg),
+	      documentId = _getMetadata.documentId;
 	
 	  var annotationId = target.getAttribute('data-pdf-annotate-id');
 	
@@ -3794,11 +3771,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	function handleDocumentMouseup(e) {
 	  var svg = void 0;
 	  if (lines.length > 1 && (svg = (0, _utils.findSVGAtPoint)(e.clientX, e.clientY))) {
-	    var _getMetadata2 = (0, _utils.getMetadata)(svg);
-	
-	    var documentId = _getMetadata2.documentId;
-	    var pageNumber = _getMetadata2.pageNumber;
-	
+	    var _getMetadata2 = (0, _utils.getMetadata)(svg),
+	        documentId = _getMetadata2.documentId,
+	        pageNumber = _getMetadata2.pageNumber;
 	
 	    _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, {
 	      type: 'arrow',
@@ -3886,8 +3861,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {String} penColor The color of the lines drawn by the pen
 	 */
 	function setArrow() {
-	  var penSize = arguments.length <= 0 || arguments[0] === undefined ? 10 : arguments[0];
-	  var penColor = arguments.length <= 1 || arguments[1] === undefined ? '0000FF' : arguments[1];
+	  var penSize = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 10;
+	  var penColor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '0000FF';
 	
 	  _penSize = parseInt(penSize, 10);
 	  _penColor = penColor;
@@ -3931,7 +3906,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 	
 	exports.enablePoint = enablePoint;
 	exports.disablePoint = disablePoint;
@@ -4013,10 +3988,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	      var rect = svg.getBoundingClientRect();
 	
-	      var _getMetadata = (0, _utils.getMetadata)(svg);
-	
-	      var documentId = _getMetadata.documentId;
-	      var pageNumber = _getMetadata.pageNumber;
+	      var _getMetadata = (0, _utils.getMetadata)(svg),
+	          documentId = _getMetadata.documentId,
+	          pageNumber = _getMetadata.pageNumber;
 	
 	      var annotation = Object.assign({
 	        type: 'point'
@@ -4285,12 +4259,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    annotation.height = rect.height;
 	  }
 	
-	  var _getMetadata = (0, _utils.getMetadata)(svg);
-	
-	  var documentId = _getMetadata.documentId;
-	  var pageNumber = _getMetadata.pageNumber;
+	  var _getMetadata = (0, _utils.getMetadata)(svg),
+	      documentId = _getMetadata.documentId,
+	      pageNumber = _getMetadata.pageNumber;
 	
 	  // Add the annotation
+	
 	
 	  _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
 	    (0, _appendChild.appendChild)(svg, annotation);
@@ -4391,12 +4365,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    r: radius
 	  };
 	
-	  var _getMetadata = (0, _utils.getMetadata)(svg);
-	
-	  var documentId = _getMetadata.documentId;
-	  var pageNumber = _getMetadata.pageNumber;
+	  var _getMetadata = (0, _utils.getMetadata)(svg),
+	      documentId = _getMetadata.documentId,
+	      pageNumber = _getMetadata.pageNumber;
 	
 	  // Add the annotation
+	
 	
 	  _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
 	    (0, _appendChild.appendChild)(svg, annotation);
@@ -4439,7 +4413,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 	
 	exports.setText = setText;
 	exports.enableText = enableText;
@@ -4522,10 +4496,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        };
 	      }
 	
-	      var _getMetadata = (0, _utils.getMetadata)(svg);
-	
-	      var documentId = _getMetadata.documentId;
-	      var pageNumber = _getMetadata.pageNumber;
+	      var _getMetadata = (0, _utils.getMetadata)(svg),
+	          documentId = _getMetadata.documentId,
+	          pageNumber = _getMetadata.pageNumber;
 	
 	      var rect = svg.getBoundingClientRect();
 	      var annotation = Object.assign({
@@ -4570,8 +4543,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {String} textColor The color of the text
 	 */
 	function setText() {
-	  var textSize = arguments.length <= 0 || arguments[0] === undefined ? 12 : arguments[0];
-	  var textColor = arguments.length <= 1 || arguments[1] === undefined ? '000000' : arguments[1];
+	  var textSize = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 12;
+	  var textColor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '000000';
 	
 	  _textSize = parseInt(textSize, 10);
 	  _textColor = textColor;
@@ -4666,18 +4639,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	 *    - rejected: Error
 	 */
 	function renderPage(pageNumber, renderOptions) {
-	  var documentId = renderOptions.documentId;
-	  var pdfDocument = renderOptions.pdfDocument;
-	  var scale = renderOptions.scale;
-	  var rotate = renderOptions.rotate;
+	  var documentId = renderOptions.documentId,
+	      pdfDocument = renderOptions.pdfDocument,
+	      scale = renderOptions.scale,
+	      rotate = renderOptions.rotate;
 	
 	  // Load the page and annotations
 	
 	  return Promise.all([pdfDocument.getPage(pageNumber), _PDFJSAnnotate2.default.getAnnotations(documentId, pageNumber)]).then(function (_ref) {
-	    var _ref2 = _slicedToArray(_ref, 2);
-	
-	    var pdfPage = _ref2[0];
-	    var annotations = _ref2[1];
+	    var _ref2 = _slicedToArray(_ref, 2),
+	        pdfPage = _ref2[0],
+	        annotations = _ref2[1];
 	
 	    var page = document.getElementById('pageContainer' + pageNumber);
 	    var svg = page.querySelector(_config2.default.annotationClassQuery());

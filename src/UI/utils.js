@@ -144,18 +144,14 @@ export function screenToPdf(svg, rect) {
   xform = rotate(xform, viewport.rotation);
   xform = translate(xform, trans.x, trans.y);
 
-	  var pt1 = [rect.x, rect.y];
-	  var pt2 = [rect.x + rect.width, rect.y + rect.height];
+  var pt1 = [rect.x, rect.y];
+  var pt2 = [rect.x + rect.width, rect.y + rect.height];
 
-	  pt1 = applyInverseTransform(pt1, xform);
-	  pt2 = applyInverseTransform(pt2, xform);
-
+  pt1 = applyInverseTransform(pt1, xform);
+  pt2 = applyInverseTransform(pt2, xform);
 
   var width = Math.abs(pt2[0] - pt1[0]);
   var height = Math.abs(pt2[1] - pt1[1]);
-
-  //result.x = pt1[0];
-  //result.y = pt1[1];
 
   switch (viewport.rotation % 360) {
     case 0:
@@ -196,9 +192,9 @@ export function convertToSvgPoint(pt, svg) {
   return applyInverseTransform(pt, xform);
 }
 
-export function convertToScreenPoint(pt, svg) {
+export function convertToScreenPoint(pt, svg, viewport) {
   let result = {};
-  let { viewport } = getMetadata(svg);
+  viewport = viewport || getMetadata(svg).viewport;
 
   let xform = [ 1, 0, 0, 1, 0, 0 ];
   xform = scale(xform, viewport.scale, viewport.scale);
