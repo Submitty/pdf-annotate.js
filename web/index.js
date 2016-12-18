@@ -369,5 +369,6 @@ render();
   UI.addEventListener('annotation:blur', handleAnnotationBlur);
 
   UI.setArrow(10, '#0000FF');
+  UI.setCircle(10, '#0000FF')
 
 })(window, document);

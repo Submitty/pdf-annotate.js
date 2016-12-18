@@ -9,6 +9,19 @@ import {
 
 let _enabled = false;
 let _type;
+let _circleRadius = 10;
+let _circleColor = '0000FF';
+
+/**
+ * Set the attributes of the pen.
+ *
+ * @param {Number} circleRadius The radius of the circle
+ * @param {String} circleColor The color of the circle
+ */
+export function setCircle(circleRadius = 10, circleColor = '0000FF') {
+  _circleRadius = parseInt(circleRadius, 10);
+  _circleColor = circleColor;
+}
 
 /**
  * Handle document.mouseup event
@@ -24,7 +37,7 @@ function handleDocumentMouseup(e) {
   saveCircle(svg, _type, {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
-    }, 15, "0000FF"
+    }, _circleRadius, _circleColor
   );
 }
 

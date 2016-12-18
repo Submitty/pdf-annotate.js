@@ -3116,7 +3116,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  disablePen: _pen.disablePen, enablePen: _pen.enablePen, setPen: _pen.setPen,
 	  disablePoint: _point.disablePoint, enablePoint: _point.enablePoint,
 	  disableRect: _rect.disableRect, enableRect: _rect.enableRect,
-	  disableCircle: _circle.disableCircle, enableCircle: _circle.enableCircle,
+	  disableCircle: _circle.disableCircle, enableCircle: _circle.enableCircle, setCircle: _circle.setCircle,
 	  disableArrow: _arrow.disableArrow, enableArrow: _arrow.enableArrow, setArrow: _arrow.setArrow,
 	  disableText: _text.disableText, enableText: _text.enableText, setText: _text.setText,
 	  createPage: _page.createPage, renderPage: _page.renderPage
@@ -4310,6 +4310,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.setCircle = setCircle;
 	exports.enableCircle = enableCircle;
 	exports.disableCircle = disableCircle;
 	
@@ -4329,6 +4330,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _enabled = false;
 	var _type = void 0;
+	var _circleRadius = 10;
+	var _circleColor = '0000FF';
+	
+	/**
+	 * Set the attributes of the pen.
+	 *
+	 * @param {Number} circleRadius The radius of the circle
+	 * @param {String} circleColor The color of the circle
+	 */
+	function setCircle() {
+	  var circleRadius = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 10;
+	  var circleColor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '0000FF';
+	
+	  _circleRadius = parseInt(circleRadius, 10);
+	  _circleColor = circleColor;
+	}
 	
 	/**
 	 * Handle document.mouseup event
@@ -4344,7 +4361,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  saveCircle(svg, _type, {
 	    x: e.clientX - rect.left,
 	    y: e.clientY - rect.top
-	  }, 15, "0000FF");
+	  }, _circleRadius, _circleColor);
 	}
 	
 	/**
