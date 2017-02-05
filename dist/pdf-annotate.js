@@ -1461,8 +1461,15 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 9 */
 /***/ function(module, exports) {
 
+	/*
+	object-assign
+	(c) Sindre Sorhus
+	@license MIT
+	*/
+	
 	'use strict';
 	/* eslint-disable no-unused-vars */
+	var getOwnPropertySymbols = Object.getOwnPropertySymbols;
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 	var propIsEnumerable = Object.prototype.propertyIsEnumerable;
 	
@@ -1483,7 +1490,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			// Detect buggy property enumeration order in older V8 versions.
 	
 			// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-			var test1 = new String('abc');  // eslint-disable-line
+			var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
 			test1[5] = 'de';
 			if (Object.getOwnPropertyNames(test1)[0] === '5') {
 				return false;
@@ -1512,7 +1519,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 	
 			return true;
-		} catch (e) {
+		} catch (err) {
 			// We don't expect any of the above to throw, but better to be safe.
 			return false;
 		}
@@ -1532,8 +1539,8 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 			}
 	
-			if (Object.getOwnPropertySymbols) {
-				symbols = Object.getOwnPropertySymbols(from);
+			if (getOwnPropertySymbols) {
+				symbols = getOwnPropertySymbols(from);
 				for (var i = 0; i < symbols.length; i++) {
 					if (propIsEnumerable.call(from, symbols[i])) {
 						to[symbols[i]] = from[symbols[i]];
@@ -2057,12 +2064,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var thickness = a.width || 10;
 	
 	    var A = (0, _mathUtils.addVector)(pt0, (0, _mathUtils.multiplyVector)(unitY, thickness * 0.5));
-	    var B = (0, _mathUtils.addVector)(A, (0, _mathUtils.multiplyVector)(unitX, (0, _mathUtils.magnitude)(x) - thickness));
-	    var C = (0, _mathUtils.addVector)(B, (0, _mathUtils.multiplyVector)(unitY, thickness * 0.5));
+	    var B = (0, _mathUtils.addVector)(A, (0, _mathUtils.multiplyVector)(unitX, (0, _mathUtils.magnitude)(x) - thickness * 2.0));
+	    var C = (0, _mathUtils.addVector)(B, (0, _mathUtils.multiplyVector)(unitY, thickness));
 	    var D = pt1;
 	    var G = (0, _mathUtils.addVector)(pt0, (0, _mathUtils.multiplyVector)((0, _mathUtils.negateVector)(unitY), thickness * 0.5));
-	    var F = (0, _mathUtils.addVector)(G, (0, _mathUtils.multiplyVector)(unitX, (0, _mathUtils.magnitude)(x) - thickness));
-	    var E = (0, _mathUtils.addVector)(F, (0, _mathUtils.multiplyVector)((0, _mathUtils.negateVector)(unitY), thickness * 0.5));
+	    var F = (0, _mathUtils.addVector)(G, (0, _mathUtils.multiplyVector)(unitX, (0, _mathUtils.magnitude)(x) - thickness * 2.0));
+	    var E = (0, _mathUtils.addVector)(F, (0, _mathUtils.multiplyVector)((0, _mathUtils.negateVector)(unitY), thickness));
 	
 	    var points = '' + A.x + ',' + A.y + ' ' + B.x + ',' + B.y + ' ' + C.x + ',' + C.y + ' ' + D.x + ',' + D.y + ' ' + E.x + ',' + E.y + ' ' + F.x + ',' + F.y + ' ' + G.x + ',' + G.y;
 	

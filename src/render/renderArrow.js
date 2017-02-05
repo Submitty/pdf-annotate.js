@@ -33,12 +33,12 @@ export default function renderArrow(a) {
     let thickness = a.width || 10;
 
     let A = addVector(pt0, multiplyVector(unitY, thickness * 0.5)); 
-    let B = addVector(A, multiplyVector(unitX, magnitude(x) - thickness)); 
-    let C = addVector(B, multiplyVector(unitY, thickness * 0.5)); 
+    let B = addVector(A, multiplyVector(unitX, magnitude(x) - thickness * 2.0)); 
+    let C = addVector(B, multiplyVector(unitY, thickness)); 
     let D = pt1;
     let G = addVector(pt0, multiplyVector(negateVector(unitY), thickness * 0.5)); 
-    let F = addVector(G, multiplyVector(unitX, magnitude(x) - thickness)); 
-    let E = addVector(F, multiplyVector(negateVector(unitY), thickness * 0.5)); 
+    let F = addVector(G, multiplyVector(unitX, magnitude(x) - thickness * 2.0)); 
+    let E = addVector(F, multiplyVector(negateVector(unitY), thickness)); 
 
     let points = '' + 
       A.x + ',' + A.y + ' ' +
