@@ -4502,11 +4502,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	          pageNumber = _getMetadata.pageNumber,
 	          viewport = _getMetadata.viewport;
 	
+	      var scale = 1 / viewport.scale;
 	      var rect = svg.getBoundingClientRect();
 	      var pt = (0, _utils.convertToSvgPoint)([clientX - rect.left, clientY - rect.top + height], svg, viewport);
 	      var annotation = {
 	        type: 'textbox',
-	        size: _textSize,
+	        size: _textSize * scale,
 	        color: _textColor,
 	        content: input.value.trim(),
 	        x: pt[0],

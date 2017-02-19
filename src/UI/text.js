@@ -71,15 +71,15 @@ function saveText() {
       return;
     }
     let height = _textSize;
-
     let { documentId, pageNumber, viewport } = getMetadata(svg);
+    let scale = 1 / viewport.scale;
     let rect = svg.getBoundingClientRect();
     let pt = convertToSvgPoint([
       clientX - rect.left, 
       clientY -  rect.top + height], svg, viewport);
     let annotation = {
         type: 'textbox',
-        size: _textSize,
+        size: _textSize * scale,
         color: _textColor,
         content: input.value.trim(),
         x: pt[0],
