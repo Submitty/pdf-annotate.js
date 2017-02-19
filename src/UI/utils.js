@@ -134,53 +134,24 @@ export function scaleUp(svg, rect) {
   return result;
 }
 
-export function screenToPdf(svg, rect) {
-  let result = {};
-  let { viewport } = getMetadata(svg);
-
-  let xform = [ 1, 0, 0, 1, 0, 0 ];
-  let trans = getTranslation(viewport);
-  xform = scale(xform, viewport.scale, viewport.scale);
-  xform = rotate(xform, viewport.rotation);
-  xform = translate(xform, trans.x, trans.y);
-
+export function convertToSvgRect(rect, svg, viewport) {
   var pt1 = [rect.x, rect.y];
   var pt2 = [rect.x + rect.width, rect.y + rect.height];
 
-  pt1 = applyInverseTransform(pt1, xform);
-  pt2 = applyInverseTransform(pt2, xform);
+  pt1 = convertToSvgPoint(pt1, svg, viewport);
+  pt2 = convertToSvgPoint(pt2, svg, viewport);
 
-  var width = Math.abs(pt2[0] - pt1[0]);
-  var height = Math.abs(pt2[1] - pt1[1]);
-
-  switch (viewport.rotation % 360) {
-    case 0:
-      result.x = pt1[0];
-      result.y = pt1[1];
-      break;
-    case 90:
-      result.x = pt1[0];
-      result.y = pt1[1] - height;
-      break;
-    case 180:
-      result.x = pt1[0] - width;
-      result.y = pt1[1] - height;
-      break;
-    case 270:
-      result.x = pt1[0] - width;
-      result.y = pt1[1];
-      break;
-  }
-  
-  result.width = width;
-  result.height = height;
-
-  return result;
+  return {
+    x: Math.min(pt1[0], pt2[0]),
+    y: Math.min(pt1[1], pt2[1]),
+    width: Math.abs(pt2[0] - pt1[0]),
+    height: Math.abs(pt2[1] - pt1[1])
+  };
 }
 
-export function convertToSvgPoint(pt, svg) {
+export function convertToSvgPoint(pt, svg, viewport) {
   let result = {};
-  let { viewport } = getMetadata(svg);
+  viewport = viewport || getMetadata(svg).viewport;
 
   let xform = [ 1, 0, 0, 1, 0, 0 ];
   xform = scale(xform, viewport.scale, viewport.scale);

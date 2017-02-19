@@ -4,8 +4,7 @@ import {
   BORDER_COLOR,
   findSVGAtPoint,
   getMetadata,
-  scaleDown,
-  screenToPdf
+  convertToSvgPoint
 } from './utils';
 
 let _enabled = false;
@@ -71,21 +70,22 @@ function saveText() {
     if (!svg) {
       return;
     }
+    let height = _textSize;
 
-    let { documentId, pageNumber } = getMetadata(svg);
+    let { documentId, pageNumber, viewport } = getMetadata(svg);
     let rect = svg.getBoundingClientRect();
-    let annotation = Object.assign({
+    let pt = convertToSvgPoint([
+      clientX - rect.left, 
+      clientY -  rect.top + height], svg, viewport);
+    let annotation = {
         type: 'textbox',
         size: _textSize,
         color: _textColor,
-        content: input.value.trim()
-      }, scaleDown(svg, {
-        x: clientX - rect.left,
-        y: clientY -  rect.top,
-        width: input.offsetWidth,
-        height: input.offsetHeight
-      })
-    );
+        content: input.value.trim(),
+        x: pt[0],
+        y: pt[1],
+        rotation: -viewport.rotation
+    }
 
     PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
       .then((annotation) => {
