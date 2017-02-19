@@ -865,7 +865,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.pointIntersectsRect = pointIntersectsRect;
 	exports.getOffsetAnnotationRect = getOffsetAnnotationRect;
 	exports.scaleUp = scaleUp;
-	exports.screenToPdf = screenToPdf;
+	exports.convertToSvgRect = convertToSvgRect;
 	exports.convertToSvgPoint = convertToSvgPoint;
 	exports.convertToScreenPoint = convertToScreenPoint;
 	exports.scaleDown = scaleDown;
@@ -1014,57 +1014,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return result;
 	}
 	
-	function screenToPdf(svg, rect) {
-	  var result = {};
-	
-	  var _getMetadata2 = getMetadata(svg),
-	      viewport = _getMetadata2.viewport;
-	
-	  var xform = [1, 0, 0, 1, 0, 0];
-	  var trans = (0, _appendChild.getTranslation)(viewport);
-	  xform = (0, _mathUtils.scale)(xform, viewport.scale, viewport.scale);
-	  xform = (0, _mathUtils.rotate)(xform, viewport.rotation);
-	  xform = (0, _mathUtils.translate)(xform, trans.x, trans.y);
-	
+	function convertToSvgRect(rect, svg, viewport) {
 	  var pt1 = [rect.x, rect.y];
 	  var pt2 = [rect.x + rect.width, rect.y + rect.height];
 	
-	  pt1 = (0, _mathUtils.applyInverseTransform)(pt1, xform);
-	  pt2 = (0, _mathUtils.applyInverseTransform)(pt2, xform);
+	  pt1 = convertToSvgPoint(pt1, svg, viewport);
+	  pt2 = convertToSvgPoint(pt2, svg, viewport);
 	
-	  var width = Math.abs(pt2[0] - pt1[0]);
-	  var height = Math.abs(pt2[1] - pt1[1]);
-	
-	  switch (viewport.rotation % 360) {
-	    case 0:
-	      result.x = pt1[0];
-	      result.y = pt1[1];
-	      break;
-	    case 90:
-	      result.x = pt1[0];
-	      result.y = pt1[1] - height;
-	      break;
-	    case 180:
-	      result.x = pt1[0] - width;
-	      result.y = pt1[1] - height;
-	      break;
-	    case 270:
-	      result.x = pt1[0] - width;
-	      result.y = pt1[1];
-	      break;
-	  }
-	
-	  result.width = width;
-	  result.height = height;
-	
-	  return result;
+	  return {
+	    x: Math.min(pt1[0], pt2[0]),
+	    y: Math.min(pt1[1], pt2[1]),
+	    width: Math.abs(pt2[0] - pt1[0]),
+	    height: Math.abs(pt2[1] - pt1[1])
+	  };
 	}
 	
-	function convertToSvgPoint(pt, svg) {
+	function convertToSvgPoint(pt, svg, viewport) {
 	  var result = {};
-	
-	  var _getMetadata3 = getMetadata(svg),
-	      viewport = _getMetadata3.viewport;
+	  viewport = viewport || getMetadata(svg).viewport;
 	
 	  var xform = [1, 0, 0, 1, 0, 0];
 	  xform = (0, _mathUtils.scale)(xform, viewport.scale, viewport.scale);
@@ -1100,8 +1067,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	function scaleDown(svg, rect) {
 	  var result = {};
 	
-	  var _getMetadata4 = getMetadata(svg),
-	      viewport = _getMetadata4.viewport;
+	  var _getMetadata2 = getMetadata(svg),
+	      viewport = _getMetadata2.viewport;
 	
 	  Object.keys(rect).forEach(function (key) {
 	    result[key] = rect[key] / viewport.scale;
@@ -1936,17 +1903,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @return {SVGTextElement} A text to be rendered
 	 */
 	function renderText(a) {
+	
+	  // Text should be rendered at 0 degrees relative to
+	  // document rotation
 	  var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+	  var x = a.x;
+	  var y = a.y;
 	
 	  (0, _setAttributes2.default)(text, {
-	    x: a.x,
-	    y: a.y + parseInt(a.size, 10),
+	    x: x,
+	    y: y,
 	    fill: (0, _normalizeColor2.default)(a.color || '#000'),
-	    fontSize: a.size
+	    fontSize: a.size,
+	    transform: 'rotate(' + a.rotation + ', ' + x + ', ' + y + ')'
 	  });
 	  text.innerHTML = a.content;
 	
-	  return text;
+	  var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+	  g.appendChild(text);
+	
+	  return g;
 	}
 	module.exports = exports['default'];
 
@@ -4240,12 +4216,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        offset = r.height / 2;
 	      }
 	
-	      return (0, _utils.screenToPdf)(svg, {
+	      return (0, _utils.convertToSvgRect)({
 	        y: r.top + offset - boundingRect.top,
 	        x: r.left - boundingRect.left,
 	        width: r.width,
 	        height: r.height
-	      });
+	      }, svg);
 	    }).filter(function (r) {
 	      return r.width > 0 && r.height > 0 && r.x > -1 && r.y > -1;
 	    })
@@ -4519,23 +4495,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	          v: void 0
 	        };
 	      }
+	      var height = _textSize;
 	
 	      var _getMetadata = (0, _utils.getMetadata)(svg),
 	          documentId = _getMetadata.documentId,
-	          pageNumber = _getMetadata.pageNumber;
+	          pageNumber = _getMetadata.pageNumber,
+	          viewport = _getMetadata.viewport;
 	
 	      var rect = svg.getBoundingClientRect();
-	      var annotation = Object.assign({
+	      var pt = (0, _utils.convertToSvgPoint)([clientX - rect.left, clientY - rect.top + height], svg, viewport);
+	      var annotation = {
 	        type: 'textbox',
 	        size: _textSize,
 	        color: _textColor,
-	        content: input.value.trim()
-	      }, (0, _utils.scaleDown)(svg, {
-	        x: clientX - rect.left,
-	        y: clientY - rect.top,
-	        width: input.offsetWidth,
-	        height: input.offsetHeight
-	      }));
+	        content: input.value.trim(),
+	        x: pt[0],
+	        y: pt[1],
+	        rotation: -viewport.rotation
+	      };
 	
 	      _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
 	        (0, _appendChild.appendChild)(svg, annotation);
