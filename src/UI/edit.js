@@ -13,7 +13,6 @@ import {
   findSVGAtPoint,
   getOffsetAnnotationRect,
   getMetadata,
-  scaleDown,
   scaleUp,
   convertToSvgPoint
 } from './utils';

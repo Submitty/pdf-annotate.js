@@ -7,7 +7,7 @@ import {
   enableUserSelect,
   findSVGAtPoint,
   getMetadata,
-  screenToPdf
+  convertToSvgRect
 } from './utils';
 
 let _enabled = false;
@@ -171,12 +171,12 @@ function saveRect(type, rects, color) {
         offset = r.height / 2;
       }
 
-      return screenToPdf(svg, {
+      return convertToSvgRect({
         y: (r.top + offset) - boundingRect.top,
         x: r.left - boundingRect.left,
         width: r.width,
         height: r.height
-      });
+      }, svg);
     }).filter((r) => r.width > 0 && r.height > 0 && r.x > -1 && r.y > -1)
   };
   
