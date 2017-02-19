@@ -75,12 +75,13 @@ export function findSVGAtPoint(x, y) {
  */
 export function findAnnotationAtPoint(x, y) {
   let el = null;
-  let candidate = document.elementFromPoint(x, y)
-  if (candidate) {
+  var candidate = document.elementFromPoint(x, y)
+  while (!el && candidate && candidate !== document) {  
     let type = candidate.getAttribute('data-pdf-annotate-type');
     if (type) {
       el = candidate;
     }
+    candidate = candidate.parentNode;
   }
   return el;
 }

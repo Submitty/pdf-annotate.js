@@ -950,11 +950,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	function findAnnotationAtPoint(x, y) {
 	  var el = null;
 	  var candidate = document.elementFromPoint(x, y);
-	  if (candidate) {
+	  while (!el && candidate && candidate !== document) {
 	    var type = candidate.getAttribute('data-pdf-annotate-type');
 	    if (type) {
 	      el = candidate;
 	    }
+	    candidate = candidate.parentNode;
 	  }
 	  return el;
 	}
@@ -3382,16 +3383,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	          y: modelEnd[1] - modelStart[1]
 	        };
 	
+	        if (type === 'textbox') {
+	          target = [target[0].firstChild];
+	        }
+	
 	        [].concat(_toConsumableArray(target)).forEach(function (t, i) {
 	          var modelX = parseInt(t.getAttribute(attribX), 10);
 	          var modelY = parseInt(t.getAttribute(attribY), 10);
 	          if (modelDelta.y !== 0) {
 	            modelY = modelY + modelDelta.y;
 	            var viewY = modelY;
-	
-	            if (type === 'textbox') {
-	              viewY += annotation.size;
-	            }
 	
 	            if (type === 'point') {
 	              viewY = (0, _utils.scaleUp)(svg, { viewY: viewY }).viewY;

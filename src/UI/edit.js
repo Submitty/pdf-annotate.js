@@ -243,16 +243,16 @@ function handleDocumentMouseup(e) {
         y: modelEnd[1] - modelStart[1]
       };
 
+      if (type === 'textbox') {
+        target = [target[0].firstChild];
+      }
+
       [...target].forEach((t, i) => {
         let modelX = parseInt(t.getAttribute(attribX), 10);
         let modelY = parseInt(t.getAttribute(attribY), 10);
         if (modelDelta.y !== 0) {
           modelY = modelY + modelDelta.y;
           let viewY = modelY;
-
-          if (type === 'textbox') {
-            viewY += annotation.size;
-          }
 
           if (type === 'point') {
             viewY = scaleUp(svg, { viewY }).viewY;
