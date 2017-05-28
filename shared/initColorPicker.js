@@ -1,5 +1,6 @@
 // Color picker component
 const COLORS = [
+  {hex: 'darkgoldenrod', name: 'Delete Color'},
   {hex: '#000000', name: 'Black'},
   {hex: '#EF4437', name: 'Red'},
   {hex: '#E71F63', name: 'Pink'},
