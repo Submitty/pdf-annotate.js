@@ -13,9 +13,9 @@ function testScale(scale = 0.5, passViewportArg = true) {
     x: 200,
     y: 100
   };
-  
+
   let nested = appendChild(svg, annotation, passViewportArg ? viewport : undefined);
-  
+
   if (isFirefox) {
     equal(nested.getAttribute('x'), annotation.x);
     equal(nested.getAttribute('y'), annotation.y);
@@ -90,13 +90,13 @@ describe('render::appendChild', function () {
       width: 25,
       height: 25
     }, viewport);
-    
+
     equal(point.getAttribute('data-pdf-annotate-id'), '1234');
     equal(point.getAttribute('data-pdf-annotate-type'), 'point');
     equal(area.getAttribute('data-pdf-annotate-id'), '5678');
     equal(area.getAttribute('data-pdf-annotate-type'), 'area');
   });
-  
+
   it('should render area', function () {
     let area = appendChild(svg, {
       type: 'area',
@@ -146,7 +146,8 @@ describe('render::appendChild', function () {
   });
 
   it('should render textbox', function () {
-    let textbox = appendChild(svg, {
+
+    let textboxGroup = appendChild(svg, {
       type: 'textbox',
       x: 125,
       y: 400,
@@ -156,6 +157,7 @@ describe('render::appendChild', function () {
       color: '000000',
       content: 'Lorem Ipsum'
     }, viewport);
+    let textbox = textboxGroup.firstChild;
 
     equal(textbox.nodeName.toLowerCase(), 'text');
   });
