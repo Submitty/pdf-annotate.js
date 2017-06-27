@@ -14,7 +14,7 @@ describe('UI::event', function () {
   beforeEach(function () {
     svg = mockSVGContainer();
     text = mockTextAnnotation();
-    
+
     document.body.appendChild(svg);
     svg.appendChild(text);
     svg.style.width = '100px';
@@ -45,13 +45,15 @@ describe('UI::event', function () {
   });
 
   it('should emit an event when an annotation is clicked', function (done) {
+
     simulant.fire(svg, 'click', {
-      clientX: rect.left + 15,
-      clientY: rect.top + 15
+      clientX: text.getBoundingClientRect().left + 1,
+      clientY: text.getBoundingClientRect().top + 1
     });
 
     setTimeout(function () {
       equal(annotationClickSpy.calledOnce, true);
+      console.log(annotationClickSpy.getCall(0).args[0], text)
       equal(annotationClickSpy.getCall(0).args[0], text);
       done();
     }, 0);
@@ -59,8 +61,8 @@ describe('UI::event', function () {
 
   it('should emit an event when an annotation is blurred', function (done) {
     simulant.fire(svg, 'click', {
-      clientX: rect.left + 15,
-      clientY: rect.top + 15
+      clientX: text.getBoundingClientRect().left + 1,
+      clientY: text.getBoundingClientRect().top + 1
     });
 
     setTimeout(function () {
