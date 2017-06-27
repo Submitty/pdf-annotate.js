@@ -1,6 +1,7 @@
 import render from '../../src/render';
 import mockViewport from '../mockViewport';
 import { equal } from 'assert';
+import uuid from "../../src/utils/uuid"
 
 function _render(annotations) {
   let data = Array.isArray(annotations) ? { annotations } : annotations;
@@ -16,14 +17,19 @@ describe('render::index', function () {
     viewport = mockViewport();
   });
 
-  it('should reset SVG on each render', function () {
+  it('should not render the same annotation multiple times', function () {
     let viewport = mockViewport(undefined, undefined, .5);
+    let id1 = uuid();
+    let id2 = uuid();
 
     _render([
       {
-        type: 'point',
+        type: 'area',
         x: 0,
-        y: 0
+        y: 0,
+        width: 10,
+        height: 10,
+        uuid: id1
       }
     ]);
 
@@ -31,14 +37,20 @@ describe('render::index', function () {
 
     _render([
       {
-        type: 'point',
+        type: 'area',
         x: 0,
-        y: 0
+        y: 0,
+        width: 10,
+        height: 10,
+        uuid: id1
       },
       {
-        type: 'point',
+        type: 'area',
         x: 25,
-        y: 25
+        y: 25,
+        width: 10,
+        height: 10,
+        uuid: id2
       }
     ]);
 
