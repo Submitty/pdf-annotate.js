@@ -89,3 +89,10 @@ export function disableCircle() {
   _enabled = false;
   document.removeEventListener('mouseup', handleDocumentMouseup);
 }
+
+export function addCircle(type, e) {
+  let oldType = _type;
+  _type = type;
+  handleDocumentMouseup(e);
+  _type = oldType; 
+}
