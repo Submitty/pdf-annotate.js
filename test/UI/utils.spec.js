@@ -11,7 +11,7 @@ import {
   findSVGAtPoint,
   findAnnotationAtPoint,
   pointIntersectsRect,
-  getAnnotationRect,
+  getOffsetAnnotationRect,
   scaleUp,
   scaleDown,
   getScroll,
@@ -41,12 +41,14 @@ function createPath() {
 let div;
 let svg;
 let text;
+let textSvgGroup;
 
 describe('UI::utils', function () {
   beforeEach(function () {
     div = document.createElement('div');
     svg = mockSVGContainer();
-    text = mockTextAnnotation();
+    textSvgGroup = mockTextAnnotation();
+    text = textSvgGroup.firstChild;
   });
 
   afterEach(function () {
@@ -66,9 +68,9 @@ describe('UI::utils', function () {
   });
 
   it('should find svg container', function () {
-    svg.appendChild(text);
+    svg.appendChild(textSvgGroup);
 
-    equal(findSVGContainer(text), svg);
+    equal(findSVGContainer(textSvgGroup), svg);
   });
 
   it('should find svg at point', function () {
@@ -76,7 +78,6 @@ describe('UI::utils', function () {
     svg.style.height = '10px';
     document.body.appendChild(svg);
     let rect = svg.getBoundingClientRect();
-
     equal(findSVGAtPoint(rect.left, rect.top), svg);
     equal(findSVGAtPoint(rect.left + rect.width, rect.top + rect.height), svg);
     equal(findSVGAtPoint(rect.left - 1, rect.top - 1), null);
@@ -85,7 +86,7 @@ describe('UI::utils', function () {
 
   it('should find annotation at point', function () {
     text.setAttribute('data-pdf-annotate-type', 'text');
-    svg.appendChild(text);
+    svg.appendChild(textSvgGroup);
     document.body.appendChild(svg);
 
     let rect = svg.getBoundingClientRect();
@@ -93,12 +94,10 @@ describe('UI::utils', function () {
     let textW = textRect.width;
     let textH = textRect.height;
     let textX = parseInt(text.getAttribute('x'), 10);
-    let textY = parseInt(text.getAttribute('y'), 10) - textH; // NOTE this needs to be done to account for how text is rendered
+    let textY = parseInt(text.getAttribute('y'), 10);
 
-    equal(findAnnotationAtPoint(rect.left + textX, rect.top + textY), text);
-    equal(findAnnotationAtPoint(rect.left + textX + textW, rect.top + textY + textH), text);
-    equal(findAnnotationAtPoint(rect.left + textX - 1, rect.top + textY - 1), null);
-    equal(findAnnotationAtPoint(rect.left + textX + textW + 1, rect.top + textY + textH + 1), null);
+    equal(findAnnotationAtPoint(textRect.left + 1, textRect.top + 1), text);
+    equal(findAnnotationAtPoint(textRect.right + 1, textRect.bottom + 1), null);
   });
 
   it('should detect if a rect collides with points', function () {
@@ -163,18 +162,19 @@ describe('UI::utils', function () {
     });
 
     it('should get the size of text', function () {
-      svg.appendChild(text);
+      svg.appendChild(textSvgGroup);
       document.body.appendChild(svg);
 
-      let rect = text.getBoundingClientRect();
+      let rect = textSvgGroup.getBoundingClientRect();
+      let svgRect = svg.getBoundingClientRect()
 
-      deepEqual(getAnnotationRect(text), {
+      deepEqual(getOffsetAnnotationRect(text), {
         width: rect.width,
         height: rect.height,
-        left: parseInt(text.getAttribute('x'), 10),
-        top: parseInt(text.getAttribute('y'), 10) - rect.height,
-        right: parseInt(text.getAttribute('x'), 10) + rect.width,
-        bottom: parseInt(text.getAttribute('y'), 10)
+        left: rect.left - svgRect.left,
+        top: rect.top - svgRect.top,
+        right: rect.right - svgRect.left,
+        bottom: rect.bottom - svgRect.top
       });
     });
 
@@ -195,7 +195,7 @@ describe('UI::utils', function () {
 
       svg.appendChild(rect);
 
-      deepEqual(getAnnotationRect(rect.children[0]), {
+      deepEqual(getOffsetAnnotationRect(rect.children[0]), {
         width: parseInt(rect.children[0].getAttribute('width'), 10),
         height: parseInt(rect.children[0].getAttribute('height'), 10),
         left: parseInt(rect.children[0].getAttribute('x'), 10),
@@ -205,7 +205,7 @@ describe('UI::utils', function () {
       });
     });
   });
-  
+
   it('should get the size of a rectangle', function () {
     document.body.appendChild(svg);
     let rect = renderRect({
@@ -236,7 +236,7 @@ describe('UI::utils', function () {
     rect.setAttribute('data-pdf-annotate-id', 'ann-foo');
     svg.appendChild(rect);
 
-    let size = getAnnotationRect(rect);
+    let size = getOffsetAnnotationRect(rect);
 
     equal(size.left, 53);
     equal(size.top, 103);
@@ -270,7 +270,7 @@ describe('UI::utils', function () {
     equal(rect.width, 300);
     equal(rect.height, 300);
   });
-  
+
   it('should scale down', function () {
     svg.setAttribute('data-pdf-annotate-viewport', JSON.stringify(mockViewport(undefined, undefined, 1.5)));
     let rect = scaleDown(svg, {top: 150, left: 150, width: 300, height: 300});
@@ -309,7 +309,7 @@ describe('UI::utils', function () {
 
     equal(document.head.querySelector('style[data-pdf-annotate-user-select]'), null);
   });
-  
+
   it('should get metadata', function () {
     let {
       documentId,
