@@ -3100,7 +3100,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  disablePen: _pen.disablePen, enablePen: _pen.enablePen, setPen: _pen.setPen,
 	  disablePoint: _point.disablePoint, enablePoint: _point.enablePoint,
 	  disableRect: _rect.disableRect, enableRect: _rect.enableRect,
-	  disableCircle: _circle.disableCircle, enableCircle: _circle.enableCircle, setCircle: _circle.setCircle,
+	  disableCircle: _circle.disableCircle, enableCircle: _circle.enableCircle, setCircle: _circle.setCircle, addCircle: _circle.addCircle,
 	  disableArrow: _arrow.disableArrow, enableArrow: _arrow.enableArrow, setArrow: _arrow.setArrow,
 	  disableText: _text.disableText, enableText: _text.enableText, setText: _text.setText,
 	  createPage: _page.createPage, renderPage: _page.renderPage
@@ -4298,6 +4298,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.setCircle = setCircle;
 	exports.enableCircle = enableCircle;
 	exports.disableCircle = disableCircle;
+	exports.addCircle = addCircle;
 	
 	var _PDFJSAnnotate = __webpack_require__(1);
 	
@@ -4403,6 +4404,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  _enabled = false;
 	  document.removeEventListener('mouseup', handleDocumentMouseup);
+	}
+	
+	function addCircle(type, e) {
+	  var oldType = _type;
+	  _type = type;
+	  handleDocumentMouseup(e);
+	  _type = oldType;
 	}
 
 /***/ },
