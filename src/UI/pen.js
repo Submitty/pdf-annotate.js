@@ -9,20 +9,22 @@ import {
 } from './utils';
 
 let _enabled = false;
+let _candraw = false;
 let _penSize;
 let _penColor;
 let path;
-let lines;
+let lines = [];
 
 /**
  * Handle document.mousedown event
  */
-function handleDocumentMousedown() {
+function handleDocumentMousedown(e) {
   path = null;
   lines = [];
-
-  document.addEventListener('mousemove', handleDocumentMousemove);
-  document.addEventListener('mouseup', handleDocumentMouseup);
+  _candraw = true;
+  savePoint(e.clientX, e.clientY);
+  // document.addEventListener('pointermove', handleDocumentMousemove);
+  // document.addEventListener('pointerup', handleDocumentMouseup);
 }
 
 /**
@@ -31,6 +33,7 @@ function handleDocumentMousedown() {
  * @param {Event} e The DOM event to be handled
  */
 function handleDocumentMouseup(e) {
+  _candraw = false;
   let svg;
   if (lines.length > 1 && (svg = findSVGAtPoint(e.clientX, e.clientY))) {
     let { documentId, pageNumber } = getMetadata(svg);
@@ -50,8 +53,8 @@ function handleDocumentMouseup(e) {
     });
   }
 
-  document.removeEventListener('mousemove', handleDocumentMousemove);
-  document.removeEventListener('mouseup', handleDocumentMouseup);
+  // document.removeEventListener('pointermove', handleDocumentMousemove);
+  // document.removeEventListener('pointerup', handleDocumentMouseup);
 }
 
 /**
@@ -60,7 +63,9 @@ function handleDocumentMouseup(e) {
  * @param {Event} e The DOM event to be handled
  */
 function handleDocumentMousemove(e) {
-  savePoint(e.clientX, e.clientY);
+  if(_candraw){
+    savePoint(e.clientX, e.clientY);
+  }
 }
 
 /**
@@ -73,8 +78,8 @@ function handleDocumentKeyup(e) {
   if (e.keyCode === 27) {
     lines = null;
     path.parentNode.removeChild(path);
-    document.removeEventListener('mousemove', handleDocumentMousemove);
-    document.removeEventListener('mouseup', handleDocumentMouseup);
+    document.removeEventListener('pointermove', handleDocumentMousemove);
+    document.removeEventListener('pointerup', handleDocumentMouseup);
   }
 }
 
@@ -98,9 +103,9 @@ function savePoint(x, y) {
 
   lines.push(point);
 
-  if (lines.length <= 1) {
-    return;
-  }
+  // if (lines.length <= 1) {
+  //   return;
+  // }
 
   if (path) {
     svg.removeChild(path);
@@ -132,7 +137,9 @@ export function enablePen() {
   if (_enabled) { return; }
 
   _enabled = true;
-  document.addEventListener('mousedown', handleDocumentMousedown);
+  document.addEventListener('pointerdown', handleDocumentMousedown);
+  document.addEventListener('pointermove', handleDocumentMousemove);
+  document.addEventListener('pointerup', handleDocumentMouseup);
   document.addEventListener('keyup', handleDocumentKeyup);
   disableUserSelect();
 }
@@ -144,7 +151,7 @@ export function disablePen() {
   if (!_enabled) { return; }
 
   _enabled = false;
-  document.removeEventListener('mousedown', handleDocumentMousedown);
+  document.removeEventListener('pointerdown', handleDocumentMousedown);
   document.removeEventListener('keyup', handleDocumentKeyup);
   enableUserSelect();
 }
