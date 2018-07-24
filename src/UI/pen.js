@@ -13,18 +13,17 @@ let _candraw = false;
 let _penSize;
 let _penColor;
 let path;
+let counter = 0;
 let lines = [];
 
 /**
  * Handle document.mousedown event
  */
-function handleDocumentMousedown(e) {
+function handleDocumentPointerdown(e) {
   path = null;
   lines = [];
+  counter = 9;
   _candraw = true;
-  savePoint(e.clientX, e.clientY);
-  // document.addEventListener('pointermove', handleDocumentMousemove);
-  // document.addEventListener('pointerup', handleDocumentMouseup);
 }
 
 /**
@@ -32,7 +31,7 @@ function handleDocumentMousedown(e) {
  *
  * @param {Event} e The DOM event to be handled
  */
-function handleDocumentMouseup(e) {
+function handleDocumentPointerup(e) {
   _candraw = false;
   let svg;
   if (lines.length > 1 && (svg = findSVGAtPoint(e.clientX, e.clientY))) {
@@ -52,9 +51,6 @@ function handleDocumentMouseup(e) {
       appendChild(svg, annotation);
     });
   }
-
-  // document.removeEventListener('pointermove', handleDocumentMousemove);
-  // document.removeEventListener('pointerup', handleDocumentMouseup);
 }
 
 /**
@@ -62,8 +58,10 @@ function handleDocumentMouseup(e) {
  *
  * @param {Event} e The DOM event to be handled
  */
-function handleDocumentMousemove(e) {
+function handleDocumentPointermove(e) {
   if(_candraw){
+    console.log(counter);
+    counter++;
     savePoint(e.clientX, e.clientY);
   }
 }
@@ -78,8 +76,8 @@ function handleDocumentKeyup(e) {
   if (e.keyCode === 27) {
     lines = null;
     path.parentNode.removeChild(path);
-    document.removeEventListener('pointermove', handleDocumentMousemove);
-    document.removeEventListener('pointerup', handleDocumentMouseup);
+    document.removeEventListener('pointermove', handleDocumentPointermove);
+    document.removeEventListener('pointerup', handleDocumentPointerup);
   }
 }
 
@@ -103,9 +101,9 @@ function savePoint(x, y) {
 
   lines.push(point);
 
-  // if (lines.length <= 1) {
-  //   return;
-  // }
+  if (lines.length <= 1) {
+    return;
+  }
 
   if (path) {
     svg.removeChild(path);
@@ -137,9 +135,9 @@ export function enablePen() {
   if (_enabled) { return; }
 
   _enabled = true;
-  document.addEventListener('pointerdown', handleDocumentMousedown);
-  document.addEventListener('pointermove', handleDocumentMousemove);
-  document.addEventListener('pointerup', handleDocumentMouseup);
+  document.addEventListener('pointerdown', handleDocumentPointerdown);
+  document.addEventListener('pointermove', handleDocumentPointermove);
+  document.addEventListener('pointerup', handleDocumentPointerup);
   document.addEventListener('keyup', handleDocumentKeyup);
   disableUserSelect();
 }
@@ -151,7 +149,7 @@ export function disablePen() {
   if (!_enabled) { return; }
 
   _enabled = false;
-  document.removeEventListener('pointerdown', handleDocumentMousedown);
+  document.removeEventListener('pointerdown', handleDocumentPointerdown);
   document.removeEventListener('keyup', handleDocumentKeyup);
   enableUserSelect();
 }

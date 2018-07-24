@@ -63,9 +63,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _PDFJSAnnotate = __webpack_require__(1);
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
-
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
+	
 	exports.default = _PDFJSAnnotate2.default;
 	module.exports = exports['default'];
 
@@ -1809,9 +1809,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-	
 	exports.default = renderRect;
 	
 	var _setAttributes = __webpack_require__(11);
@@ -1833,23 +1830,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function renderRect(a) {
 	  if (a.type === 'highlight') {
-	    var _ret = function () {
-	      var group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-	      (0, _setAttributes2.default)(group, {
-	        fill: (0, _normalizeColor2.default)(a.color || '#ff0'),
-	        fillOpacity: 0.2
-	      });
+	    var group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+	    (0, _setAttributes2.default)(group, {
+	      fill: (0, _normalizeColor2.default)(a.color || '#ff0'),
+	      fillOpacity: 0.2
+	    });
 	
-	      a.rectangles.forEach(function (r) {
-	        group.appendChild(createRect(r));
-	      });
+	    a.rectangles.forEach(function (r) {
+	      group.appendChild(createRect(r));
+	    });
 	
-	      return {
-	        v: group
-	      };
-	    }();
-	
-	    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+	    return group;
 	  } else {
 	    var rect = createRect(a);
 	    (0, _setAttributes2.default)(rect, {
@@ -3376,88 +3367,84 @@ return /******/ (function(modules) { // webpackBootstrap
 	      attribY = 'cy';
 	    }
 	    if (['area', 'highlight', 'point', 'textbox', 'circle', 'fillcircle', 'emptycircle'].indexOf(type) > -1) {
-	      (function () {
-	        var modelStart = (0, _utils.convertToSvgPoint)([dragStartX, dragStartY], svg);
-	        var modelEnd = (0, _utils.convertToSvgPoint)([overlay.offsetLeft, overlay.offsetTop], svg);
-	        var modelDelta = {
-	          x: modelEnd[0] - modelStart[0],
-	          y: modelEnd[1] - modelStart[1]
-	        };
+	      var modelStart = (0, _utils.convertToSvgPoint)([dragStartX, dragStartY], svg);
+	      var modelEnd = (0, _utils.convertToSvgPoint)([overlay.offsetLeft, overlay.offsetTop], svg);
+	      var modelDelta = {
+	        x: modelEnd[0] - modelStart[0],
+	        y: modelEnd[1] - modelStart[1]
+	      };
 	
-	        if (type === 'textbox') {
-	          target = [target[0].firstChild];
+	      if (type === 'textbox') {
+	        target = [target[0].firstChild];
+	      }
+	
+	      [].concat(_toConsumableArray(target)).forEach(function (t, i) {
+	        var modelX = parseInt(t.getAttribute(attribX), 10);
+	        var modelY = parseInt(t.getAttribute(attribY), 10);
+	        if (modelDelta.y !== 0) {
+	          modelY = modelY + modelDelta.y;
+	          var viewY = modelY;
+	
+	          if (type === 'point') {
+	            viewY = (0, _utils.scaleUp)(svg, { viewY: viewY }).viewY;
+	          }
+	
+	          t.setAttribute(attribY, viewY);
+	          if (annotation.rectangles && i < annotation.rectangles.length) {
+	            annotation.rectangles[i].y = modelY;
+	          } else if (annotation[attribY]) {
+	            annotation[attribY] = modelY;
+	          }
 	        }
+	        if (modelDelta.x !== 0) {
+	          modelX = modelX + modelDelta.x;
+	          var viewX = modelX;
 	
-	        [].concat(_toConsumableArray(target)).forEach(function (t, i) {
-	          var modelX = parseInt(t.getAttribute(attribX), 10);
-	          var modelY = parseInt(t.getAttribute(attribY), 10);
-	          if (modelDelta.y !== 0) {
-	            modelY = modelY + modelDelta.y;
-	            var viewY = modelY;
-	
-	            if (type === 'point') {
-	              viewY = (0, _utils.scaleUp)(svg, { viewY: viewY }).viewY;
-	            }
-	
-	            t.setAttribute(attribY, viewY);
-	            if (annotation.rectangles && i < annotation.rectangles.length) {
-	              annotation.rectangles[i].y = modelY;
-	            } else if (annotation[attribY]) {
-	              annotation[attribY] = modelY;
-	            }
+	          if (type === 'point') {
+	            viewX = (0, _utils.scaleUp)(svg, { viewX: viewX }).viewX;
 	          }
-	          if (modelDelta.x !== 0) {
-	            modelX = modelX + modelDelta.x;
-	            var viewX = modelX;
 	
-	            if (type === 'point') {
-	              viewX = (0, _utils.scaleUp)(svg, { viewX: viewX }).viewX;
-	            }
-	
-	            t.setAttribute(attribX, viewX);
-	            if (annotation.rectangles && i < annotation.rectangles.length) {
-	              annotation.rectangles[i].x = modelX;
-	            } else if (annotation[attribX]) {
-	              annotation[attribX] = modelX;
-	            }
+	          t.setAttribute(attribX, viewX);
+	          if (annotation.rectangles && i < annotation.rectangles.length) {
+	            annotation.rectangles[i].x = modelX;
+	          } else if (annotation[attribX]) {
+	            annotation[attribX] = modelX;
 	          }
-	        });
-	        // } else if (type === 'strikeout') {
-	        //   let { deltaX, deltaY } = getDelta('x1', 'y1');
-	        //   [...target].forEach(target, (t, i) => {
-	        //     if (deltaY !== 0) {
-	        //       t.setAttribute('y1', parseInt(t.getAttribute('y1'), 10) + deltaY);
-	        //       t.setAttribute('y2', parseInt(t.getAttribute('y2'), 10) + deltaY);
-	        //       annotation.rectangles[i].y = parseInt(t.getAttribute('y1'), 10);
-	        //     }
-	        //     if (deltaX !== 0) {
-	        //       t.setAttribute('x1', parseInt(t.getAttribute('x1'), 10) + deltaX);
-	        //       t.setAttribute('x2', parseInt(t.getAttribute('x2'), 10) + deltaX);
-	        //       annotation.rectangles[i].x = parseInt(t.getAttribute('x1'), 10);
-	        //     }
-	        //   });
-	      })();
+	        }
+	      });
+	      // } else if (type === 'strikeout') {
+	      //   let { deltaX, deltaY } = getDelta('x1', 'y1');
+	      //   [...target].forEach(target, (t, i) => {
+	      //     if (deltaY !== 0) {
+	      //       t.setAttribute('y1', parseInt(t.getAttribute('y1'), 10) + deltaY);
+	      //       t.setAttribute('y2', parseInt(t.getAttribute('y2'), 10) + deltaY);
+	      //       annotation.rectangles[i].y = parseInt(t.getAttribute('y1'), 10);
+	      //     }
+	      //     if (deltaX !== 0) {
+	      //       t.setAttribute('x1', parseInt(t.getAttribute('x1'), 10) + deltaX);
+	      //       t.setAttribute('x2', parseInt(t.getAttribute('x2'), 10) + deltaX);
+	      //       annotation.rectangles[i].x = parseInt(t.getAttribute('x1'), 10);
+	      //     }
+	      //   });
 	    } else if (type === 'drawing' || type === 'arrow') {
-	      (function () {
-	        var modelStart = (0, _utils.convertToSvgPoint)([dragStartX, dragStartY], svg);
-	        var modelEnd = (0, _utils.convertToSvgPoint)([overlay.offsetLeft, overlay.offsetTop], svg);
-	        var modelDelta = {
-	          x: modelEnd[0] - modelStart[0],
-	          y: modelEnd[1] - modelStart[1]
-	        };
+	      var _modelStart = (0, _utils.convertToSvgPoint)([dragStartX, dragStartY], svg);
+	      var _modelEnd = (0, _utils.convertToSvgPoint)([overlay.offsetLeft, overlay.offsetTop], svg);
+	      var _modelDelta = {
+	        x: _modelEnd[0] - _modelStart[0],
+	        y: _modelEnd[1] - _modelStart[1]
+	      };
 	
-	        annotation.lines.forEach(function (line, i) {
-	          var _annotation$lines$i = _slicedToArray(annotation.lines[i], 2),
-	              x = _annotation$lines$i[0],
-	              y = _annotation$lines$i[1];
+	      annotation.lines.forEach(function (line, i) {
+	        var _annotation$lines$i = _slicedToArray(annotation.lines[i], 2),
+	            x = _annotation$lines$i[0],
+	            y = _annotation$lines$i[1];
 	
-	          annotation.lines[i][0] = x + modelDelta.x;
-	          annotation.lines[i][1] = y + modelDelta.y;
-	        });
+	        annotation.lines[i][0] = x + _modelDelta.x;
+	        annotation.lines[i][1] = y + _modelDelta.y;
+	      });
 	
-	        target[0].parentNode.removeChild(target[0]);
-	        (0, _appendChild.appendChild)(svg, annotation);
-	      })();
+	      target[0].parentNode.removeChild(target[0]);
+	      (0, _appendChild.appendChild)(svg, annotation);
 	    }
 	
 	    _PDFJSAnnotate2.default.getStoreAdapter().editAnnotation(documentId, annotationId, annotation);
@@ -3534,20 +3521,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var _enabled = false;
+	var _candraw = false;
 	var _penSize = void 0;
 	var _penColor = void 0;
 	var path = void 0;
-	var lines = void 0;
+	var lines = [];
 	
 	/**
 	 * Handle document.mousedown event
 	 */
-	function handleDocumentMousedown() {
+	function handleDocumentMousedown(e) {
 	  path = null;
 	  lines = [];
-	
-	  document.addEventListener('mousemove', handleDocumentMousemove);
-	  document.addEventListener('mouseup', handleDocumentMouseup);
+	  _candraw = true;
+	  savePoint(e.clientX, e.clientY);
+	  // document.addEventListener('pointermove', handleDocumentMousemove);
+	  // document.addEventListener('pointerup', handleDocumentMouseup);
 	}
 	
 	/**
@@ -3556,6 +3545,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Event} e The DOM event to be handled
 	 */
 	function handleDocumentMouseup(e) {
+	  _candraw = false;
 	  var svg = void 0;
 	  if (lines.length > 1 && (svg = (0, _utils.findSVGAtPoint)(e.clientX, e.clientY))) {
 	    var _getMetadata = (0, _utils.getMetadata)(svg),
@@ -3576,8 +3566,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	  }
 	
-	  document.removeEventListener('mousemove', handleDocumentMousemove);
-	  document.removeEventListener('mouseup', handleDocumentMouseup);
+	  // document.removeEventListener('pointermove', handleDocumentMousemove);
+	  // document.removeEventListener('pointerup', handleDocumentMouseup);
 	}
 	
 	/**
@@ -3586,7 +3576,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Event} e The DOM event to be handled
 	 */
 	function handleDocumentMousemove(e) {
-	  savePoint(e.clientX, e.clientY);
+	  if (_candraw) {
+	    savePoint(e.clientX, e.clientY);
+	  }
 	}
 	
 	/**
@@ -3599,8 +3591,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (e.keyCode === 27) {
 	    lines = null;
 	    path.parentNode.removeChild(path);
-	    document.removeEventListener('mousemove', handleDocumentMousemove);
-	    document.removeEventListener('mouseup', handleDocumentMouseup);
+	    document.removeEventListener('pointermove', handleDocumentMousemove);
+	    document.removeEventListener('pointerup', handleDocumentMouseup);
 	  }
 	}
 	
@@ -3621,9 +3613,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  lines.push(point);
 	
-	  if (lines.length <= 1) {
-	    return;
-	  }
+	  // if (lines.length <= 1) {
+	  //   return;
+	  // }
 	
 	  if (path) {
 	    svg.removeChild(path);
@@ -3660,7 +3652,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	
 	  _enabled = true;
-	  document.addEventListener('mousedown', handleDocumentMousedown);
+	  document.addEventListener('pointerdown', handleDocumentMousedown);
+	  document.addEventListener('pointermove', handleDocumentMousemove);
+	  document.addEventListener('pointerup', handleDocumentMouseup);
 	  document.addEventListener('keyup', handleDocumentKeyup);
 	  (0, _utils.disableUserSelect)();
 	}
@@ -3674,7 +3668,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	
 	  _enabled = false;
-	  document.removeEventListener('mousedown', handleDocumentMousedown);
+	  document.removeEventListener('pointerdown', handleDocumentMousedown);
 	  document.removeEventListener('keyup', handleDocumentKeyup);
 	  (0, _utils.enableUserSelect)();
 	}
@@ -3890,9 +3884,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-	
 	exports.enablePoint = enablePoint;
 	exports.disablePoint = disablePoint;
 	
@@ -3960,38 +3951,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function savePoint() {
 	  if (input.value.trim().length > 0) {
-	    var _ret = function () {
-	      var clientX = parseInt(input.style.left, 10);
-	      var clientY = parseInt(input.style.top, 10);
-	      var content = input.value.trim();
-	      var svg = (0, _utils.findSVGAtPoint)(clientX, clientY);
-	      if (!svg) {
-	        return {
-	          v: void 0
-	        };
-	      }
+	    var clientX = parseInt(input.style.left, 10);
+	    var clientY = parseInt(input.style.top, 10);
+	    var content = input.value.trim();
+	    var svg = (0, _utils.findSVGAtPoint)(clientX, clientY);
+	    if (!svg) {
+	      return;
+	    }
 	
-	      var rect = svg.getBoundingClientRect();
+	    var rect = svg.getBoundingClientRect();
 	
-	      var _getMetadata = (0, _utils.getMetadata)(svg),
-	          documentId = _getMetadata.documentId,
-	          pageNumber = _getMetadata.pageNumber;
+	    var _getMetadata = (0, _utils.getMetadata)(svg),
+	        documentId = _getMetadata.documentId,
+	        pageNumber = _getMetadata.pageNumber;
 	
-	      var annotation = Object.assign({
-	        type: 'point'
-	      }, (0, _utils.scaleDown)(svg, {
-	        x: clientX - rect.left,
-	        y: clientY - rect.top
-	      }));
+	    var annotation = Object.assign({
+	      type: 'point'
+	    }, (0, _utils.scaleDown)(svg, {
+	      x: clientX - rect.left,
+	      y: clientY - rect.top
+	    }));
 	
-	      _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
-	        _PDFJSAnnotate2.default.getStoreAdapter().addComment(documentId, annotation.uuid, content);
+	    _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
+	      _PDFJSAnnotate2.default.getStoreAdapter().addComment(documentId, annotation.uuid, content);
 	
-	        (0, _appendChild.appendChild)(svg, annotation);
-	      });
-	    }();
-	
-	    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+	      (0, _appendChild.appendChild)(svg, annotation);
+	    });
 	  }
 	
 	  closeInput();
@@ -4422,9 +4407,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-	
 	exports.setText = setText;
 	exports.enableText = enableText;
 	exports.disableText = disableText;
@@ -4463,7 +4445,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  input.style.top = e.clientY + 'px';
 	  input.style.left = e.clientX + 'px';
 	  input.style.fontSize = _textSize + 'px';
-	
+	  input.style.zIndex = "41px";
 	  input.addEventListener('blur', handleInputBlur);
 	  input.addEventListener('keyup', handleInputKeyup);
 	
@@ -4496,41 +4478,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function saveText() {
 	  if (input.value.trim().length > 0) {
-	    var _ret = function () {
-	      var clientX = parseInt(input.style.left, 10);
-	      var clientY = parseInt(input.style.top, 10);
-	      var svg = (0, _utils.findSVGAtPoint)(clientX, clientY);
-	      if (!svg) {
-	        return {
-	          v: void 0
-	        };
-	      }
-	      var height = _textSize;
+	    var clientX = parseInt(input.style.left, 10);
+	    var clientY = parseInt(input.style.top, 10);
+	    var svg = (0, _utils.findSVGAtPoint)(clientX, clientY);
+	    if (!svg) {
+	      return;
+	    }
+	    var height = _textSize;
 	
-	      var _getMetadata = (0, _utils.getMetadata)(svg),
-	          documentId = _getMetadata.documentId,
-	          pageNumber = _getMetadata.pageNumber,
-	          viewport = _getMetadata.viewport;
+	    var _getMetadata = (0, _utils.getMetadata)(svg),
+	        documentId = _getMetadata.documentId,
+	        pageNumber = _getMetadata.pageNumber,
+	        viewport = _getMetadata.viewport;
 	
-	      var scale = 1 / viewport.scale;
-	      var rect = svg.getBoundingClientRect();
-	      var pt = (0, _utils.convertToSvgPoint)([clientX - rect.left, clientY - rect.top + height], svg, viewport);
-	      var annotation = {
-	        type: 'textbox',
-	        size: _textSize * scale,
-	        color: _textColor,
-	        content: input.value.trim(),
-	        x: pt[0],
-	        y: pt[1],
-	        rotation: -viewport.rotation
-	      };
+	    var scale = 1 / viewport.scale;
+	    var rect = svg.getBoundingClientRect();
+	    var pt = (0, _utils.convertToSvgPoint)([clientX - rect.left, clientY - rect.top + height], svg, viewport);
+	    var annotation = {
+	      type: 'textbox',
+	      size: _textSize * scale,
+	      color: _textColor,
+	      content: input.value.trim(),
+	      x: pt[0],
+	      y: pt[1],
+	      rotation: -viewport.rotation
+	    };
 	
-	      _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
-	        (0, _appendChild.appendChild)(svg, annotation);
-	      });
-	    }();
-	
-	    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+	    _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
+	      (0, _appendChild.appendChild)(svg, annotation);
+	    });
 	  }
 	
 	  closeInput();
