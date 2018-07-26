@@ -13,28 +13,34 @@ let _candraw = false;
 let _penSize;
 let _penColor;
 let path;
-let counter = 0;
 let lines = [];
 
 /**
- * Handle document.mousedown event
+ * Handle document.touchdown or document.pointerdown event
  */
 function handleDocumentPointerdown(e) {
   path = null;
   lines = [];
-  counter = 9;
   _candraw = true;
 }
 
 /**
- * Handle document.mouseup event
+ * Handle document.touchup or document.pointerup event
  *
  * @param {Event} e The DOM event to be handled
  */
+function handleDocumentKeyupChrome(e){
+  saveToStorage(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+}
+
 function handleDocumentPointerup(e) {
+  saveToStorage(e.clientX, e.clientY);
+}
+
+function saveToStorage(x, y){
   _candraw = false;
   let svg;
-  if (lines.length > 1 && (svg = findSVGAtPoint(e.clientX, e.clientY))) {
+  if (lines.length > 1 && (svg = findSVGAtPoint(x, y))) {
     let { documentId, pageNumber } = getMetadata(svg);
 
     PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, {
@@ -60,10 +66,12 @@ function handleDocumentPointerup(e) {
  */
 function handleDocumentPointermove(e) {
   if(_candraw){
-    console.log(counter);
-    counter++;
     savePoint(e.clientX, e.clientY);
   }
+}
+
+function handleDocumentPointermoveChrome(e){
+  savePoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
 }
 
 /**
@@ -135,9 +143,19 @@ export function enablePen() {
   if (_enabled) { return; }
 
   _enabled = true;
-  document.addEventListener('pointerdown', handleDocumentPointerdown);
-  document.addEventListener('pointermove', handleDocumentPointermove);
-  document.addEventListener('pointerup', handleDocumentPointerup);
+  // Chrome and Firefox has different behaviors with how pen works, so we need different events.
+  if (navigator.userAgent.indexOf("Chrome") !== -1){
+    document.addEventListener('touchstart', handleDocumentPointerdown);
+    document.addEventListener('touchmove', handleDocumentPointermoveChrome);
+    document.addEventListener('touchend', handleDocumentKeyupChrome);
+    document.addEventListener('mousedown', handleDocumentPointerdown);
+    document.addEventListener('mousemove', handleDocumentPointermove);
+    document.addEventListener('mouseup', handleDocumentPointerup);
+  } else {
+    document.addEventListener('pointerdown', handleDocumentPointerdown);
+    document.addEventListener('pointermove', handleDocumentPointermove);
+    document.addEventListener('pointerup', handleDocumentPointerup);
+  }
   document.addEventListener('keyup', handleDocumentKeyup);
   disableUserSelect();
 }
@@ -149,7 +167,18 @@ export function disablePen() {
   if (!_enabled) { return; }
 
   _enabled = false;
-  document.removeEventListener('pointerdown', handleDocumentPointerdown);
+  if (navigator.userAgent.indexOf("Chrome") !== -1){
+    document.removeEventListener('touchstart', handleDocumentPointerdown);
+    document.removeEventListener('touchmove', handleDocumentPointermoveChrome);
+    document.removeEventListener('touchend', handleDocumentKeyupChrome);
+    document.removeEventListener('mousedown', handleDocumentPointerdown);
+    document.removeEventListener('mousemove', handleDocumentPointermove);
+    document.removeEventListener('mouseup', handleDocumentPointerup);
+  } else {
+    document.removeEventListener('pointerdown', handleDocumentPointerdown);
+    document.removeEventListener('pointermove', handleDocumentPointermove);
+    document.removeEventListener('pointerup', handleDocumentPointerup);
+  }
   document.removeEventListener('keyup', handleDocumentKeyup);
   enableUserSelect();
 }
