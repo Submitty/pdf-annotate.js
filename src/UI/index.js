@@ -1,6 +1,7 @@
 import { addEventListener, removeEventListener, fireEvent } from './event';
 import { disableEdit, enableEdit } from './edit';
 import { disablePen, enablePen, setPen } from './pen';
+import { enableEraser, disableEraser } from './eraser';
 import { disableArrow, enableArrow, setArrow } from './arrow';
 import { disablePoint, enablePoint } from './point';
 import { disableRect, enableRect } from './rect';
@@ -12,6 +13,7 @@ export default {
   addEventListener, removeEventListener, fireEvent,
   disableEdit, enableEdit,
   disablePen, enablePen, setPen,
+  enableEraser, disableEraser,
   disablePoint, enablePoint,
   disableRect, enableRect,
   disableCircle, enableCircle, setCircle, addCircle,

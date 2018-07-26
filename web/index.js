@@ -278,6 +278,9 @@ render();
           break;
         case 'area':
         case 'highlight':
+        // Using highlight as eraser for testing purposes
+          UI.disableEraser();
+          break;
         case 'strikeout':
           UI.disableRect();
           break;
@@ -315,6 +318,8 @@ render();
         break;
       case 'area':
       case 'highlight':
+        UI.enableEraser();
+        break;
       case 'strikeout':
         UI.enableRect(type);
         break;
