@@ -71,7 +71,9 @@ function handleDocumentPointermove(e) {
 }
 
 function handleDocumentPointermoveChrome(e){
-  savePoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+  if(_candraw){
+    savePoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+  }
 }
 
 /**

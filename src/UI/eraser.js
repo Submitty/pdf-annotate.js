@@ -17,7 +17,19 @@ function handleDocumentMouseUp(e){
 function handleDocumentMouseMove(e){
   if(_canerase){
     let target = findAnnotationAtPoint(e.clientX, e.clientY);
-    console.log(target);
+    if(target){
+      console.log(target);
+      let annotationId = target.getAttribute('data-pdf-annotate-id');
+      // let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
+      // let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
+      // let { documentId } = getMetadata(svg);
+    
+      // [...nodes].forEach((n) => {
+      //   n.parentNode.removeChild(n);
+      // });
+      
+      // PDFJSAnnotate.getStoreAdapter().deleteAnnotation(documentId, annotationId);
+    }
   }
 }
 

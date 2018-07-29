@@ -31,7 +31,7 @@ function handleDocumentMouseup(e) {
   input.style.top = `${e.clientY}px`;
   input.style.left = `${e.clientX}px`;
   input.style.fontSize = `${_textSize}px`;
-  input.style.zIndex = "41px";
+  input.style.zIndex = "41";
   input.addEventListener('blur', handleInputBlur);
   input.addEventListener('keyup', handleInputKeyup);
 
