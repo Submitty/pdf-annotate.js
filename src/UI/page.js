@@ -48,6 +48,7 @@ export function createPage(pageNumber) {
 export function renderPage(pageNumber, renderOptions) {
   let {
     documentId,
+    userId,
     pdfDocument,
     scale,
     rotate
@@ -56,7 +57,7 @@ export function renderPage(pageNumber, renderOptions) {
   // Load the page and annotations
   return Promise.all([
     pdfDocument.getPage(pageNumber),
-    PDFJSAnnotate.getAnnotations(documentId, pageNumber)
+    PDFJSAnnotate.getAnnotations(documentId, userId, pageNumber)
   ]).then(([pdfPage, annotations]) => {
     let page = document.getElementById(`pageContainer${pageNumber}`);
     let svg = page.querySelector(config.annotationClassQuery());

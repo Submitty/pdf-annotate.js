@@ -59,10 +59,10 @@ function saveCircle(svg, type, pt, radius, color) {
     r: radius
   };
 
-  let { documentId, pageNumber } = getMetadata(svg);
+  let { documentId, userId, pageNumber } = getMetadata(svg);
 
   // Add the annotation
-  PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
+  PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, userId, pageNumber, annotation)
     .then((annotation) => {
       appendChild(svg, annotation);
     });

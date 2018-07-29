@@ -25,10 +25,10 @@ export default class StoreAdapter {
    * @param {Number} pageNumber The number of the page the annotations belong to
    * @return {Promise}
    */
-  __getAnnotations(documentId, pageNumber) { abstractFunction('getAnnotations'); }
+  __getAnnotations(documentId, userId, pageNumber) { abstractFunction('getAnnotations'); }
   get getAnnotations() { return this.__getAnnotations; }
   set getAnnotations(fn) {
-    this.__getAnnotations = function getAnnotations(documentId, pageNumber) {
+    this.__getAnnotations = function getAnnotations(documentId, userId, pageNumber) {
       return fn(...arguments).then((annotations) => {
         // TODO may be best to have this happen on the server
         if (annotations.annotations) {
@@ -58,12 +58,12 @@ export default class StoreAdapter {
    * @param {Object} annotation The definition for the new annotation
    * @return {Promise}
    */
-  __addAnnotation(documentId, pageNumber, annotation) { abstractFunction('addAnnotation'); }
+  __addAnnotation(documentId, userId, pageNumber, annotation) { abstractFunction('addAnnotation'); }
   get addAnnotation() { return this.__addAnnotation; }
   set addAnnotation(fn) {
-    this.__addAnnotation = function addAnnotation(documentId, pageNumber, annotation) {
+    this.__addAnnotation = function addAnnotation(documentId, userId, pageNumber, annotation) {
       return fn(...arguments).then((annotation) => {
-        fireEvent('annotation:add', documentId, pageNumber, annotation);
+        fireEvent('annotation:add', documentId, userId, pageNumber, annotation);
         return annotation;
       });
     };

@@ -195,10 +195,10 @@ function saveRect(type, rects, color) {
     annotation.height = rect.height;
   }
 
-  let { documentId, pageNumber } = getMetadata(svg);
+  let { documentId, userId, pageNumber } = getMetadata(svg);
 
   // Add the annotation
-  PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
+  PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, userId, pageNumber, annotation)
     .then((annotation) => {
       appendChild(svg, annotation);
     });

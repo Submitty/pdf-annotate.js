@@ -28,6 +28,7 @@ export default function render(svg, viewport, data) {
     }
 
     svg.setAttribute('data-pdf-annotate-document', data.documentId);
+    svg.setAttribute('data-pdf-annotate-user', data.userId);
     svg.setAttribute('data-pdf-annotate-page', data.pageNumber);
   
     // Make sure annotations is an array
