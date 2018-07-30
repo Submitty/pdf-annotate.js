@@ -112,10 +112,16 @@ export default class LocalStoreAdapter extends StoreAdapter {
 }
 
 function getAnnotations(documentId, userId) {
-  return JSON.parse(localStorage.getItem(`${documentId}/${userId}/annotations`)) || [];
+  let all_annotations = [];
+  for(let i = 0 ; i < localStorage.length; i++){
+    if(localStorage.key(i).includes('annotations')){
+      all_annotations.push(...JSON.parse(localStorage.getItem(localStorage.key(i))));
+    }
+  }
+  return all_annotations;
 }
-// Note, userId should not be an optional parameter, leaving it here for debugging purposes
-function updateAnnotations(documentId, userId='bitdiddle', annotations) {
+
+function updateAnnotations(documentId, userId, annotations) {
   localStorage.setItem(`${documentId}/${userId}/annotations`, JSON.stringify(annotations));
 }
 

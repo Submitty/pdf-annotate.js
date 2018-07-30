@@ -22,6 +22,7 @@ export default class StoreAdapter {
    * Get all the annotations for a given document and page number.
    *
    * @param {String} documentId The ID for the document the annotations belong to
+   * @param {String} userId The user makeing changes to this document
    * @param {Number} pageNumber The number of the page the annotations belong to
    * @return {Promise}
    */
