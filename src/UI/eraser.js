@@ -19,7 +19,7 @@ function handleDocumentMouseMove(e){
     let target = findAnnotationAtPoint(e.clientX, e.clientY);
     if(target){
       console.log(target);
-      let annotationId = target.getAttribute('data-pdf-annotate-id');
+      // let annotationId = target.getAttribute('data-pdf-annotate-id');
       // let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
       // let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
       // let { documentId } = getMetadata(svg);

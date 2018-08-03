@@ -70,7 +70,7 @@ function savePoint() {
     }
 
     let rect = svg.getBoundingClientRect();
-    let { documentId, pageNumber } = getMetadata(svg);
+    let { documentId, userId, pageNumber } = getMetadata(svg);
     let annotation = Object.assign({
         type: 'point'
       }, scaleDown(svg, {
@@ -79,7 +79,7 @@ function savePoint() {
       })
     );
 
-    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
+    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, userId, pageNumber, annotation)
       .then((annotation) => {
         PDFJSAnnotate.getStoreAdapter().addComment(
           documentId,

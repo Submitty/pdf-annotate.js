@@ -41,9 +41,8 @@ function saveToStorage(x, y){
   _candraw = false;
   let svg;
   if (lines.length > 1 && (svg = findSVGAtPoint(x, y))) {
-    let { documentId, pageNumber } = getMetadata(svg);
-
-    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, {
+    let { documentId, userId, pageNumber } = getMetadata(svg);
+    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, userId, pageNumber, {
         type: 'drawing',
         width: _penSize,
         color: _penColor,
