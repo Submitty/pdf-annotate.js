@@ -111,7 +111,13 @@ export default class LocalStoreAdapter extends StoreAdapter {
 }
 
 function getAnnotations(documentId, userId) {
-  return JSON.parse(localStorage.getItem(`${documentId}/${userId}/annotations`)) || [];
+  let all_annotations = [];
+  for(let i = 0 ; i < localStorage.length; i++){
+    if(localStorage.key(i).includes('annotations')){
+      all_annotations.push(...JSON.parse(localStorage.getItem(localStorage.key(i))));
+    }
+  }
+  return all_annotations;
 }
 
 function updateAnnotations(documentId, userId, annotations) {
