@@ -15,6 +15,8 @@ let _penColor;
 let path;
 let lines = [];
 
+const isFirefox = /firefox/i.test(navigator.userAgent);
+
 /**
  * Handle document.touchdown or document.pointerdown event
  */
@@ -108,7 +110,8 @@ function savePoint(x, y) {
     x - rect.left,
     y - rect.top
   ], svg);
-
+  point[0] = point[0].toFixed(2);
+  point[1] = point[1].toFixed(2);
   lines.push(point);
 
   if (lines.length <= 1) {
@@ -146,7 +149,7 @@ export function enablePen() {
 
   _enabled = true;
   // Chrome and Firefox has different behaviors with how pen works, so we need different events.
-  if (navigator.userAgent.indexOf("Chrome") !== -1){
+  if (!isFirefox){
     document.addEventListener('touchstart', handleDocumentPointerdown);
     document.addEventListener('touchmove', handleDocumentPointermoveChrome);
     document.addEventListener('touchend', handleDocumentKeyupChrome);
@@ -169,7 +172,7 @@ export function disablePen() {
   if (!_enabled) { return; }
 
   _enabled = false;
-  if (navigator.userAgent.indexOf("Chrome") !== -1){
+  if (!isFirefox){
     document.removeEventListener('touchstart', handleDocumentPointerdown);
     document.removeEventListener('touchmove', handleDocumentPointermoveChrome);
     document.removeEventListener('touchend', handleDocumentKeyupChrome);
