@@ -4,11 +4,11 @@ import StoreAdapter from './StoreAdapter';
 // StoreAdapter for working with localStorage
 // This is ideal for testing, examples, and prototyping
 export default class LocalStoreAdapter extends StoreAdapter {
-  constructor() {
+  constructor(userId = "user") {
     super({
       getAnnotations(documentId, pageNumber) {
         return new Promise((resolve, reject) => {
-          let annotations = getAnnotations(documentId).filter((i) => {
+          let annotations = getAnnotations(documentId, userId).filter((i) => {
             return i.page === pageNumber && i.class === 'Annotation';
           });
 
@@ -21,7 +21,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
       },
 
       getAnnotation(documentId, annotationId) {
-        return Promise.resolve(getAnnotations(documentId)[findAnnotation(documentId, annotationId)]);
+        return Promise.resolve(getAnnotations(documentId, userId)[findAnnotation(documentId, annotationId)]);
       },
 
       addAnnotation(documentId, pageNumber, annotation) {
@@ -30,9 +30,9 @@ export default class LocalStoreAdapter extends StoreAdapter {
           annotation.uuid = uuid();
           annotation.page = pageNumber;
 
-          let annotations = getAnnotations(documentId);
+          let annotations = getAnnotations(documentId, userId);
           annotations.push(annotation);
-          updateAnnotations(documentId, annotations);
+          updateAnnotations(documentId, userId, annotations);
 
           resolve(annotation);
         });
@@ -40,9 +40,9 @@ export default class LocalStoreAdapter extends StoreAdapter {
 
       editAnnotation(documentId, annotationId, annotation) {
         return new Promise((resolve, reject) => {
-          let annotations = getAnnotations(documentId);
+          let annotations = getAnnotations(documentId, userId);
           annotations[findAnnotation(documentId, annotationId)] = annotation;
-          updateAnnotations(documentId, annotations);
+          updateAnnotations(documentId, userId, annotations);
 
           resolve(annotation);
         });
@@ -52,9 +52,9 @@ export default class LocalStoreAdapter extends StoreAdapter {
         return new Promise((resolve, reject) => {
           let index = findAnnotation(documentId, annotationId);
           if (index > -1) {
-            let annotations = getAnnotations(documentId);
+            let annotations = getAnnotations(documentId, userId);
             annotations.splice(index, 1);
-            updateAnnotations(documentId, annotations);
+            updateAnnotations(documentId, userId, annotations);
           }
 
           resolve(true);
@@ -63,7 +63,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
 
       getComments(documentId, annotationId) {
         return new Promise((resolve, reject) => {
-          resolve(getAnnotations(documentId).filter((i) => {
+          resolve(getAnnotations(documentId, userId).filter((i) => {
             return i.class === 'Comment' && i.annotation === annotationId;
           }));
         });
@@ -78,9 +78,9 @@ export default class LocalStoreAdapter extends StoreAdapter {
             content: content
           };
 
-          let annotations = getAnnotations(documentId);
+          let annotations = getAnnotations(documentId, userId);
           annotations.push(comment);
-          updateAnnotations(documentId, annotations);
+          updateAnnotations(documentId, userId, annotations);
 
           resolve(comment);
         });
@@ -88,9 +88,9 @@ export default class LocalStoreAdapter extends StoreAdapter {
 
       deleteComment(documentId, commentId) {
         return new Promise((resolve, reject) => {
-          getAnnotations(documentId);
+          getAnnotations(documentId, userId);
           let index = -1;
-          let annotations = getAnnotations(documentId);
+          let annotations = getAnnotations(documentId, userId);
           for (let i=0, l=annotations.length; i<l; i++) {
             if (annotations[i].uuid === commentId) {
               index = i;
@@ -100,7 +100,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
 
           if (index > -1) {
             annotations.splice(index, 1);
-            updateAnnotations(documentId, annotations);
+            updateAnnotations(documentId, userId, annotations);
           }
 
           resolve(true);
@@ -110,12 +110,12 @@ export default class LocalStoreAdapter extends StoreAdapter {
   }
 }
 
-function getAnnotations(documentId) {
-  return JSON.parse(localStorage.getItem(`${documentId}/annotations`)) || [];
+function getAnnotations(documentId, userId) {
+  return JSON.parse(localStorage.getItem(`${documentId}/${userId}/annotations`)) || [];
 }
 
-function updateAnnotations(documentId, annotations) {
-  localStorage.setItem(`${documentId}/annotations`, JSON.stringify(annotations));
+function updateAnnotations(documentId, userId, annotations) {
+  localStorage.setItem(`${documentId}/${userId}/annotations`, JSON.stringify(annotations));
 }
 
 function findAnnotation(documentId, annotationId) {

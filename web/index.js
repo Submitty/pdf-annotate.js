@@ -4,6 +4,7 @@ import initColorPicker from './shared/initColorPicker';
 
 const { UI } = PDFJSAnnotate;
 const documentId = 'example.pdf';
+const userId = 'instructor';
 let PAGE_HEIGHT;
 let RENDER_OPTIONS = {
   documentId,
@@ -12,7 +13,7 @@ let RENDER_OPTIONS = {
   rotate: parseInt(localStorage.getItem(`${documentId}/rotate`), 10) || 0
 };
 
-PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.LocalStoreAdapter());
+PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.LocalStoreAdapter(userId));
 PDFJS.workerSrc = './shared/pdf.worker.js';
 
 // Render stuff
