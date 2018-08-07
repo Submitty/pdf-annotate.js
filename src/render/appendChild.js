@@ -7,6 +7,8 @@ import renderText from './renderText';
 import renderCircle from './renderCircle';
 import renderArrow from './renderArrow';
 
+import PDFJSAnnotate from '../PDFJSAnnotate';
+
 const isFirefox = /firefox/i.test(navigator.userAgent);
 
 /**
@@ -148,6 +150,7 @@ export function appendChild(svg, annotation, viewport) {
     // Set attributes
     child.setAttribute('data-pdf-annotate-id', annotation.uuid);
     child.setAttribute('data-pdf-annotate-type', annotation.type);
+    child.setAttribute('data-pdf-annotate-userId', PDFJSAnnotate.getStoreAdapter().userId);
     child.setAttribute('aria-hidden', true);
 
     svg.appendChild(transform(child, viewport));

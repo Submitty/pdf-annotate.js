@@ -8,7 +8,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
     super({
       getAnnotations(documentId, pageNumber) {
         return new Promise((resolve, reject) => {
-          let annotations = getAnnotations(documentId, userId).filter((i) => {
+          let annotations = getAnnotations().filter((i) => {
             return i.page === pageNumber && i.class === 'Annotation';
           });
 
@@ -107,10 +107,14 @@ export default class LocalStoreAdapter extends StoreAdapter {
         });
       }
     });
+    this._userId = userId;
+  }
+  get userId(){
+    return this._userId;
   }
 }
 
-function getAnnotations(documentId, userId) {
+function getAnnotations(){
   let all_annotations = [];
   for(let i = 0 ; i < localStorage.length; i++){
     if(localStorage.key(i).includes('annotations')){
@@ -118,6 +122,10 @@ function getAnnotations(documentId, userId) {
     }
   }
   return all_annotations;
+}
+
+function getAnnotations(documentId, userId) {
+  return JSON.parse(localStorage.getItem(`${documentId}/${userId}/annotations`)) || [];
 }
 
 function updateAnnotations(documentId, userId, annotations) {
