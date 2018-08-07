@@ -8,7 +8,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
     super({
       getAnnotations(documentId, pageNumber) {
         return new Promise((resolve, reject) => {
-          let annotations = getAnnotations().filter((i) => {
+          let annotations = getAllAnnotations().filter((i) => {
             return i.page === pageNumber && i.class === 'Annotation';
           });
 
@@ -21,7 +21,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
       },
 
       getAnnotation(documentId, annotationId) {
-        return Promise.resolve(getAnnotations(documentId, userId)[findAnnotation(documentId, annotationId)]);
+        return Promise.resolve(getAnnotations(documentId, userId)[findAnnotation(documentId, userId, annotationId)]);
       },
 
       addAnnotation(documentId, pageNumber, annotation) {
@@ -29,6 +29,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
           annotation.class = 'Annotation';
           annotation.uuid = uuid();
           annotation.page = pageNumber;
+          annotation.userId = userId;
 
           let annotations = getAnnotations(documentId, userId);
           annotations.push(annotation);
@@ -41,7 +42,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
       editAnnotation(documentId, annotationId, annotation) {
         return new Promise((resolve, reject) => {
           let annotations = getAnnotations(documentId, userId);
-          annotations[findAnnotation(documentId, annotationId)] = annotation;
+          annotations[findAnnotation(documentId, userId, annotationId)] = annotation;
           updateAnnotations(documentId, userId, annotations);
 
           resolve(annotation);
@@ -50,7 +51,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
 
       deleteAnnotation(documentId, annotationId) {
         return new Promise((resolve, reject) => {
-          let index = findAnnotation(documentId, annotationId);
+          let index = findAnnotation(documentId, userId, annotationId);
           if (index > -1) {
             let annotations = getAnnotations(documentId, userId);
             annotations.splice(index, 1);
@@ -114,7 +115,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
   }
 }
 
-function getAnnotations(){
+function getAllAnnotations(){
   let all_annotations = [];
   for(let i = 0 ; i < localStorage.length; i++){
     if(localStorage.key(i).includes('annotations')){
@@ -131,10 +132,19 @@ function getAnnotations(documentId, userId) {
 function updateAnnotations(documentId, userId, annotations) {
   localStorage.setItem(`${documentId}/${userId}/annotations`, JSON.stringify(annotations));
 }
-
-function findAnnotation(documentId, annotationId) {
+/**
+ * 
+ * @param {String} documentId Document id of the annotation
+ * @param {String} userId User id of the annotation
+ * @param {String} annotationId The id of the annotation
+ * 
+ * This function finds all the annotation made by one user.
+ * 
+ * @return {int} The index of the annotation in localstorage
+ */
+function findAnnotation(documentId, userId, annotationId) {
   let index = -1;
-  let annotations = getAnnotations(documentId);
+  let annotations = getAnnotations(documentId, userId);
   for (let i=0, l=annotations.length; i<l; i++) {
     if (annotations[i].uuid === annotationId) {
       index = i;
