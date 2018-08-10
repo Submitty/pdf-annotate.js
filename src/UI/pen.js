@@ -21,6 +21,7 @@ const isFirefox = /firefox/i.test(navigator.userAgent);
  * Handle document.touchdown or document.pointerdown event
  */
 function handleDocumentPointerdown(e) {
+  e.preventDefault();
   path = null;
   lines = [];
   _candraw = true;
@@ -67,12 +68,18 @@ function saveToStorage(x, y){
  * @param {Event} e The DOM event to be handled
  */
 function handleDocumentPointermove(e) {
+  if(!e.srcElement.classList.contains('annotationLayer')){
+    return;
+  }
   if(_candraw){
     savePoint(e.clientX, e.clientY);
   }
 }
 
 function handleDocumentPointermoveChrome(e){
+  if(!e.srcElement.classList.contains('annotationLayer')){
+    return;
+  }
   if(_candraw){
     savePoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
   }
