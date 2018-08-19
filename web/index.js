@@ -208,7 +208,6 @@ render();
   }
 
   function setPen(size, color) {
-    console.trace();
     let modified = false;
 
     if (penSize !== size) {

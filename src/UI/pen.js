@@ -32,7 +32,7 @@ function handleDocumentPointerdown(e) {
  *
  * @param {Event} e The DOM event to be handled
  */
-function handleDocumentKeyupChrome(e){
+function handleDocumentPointerupChrome(e){
   saveToStorage(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
 }
 
@@ -159,7 +159,7 @@ export function enablePen() {
   if (!isFirefox){
     document.addEventListener('touchstart', handleDocumentPointerdown);
     document.addEventListener('touchmove', handleDocumentPointermoveChrome);
-    document.addEventListener('touchend', handleDocumentKeyupChrome);
+    document.addEventListener('touchend', handleDocumentPointerupChrome);
     document.addEventListener('mousedown', handleDocumentPointerdown);
     document.addEventListener('mousemove', handleDocumentPointermove);
     document.addEventListener('mouseup', handleDocumentPointerup);
@@ -182,7 +182,7 @@ export function disablePen() {
   if (!isFirefox){
     document.removeEventListener('touchstart', handleDocumentPointerdown);
     document.removeEventListener('touchmove', handleDocumentPointermoveChrome);
-    document.removeEventListener('touchend', handleDocumentKeyupChrome);
+    document.removeEventListener('touchend', handleDocumentPointerupChrome);
     document.removeEventListener('mousedown', handleDocumentPointerdown);
     document.removeEventListener('mousemove', handleDocumentPointermove);
     document.removeEventListener('mouseup', handleDocumentPointerup);
