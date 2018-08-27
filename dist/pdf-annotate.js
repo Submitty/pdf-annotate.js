@@ -177,7 +177,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	   * @param {String} pageNumber The page number
 	   * @return {Promise}
 	   */
-	  getAnnotations: function getAnnotations(documentId, pageNumber) {
+	  getAnnotations: function getAnnotations(documentId, userId, pageNumber) {
 	    var _getStoreAdapter;
 	
 	    return (_getStoreAdapter = this.getStoreAdapter()).getAnnotations.apply(_getStoreAdapter, arguments);
@@ -238,6 +238,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	   * Get all the annotations for a given document and page number.
 	   *
 	   * @param {String} documentId The ID for the document the annotations belong to
+	   * @param {String} userId The user makeing changes to this document
 	   * @param {Number} pageNumber The number of the page the annotations belong to
 	   * @return {Promise}
 	   */
@@ -245,7 +246,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  _createClass(StoreAdapter, [{
 	    key: '__getAnnotations',
-	    value: function __getAnnotations(documentId, pageNumber) {
+	    value: function __getAnnotations(documentId, userId, pageNumber) {
 	      (0, _abstractFunction2.default)('getAnnotations');
 	    }
 	  }, {
@@ -274,7 +275,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  }, {
 	    key: '__addAnnotation',
-	    value: function __addAnnotation(documentId, pageNumber, annotation) {
+	    value: function __addAnnotation(documentId, userId, pageNumber, annotation) {
 	      (0, _abstractFunction2.default)('addAnnotation');
 	    }
 	  }, {
@@ -355,7 +356,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return this.__getAnnotations;
 	    },
 	    set: function set(fn) {
-	      this.__getAnnotations = function getAnnotations(documentId, pageNumber) {
+	      this.__getAnnotations = function getAnnotations(documentId, userId, pageNumber) {
 	        return fn.apply(undefined, arguments).then(function (annotations) {
 	          // TODO may be best to have this happen on the server
 	          if (annotations.annotations) {
@@ -373,9 +374,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return this.__addAnnotation;
 	    },
 	    set: function set(fn) {
-	      this.__addAnnotation = function addAnnotation(documentId, pageNumber, annotation) {
+	      this.__addAnnotation = function addAnnotation(documentId, userId, pageNumber, annotation) {
 	        return fn.apply(undefined, arguments).then(function (annotation) {
-	          (0, _event.fireEvent)('annotation:add', documentId, pageNumber, annotation);
+	          (0, _event.fireEvent)('annotation:add', documentId, userId, pageNumber, annotation);
 	          return annotation;
 	        });
 	      };
@@ -1143,6 +1144,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function getMetadata(svg) {
 	  return {
 	    documentId: svg.getAttribute('data-pdf-annotate-document'),
+	    userId: svg.getAttribute('data-pdf-annotate-user'),
 	    pageNumber: parseInt(svg.getAttribute('data-pdf-annotate-page'), 10),
 	    viewport: JSON.parse(svg.getAttribute('data-pdf-annotate-viewport'))
 	  };
@@ -2220,6 +2222,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	          resolve({
 	            documentId: documentId,
+	            userId: userId,
 	            pageNumber: pageNumber,
 	            annotations: annotations
 	          });
@@ -2228,7 +2231,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      getAnnotation: function getAnnotation(documentId, annotationId) {
 	        return Promise.resolve(getAnnotations(documentId, userId)[findAnnotation(documentId, userId, annotationId)]);
 	      },
-	      addAnnotation: function addAnnotation(documentId, pageNumber, annotation) {
+	      addAnnotation: function addAnnotation(documentId, userId, pageNumber, annotation) {
 	        return new Promise(function (resolve, reject) {
 	          annotation.class = 'Annotation';
 	          annotation.uuid = (0, _uuid2.default)();
@@ -2242,7 +2245,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          resolve(annotation);
 	        });
 	      },
-	      editAnnotation: function editAnnotation(documentId, annotationId, annotation) {
+	      editAnnotation: function editAnnotation(documentId, userId, annotationId, annotation) {
 	        return new Promise(function (resolve, reject) {
 	          var annotations = getAnnotations(documentId, userId);
 	          annotations[findAnnotation(documentId, userId, annotationId)] = annotation;
@@ -2251,7 +2254,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          resolve(annotation);
 	        });
 	      },
-	      deleteAnnotation: function deleteAnnotation(documentId, annotationId) {
+	      deleteAnnotation: function deleteAnnotation(documentId, userId, annotationId) {
 	        return new Promise(function (resolve, reject) {
 	          var index = findAnnotation(documentId, userId, annotationId);
 	          if (index > -1) {
@@ -2263,14 +2266,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	          resolve(true);
 	        });
 	      },
-	      getComments: function getComments(documentId, annotationId) {
+	      getComments: function getComments(documentId, userId, annotationId) {
 	        return new Promise(function (resolve, reject) {
 	          resolve(getAnnotations(documentId, userId).filter(function (i) {
 	            return i.class === 'Comment' && i.annotation === annotationId;
 	          }));
 	        });
 	      },
-	      addComment: function addComment(documentId, annotationId, content) {
+	      addComment: function addComment(documentId, userId, annotationId, content) {
 	        return new Promise(function (resolve, reject) {
 	          var comment = {
 	            class: 'Comment',
@@ -2286,7 +2289,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          resolve(comment);
 	        });
 	      },
-	      deleteComment: function deleteComment(documentId, commentId) {
+	      deleteComment: function deleteComment(documentId, userId, commentId) {
 	        return new Promise(function (resolve, reject) {
 	          getAnnotations(documentId, userId);
 	          var index = -1;
@@ -2443,6 +2446,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	
 	    svg.setAttribute('data-pdf-annotate-document', data.documentId);
+	    svg.setAttribute('data-pdf-annotate-user', data.userId);
 	    svg.setAttribute('data-pdf-annotate-page', data.pageNumber);
 	
 	    // Make sure annotations is an array
@@ -3003,11 +3007,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Initialize the event handlers for keeping screen reader hints synced with data
 	 */
 	function initEventHandlers() {
-	  (0, _event.addEventListener)('annotation:add', function (documentId, pageNumber, annotation) {
-	    reorderAnnotationsByType(documentId, pageNumber, annotation.type);
+	  (0, _event.addEventListener)('annotation:add', function (documentId, userId, pageNumber, annotation) {
+	    reorderAnnotationsByType(documentId, userId, pageNumber, annotation.type);
 	  });
-	  (0, _event.addEventListener)('annotation:edit', function (documentId, annotationId, annotation) {
-	    reorderAnnotationsByType(documentId, annotation.page, annotation.type);
+	  (0, _event.addEventListener)('annotation:edit', function (documentId, userId, annotationId, annotation) {
+	    reorderAnnotationsByType(documentId, userId, annotation.page, annotation.type);
 	  });
 	  (0, _event.addEventListener)('annotation:delete', removeAnnotation);
 	  (0, _event.addEventListener)('comment:add', insertComment);
@@ -3018,11 +3022,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Reorder the annotation numbers by annotation type
 	 *
 	 * @param {String} documentId The ID of the document
+	 * @param {String} userId The ID of the user
 	 * @param {Number} pageNumber The page number of the annotations
 	 * @param {Strig} type The annotation type
 	 */
-	function reorderAnnotationsByType(documentId, pageNumber, type) {
-	  _PDFJSAnnotate2.default.getStoreAdapter().getAnnotations(documentId, pageNumber).then(function (annotations) {
+	function reorderAnnotationsByType(documentId, userId, pageNumber, type) {
+	  _PDFJSAnnotate2.default.getStoreAdapter().getAnnotations(documentId, userId, pageNumber).then(function (annotations) {
 	    return annotations.annotations.filter(function (a) {
 	      return a.type === type;
 	    });
@@ -3395,11 +3400,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var svg = overlay.parentNode.querySelector(_config2.default.annotationSvgQuery());
 	
 	  var _getMetadata2 = (0, _utils.getMetadata)(svg),
-	      documentId = _getMetadata2.documentId;
+	      documentId = _getMetadata2.documentId,
+	      userId = _getMetadata2.userId;
 	
 	  overlay.querySelector('a').style.display = '';
 	
-	  _PDFJSAnnotate2.default.getStoreAdapter().getAnnotation(documentId, annotationId).then(function (annotation) {
+	  _PDFJSAnnotate2.default.getStoreAdapter().getAnnotation(documentId, userId, annotationId).then(function (annotation) {
 	    var attribX = 'x';
 	    var attribY = 'y';
 	    if (['circle', 'fillcircle', 'emptycircle'].indexOf(type) > -1) {
@@ -3598,9 +3604,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (lines.length > 1 && (svg = (0, _utils.findSVGAtPoint)(x, y))) {
 	    var _getMetadata = (0, _utils.getMetadata)(svg),
 	        documentId = _getMetadata.documentId,
+	        userId = _getMetadata.userId,
 	        pageNumber = _getMetadata.pageNumber;
 	
-	    _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, {
+	    _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, userId, pageNumber, {
 	      type: 'drawing',
 	      width: _penSize,
 	      color: _penColor,
@@ -3866,12 +3873,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var svg = (0, _utils.findSVGContainer)(target);
 	
 	  var _getMetadata = (0, _utils.getMetadata)(svg),
-	      documentId = _getMetadata.documentId;
+	      documentId = _getMetadata.documentId,
+	      userId = _getMetadata.userId;
 	
 	  var annotationId = target.getAttribute('data-pdf-annotate-id');
 	
 	  var event = e;
-	  _PDFJSAnnotate2.default.getStoreAdapter().getAnnotation(documentId, annotationId).then(function (annotation) {
+	  _PDFJSAnnotate2.default.getStoreAdapter().getAnnotation(documentId, userId, annotationId).then(function (annotation) {
 	    if (annotation) {
 	      path = null;
 	      lines = [];
@@ -4110,6 +4118,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    var _getMetadata = (0, _utils.getMetadata)(svg),
 	        documentId = _getMetadata.documentId,
+	        userId = _getMetadata.userId,
 	        pageNumber = _getMetadata.pageNumber;
 	
 	    var annotation = Object.assign({
@@ -4119,7 +4128,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      y: clientY - rect.top
 	    }));
 	
-	    _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
+	    _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, userId, pageNumber, annotation).then(function (annotation) {
 	      _PDFJSAnnotate2.default.getStoreAdapter().addComment(documentId, annotation.uuid, content);
 	
 	      (0, _appendChild.appendChild)(svg, annotation);
@@ -4378,12 +4387,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  var _getMetadata = (0, _utils.getMetadata)(svg),
 	      documentId = _getMetadata.documentId,
+	      userId = _getMetadata.userId,
 	      pageNumber = _getMetadata.pageNumber;
 	
 	  // Add the annotation
 	
 	
-	  _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
+	  _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, userId, pageNumber, annotation).then(function (annotation) {
 	    (0, _appendChild.appendChild)(svg, annotation);
 	  });
 	}
@@ -4502,12 +4512,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  var _getMetadata = (0, _utils.getMetadata)(svg),
 	      documentId = _getMetadata.documentId,
+	      userId = _getMetadata.userId,
 	      pageNumber = _getMetadata.pageNumber;
 	
 	  // Add the annotation
 	
 	
-	  _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
+	  _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, userId, pageNumber, annotation).then(function (annotation) {
 	    (0, _appendChild.appendChild)(svg, annotation);
 	  });
 	}
@@ -4637,6 +4648,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    var _getMetadata = (0, _utils.getMetadata)(svg),
 	        documentId = _getMetadata.documentId,
+	        userId = _getMetadata.userId,
 	        pageNumber = _getMetadata.pageNumber,
 	        viewport = _getMetadata.viewport;
 	
@@ -4653,7 +4665,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      rotation: -viewport.rotation
 	    };
 	
-	    _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
+	    _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, userId, pageNumber, annotation).then(function (annotation) {
 	      (0, _appendChild.appendChild)(svg, annotation);
 	    });
 	  }
@@ -4777,13 +4789,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function renderPage(pageNumber, renderOptions) {
 	  var documentId = renderOptions.documentId,
+	      userId = renderOptions.userId,
 	      pdfDocument = renderOptions.pdfDocument,
 	      scale = renderOptions.scale,
 	      rotate = renderOptions.rotate;
 	
 	  // Load the page and annotations
 	
-	  return Promise.all([pdfDocument.getPage(pageNumber), _PDFJSAnnotate2.default.getAnnotations(documentId, pageNumber)]).then(function (_ref) {
+	  return Promise.all([pdfDocument.getPage(pageNumber), _PDFJSAnnotate2.default.getAnnotations(documentId, userId, pageNumber)]).then(function (_ref) {
 	    var _ref2 = _slicedToArray(_ref, 2),
 	        pdfPage = _ref2[0],
 	        annotations = _ref2[1];

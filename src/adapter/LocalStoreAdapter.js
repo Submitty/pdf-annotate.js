@@ -6,7 +6,7 @@ import StoreAdapter from './StoreAdapter';
 export default class LocalStoreAdapter extends StoreAdapter {
   constructor(userId = "user") {
     super({
-      getAnnotations(documentId, pageNumber) {
+      getAnnotations(documentId, userId, pageNumber) {
         return new Promise((resolve, reject) => {
           let annotations = getAllAnnotations().filter((i) => {
             return i.page === pageNumber && i.class === 'Annotation';
@@ -14,6 +14,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
 
           resolve({
             documentId,
+            userId,
             pageNumber,
             annotations
           });
@@ -24,7 +25,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
         return Promise.resolve(getAnnotations(documentId, userId)[findAnnotation(documentId, userId, annotationId)]);
       },
 
-      addAnnotation(documentId, pageNumber, annotation) {
+      addAnnotation(documentId, userId, pageNumber, annotation) {
         return new Promise((resolve, reject) => {
           annotation.class = 'Annotation';
           annotation.uuid = uuid();
@@ -39,7 +40,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
         });
       },
 
-      editAnnotation(documentId, annotationId, annotation) {
+      editAnnotation(documentId, userId, annotationId, annotation) {
         return new Promise((resolve, reject) => {
           let annotations = getAnnotations(documentId, userId);
           annotations[findAnnotation(documentId, userId, annotationId)] = annotation;
@@ -49,7 +50,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
         });
       },
 
-      deleteAnnotation(documentId, annotationId) {
+      deleteAnnotation(documentId, userId, annotationId) {
         return new Promise((resolve, reject) => {
           let index = findAnnotation(documentId, userId, annotationId);
           if (index > -1) {
@@ -62,7 +63,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
         });
       },
 
-      getComments(documentId, annotationId) {
+      getComments(documentId, userId, annotationId) {
         return new Promise((resolve, reject) => {
           resolve(getAnnotations(documentId, userId).filter((i) => {
             return i.class === 'Comment' && i.annotation === annotationId;
@@ -70,7 +71,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
         });
       },
 
-      addComment(documentId, annotationId, content) {
+      addComment(documentId, userId, annotationId, content) {
         return new Promise((resolve, reject) => {
           let comment = {
             class: 'Comment',
@@ -87,7 +88,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
         });
       },
 
-      deleteComment(documentId, commentId) {
+      deleteComment(documentId, userId, commentId) {
         return new Promise((resolve, reject) => {
           getAnnotations(documentId, userId);
           let index = -1;

@@ -78,7 +78,7 @@ export default {
    * @param {String} pageNumber The page number
    * @return {Promise}
    */
-  getAnnotations(documentId, pageNumber) {
+  getAnnotations(documentId, userId, pageNumber) {
     return this.getStoreAdapter().getAnnotations(...arguments);
   },
 

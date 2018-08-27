@@ -225,11 +225,11 @@ function handleDocumentMouseup(e) {
   let target = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
   let type = target[0].getAttribute('data-pdf-annotate-type');
   let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
-  let { documentId } = getMetadata(svg);
+  let { documentId, userId } = getMetadata(svg);
   
   overlay.querySelector('a').style.display = '';
 
-  PDFJSAnnotate.getStoreAdapter().getAnnotation(documentId, annotationId).then((annotation) => {
+  PDFJSAnnotate.getStoreAdapter().getAnnotation(documentId, userId, annotationId).then((annotation) => {
     let attribX = 'x';
     let attribY = 'y';
     if (['circle', 'fillcircle', 'emptycircle'].indexOf(type) > -1) {

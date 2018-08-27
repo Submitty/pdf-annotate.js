@@ -8,6 +8,7 @@ const userId = 'instructor';
 let PAGE_HEIGHT;
 let RENDER_OPTIONS = {
   documentId,
+  userId: 'aphacker',
   pdfDocument: null,
   scale: parseFloat(localStorage.getItem(`${documentId}/scale`), 10) || 1.33,
   rotate: parseInt(localStorage.getItem(`${documentId}/rotate`), 10) || 0
@@ -384,7 +385,7 @@ render();
         document.querySelector(`div#pageContainer${i+1} svg.annotationLayer`).innerHTML = '';
       }
 
-      localStorage.removeItem(`${RENDER_OPTIONS.documentId}/annotations`);
+      localStorage.removeItem(`${RENDER_OPTIONS.documentId}/${RENDER_OPTIONS.userId}/annotations`);
     }
   }
   document.querySelector('a.clear').addEventListener('click', handleClearClick);

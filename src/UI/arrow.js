@@ -33,11 +33,11 @@ function handleDocumentMousedown(e) {
   }
 
   let svg = findSVGContainer(target);
-  let { documentId } = getMetadata(svg);
+  let { documentId, userId } = getMetadata(svg);
   let annotationId = target.getAttribute('data-pdf-annotate-id');
 
   let event = e;
-  PDFJSAnnotate.getStoreAdapter().getAnnotation(documentId, annotationId).then((annotation) => {
+  PDFJSAnnotate.getStoreAdapter().getAnnotation(documentId, userId, annotationId).then((annotation) => {
     if (annotation) {
       path = null;
       lines = [];
