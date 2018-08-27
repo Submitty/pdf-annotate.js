@@ -4,7 +4,7 @@ import initColorPicker from './shared/initColorPicker';
 
 const { UI } = PDFJSAnnotate;
 const documentId = 'example.pdf';
-const userId = 'instructor';
+const userId = 'aphacker';
 let PAGE_HEIGHT;
 let RENDER_OPTIONS = {
   documentId,

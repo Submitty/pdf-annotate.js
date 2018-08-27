@@ -35,7 +35,7 @@ function erase(target){
         n.parentNode.removeChild(n);
       });
       
-      PDFJSAnnotate.getStoreAdapter().deleteAnnotation(documentId, annotationId);
+      PDFJSAnnotate.getStoreAdapter().deleteAnnotation(documentId, userId, annotationId);
     }
   }
 }
