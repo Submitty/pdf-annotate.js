@@ -148,6 +148,7 @@ export function appendChild(svg, annotation, viewport) {
     // Set attributes
     child.setAttribute('data-pdf-annotate-id', annotation.uuid);
     child.setAttribute('data-pdf-annotate-type', annotation.type);
+    child.setAttribute('data-pdf-annotate-userId', annotation.userId);
     child.setAttribute('aria-hidden', true);
 
     svg.appendChild(transform(child, viewport));

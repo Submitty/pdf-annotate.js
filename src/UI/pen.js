@@ -15,10 +15,13 @@ let _penColor;
 let path;
 let lines = [];
 
+const isFirefox = /firefox/i.test(navigator.userAgent);
+
 /**
  * Handle document.touchdown or document.pointerdown event
  */
 function handleDocumentPointerdown(e) {
+  e.preventDefault();
   path = null;
   lines = [];
   _candraw = true;
@@ -29,7 +32,7 @@ function handleDocumentPointerdown(e) {
  *
  * @param {Event} e The DOM event to be handled
  */
-function handleDocumentKeyupChrome(e){
+function handleDocumentPointerupChrome(e){
   saveToStorage(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
 }
 
@@ -64,12 +67,18 @@ function saveToStorage(x, y){
  * @param {Event} e The DOM event to be handled
  */
 function handleDocumentPointermove(e) {
+  if(!e.srcElement.classList.contains('annotationLayer')){
+    return;
+  }
   if(_candraw){
     savePoint(e.clientX, e.clientY);
   }
 }
 
 function handleDocumentPointermoveChrome(e){
+  if(!e.srcElement.classList.contains('annotationLayer')){
+    return;
+  }
   if(_candraw){
     savePoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
   }
@@ -107,7 +116,8 @@ function savePoint(x, y) {
     x - rect.left,
     y - rect.top
   ], svg);
-
+  point[0] = point[0].toFixed(2);
+  point[1] = point[1].toFixed(2);
   lines.push(point);
 
   if (lines.length <= 1) {
@@ -145,10 +155,10 @@ export function enablePen() {
 
   _enabled = true;
   // Chrome and Firefox has different behaviors with how pen works, so we need different events.
-  if (navigator.userAgent.indexOf("Chrome") !== -1){
+  if (!isFirefox){
     document.addEventListener('touchstart', handleDocumentPointerdown);
     document.addEventListener('touchmove', handleDocumentPointermoveChrome);
-    document.addEventListener('touchend', handleDocumentKeyupChrome);
+    document.addEventListener('touchend', handleDocumentPointerupChrome);
     document.addEventListener('mousedown', handleDocumentPointerdown);
     document.addEventListener('mousemove', handleDocumentPointermove);
     document.addEventListener('mouseup', handleDocumentPointerup);
@@ -168,10 +178,10 @@ export function disablePen() {
   if (!_enabled) { return; }
 
   _enabled = false;
-  if (navigator.userAgent.indexOf("Chrome") !== -1){
+  if (!isFirefox){
     document.removeEventListener('touchstart', handleDocumentPointerdown);
     document.removeEventListener('touchmove', handleDocumentPointermoveChrome);
-    document.removeEventListener('touchend', handleDocumentKeyupChrome);
+    document.removeEventListener('touchend', handleDocumentPointerupChrome);
     document.removeEventListener('mousedown', handleDocumentPointerdown);
     document.removeEventListener('mousemove', handleDocumentPointermove);
     document.removeEventListener('mouseup', handleDocumentPointerup);

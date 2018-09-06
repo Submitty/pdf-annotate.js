@@ -1379,6 +1379,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // Set attributes
 	    child.setAttribute('data-pdf-annotate-id', annotation.uuid);
 	    child.setAttribute('data-pdf-annotate-type', annotation.type);
+	    child.setAttribute('data-pdf-annotate-userId', annotation.userId);
 	    child.setAttribute('aria-hidden', true);
 	
 	    svg.appendChild(transform(child, viewport));
@@ -2182,6 +2183,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
 	var _uuid = __webpack_require__(21);
 	
 	var _uuid2 = _interopRequireDefault(_uuid);
@@ -2206,12 +2209,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  _inherits(LocalStoreAdapter, _StoreAdapter);
 	
 	  function LocalStoreAdapter() {
+	    var userId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "user";
+	
 	    _classCallCheck(this, LocalStoreAdapter);
 	
-	    return _possibleConstructorReturn(this, (LocalStoreAdapter.__proto__ || Object.getPrototypeOf(LocalStoreAdapter)).call(this, {
-	      getAnnotations: function getAnnotations(documentId, userId, pageNumber) {
+	    var _this = _possibleConstructorReturn(this, (LocalStoreAdapter.__proto__ || Object.getPrototypeOf(LocalStoreAdapter)).call(this, {
+	      getAnnotations: function getAnnotations(documentId, pageNumber) {
 	        return new Promise(function (resolve, reject) {
-	          var annotations = _getAnnotations(documentId, userId).filter(function (i) {
+	          var annotations = getAllAnnotations().filter(function (i) {
 	            return i.page === pageNumber && i.class === 'Annotation';
 	          });
 	
@@ -2223,16 +2228,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	          });
 	        });
 	      },
-	      getAnnotation: function getAnnotation(documentId, userId, annotationId) {
-	        return Promise.resolve(_getAnnotations(documentId, userId)[findAnnotation(documentId, userId, annotationId)]);
+	      getAnnotation: function getAnnotation(documentId, annotationId) {
+	        return Promise.resolve(getAnnotations(documentId, userId)[findAnnotation(documentId, userId, annotationId)]);
 	      },
 	      addAnnotation: function addAnnotation(documentId, userId, pageNumber, annotation) {
 	        return new Promise(function (resolve, reject) {
 	          annotation.class = 'Annotation';
 	          annotation.uuid = (0, _uuid2.default)();
 	          annotation.page = pageNumber;
+	          annotation.userId = userId;
 	
-	          var annotations = _getAnnotations(documentId, userId);
+	          var annotations = getAnnotations(documentId, userId);
 	          annotations.push(annotation);
 	          updateAnnotations(documentId, userId, annotations);
 	
@@ -2241,7 +2247,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      },
 	      editAnnotation: function editAnnotation(documentId, userId, annotationId, annotation) {
 	        return new Promise(function (resolve, reject) {
-	          var annotations = _getAnnotations(documentId, userId);
+	          var annotations = getAnnotations(documentId, userId);
 	          annotations[findAnnotation(documentId, userId, annotationId)] = annotation;
 	          updateAnnotations(documentId, userId, annotations);
 	
@@ -2252,7 +2258,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return new Promise(function (resolve, reject) {
 	          var index = findAnnotation(documentId, userId, annotationId);
 	          if (index > -1) {
-	            var annotations = _getAnnotations(documentId, userId);
+	            var annotations = getAnnotations(documentId, userId);
 	            annotations.splice(index, 1);
 	            updateAnnotations(documentId, userId, annotations);
 	          }
@@ -2262,7 +2268,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      },
 	      getComments: function getComments(documentId, userId, annotationId) {
 	        return new Promise(function (resolve, reject) {
-	          resolve(_getAnnotations(documentId, userId).filter(function (i) {
+	          resolve(getAnnotations(documentId, userId).filter(function (i) {
 	            return i.class === 'Comment' && i.annotation === annotationId;
 	          }));
 	        });
@@ -2276,7 +2282,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            content: content
 	          };
 	
-	          var annotations = _getAnnotations(documentId, userId);
+	          var annotations = getAnnotations(documentId, userId);
 	          annotations.push(comment);
 	          updateAnnotations(documentId, userId, annotations);
 	
@@ -2285,9 +2291,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      },
 	      deleteComment: function deleteComment(documentId, userId, commentId) {
 	        return new Promise(function (resolve, reject) {
-	          _getAnnotations(documentId, userId);
+	          getAnnotations(documentId, userId);
 	          var index = -1;
-	          var annotations = _getAnnotations(documentId, userId);
+	          var annotations = getAnnotations(documentId, userId);
 	          for (var i = 0, l = annotations.length; i < l; i++) {
 	            if (annotations[i].uuid === commentId) {
 	              index = i;
@@ -2304,7 +2310,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        });
 	      }
 	    }));
+	
+	    _this._userId = userId;
+	    return _this;
 	  }
+	
+	  _createClass(LocalStoreAdapter, [{
+	    key: 'userId',
+	    get: function get() {
+	      return this._userId;
+	    }
+	  }]);
 	
 	  return LocalStoreAdapter;
 	}(_StoreAdapter3.default);
@@ -2312,7 +2328,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = LocalStoreAdapter;
 	
 	
-	function _getAnnotations(documentId, userId) {
+	function getAllAnnotations() {
 	  var all_annotations = [];
 	  for (var i = 0; i < localStorage.length; i++) {
 	    if (localStorage.key(i).includes('annotations')) {
@@ -2322,13 +2338,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return all_annotations;
 	}
 	
+	function getAnnotations(documentId, userId) {
+	  return JSON.parse(localStorage.getItem(documentId + '/' + userId + '/annotations')) || [];
+	}
+	
 	function updateAnnotations(documentId, userId, annotations) {
 	  localStorage.setItem(documentId + '/' + userId + '/annotations', JSON.stringify(annotations));
 	}
-	
+	/**
+	 * 
+	 * @param {String} documentId Document id of the annotation
+	 * @param {String} userId User id of the annotation
+	 * @param {String} annotationId The id of the annotation
+	 * 
+	 * This function finds all the annotation made by one user.
+	 * 
+	 * @return {int} The index of the annotation in localstorage
+	 */
 	function findAnnotation(documentId, userId, annotationId) {
 	  var index = -1;
-	  var annotations = _getAnnotations(documentId, userId);
+	  var annotations = getAnnotations(documentId, userId);
 	  for (var i = 0, l = annotations.length; i < l; i++) {
 	    if (annotations[i].uuid === annotationId) {
 	      index = i;
@@ -3544,10 +3573,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	var path = void 0;
 	var lines = [];
 	
+	var isFirefox = /firefox/i.test(navigator.userAgent);
+	
 	/**
 	 * Handle document.touchdown or document.pointerdown event
 	 */
 	function handleDocumentPointerdown(e) {
+	  e.preventDefault();
 	  path = null;
 	  lines = [];
 	  _candraw = true;
@@ -3596,12 +3628,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Event} e The DOM event to be handled
 	 */
 	function handleDocumentPointermove(e) {
+	  if (!e.srcElement.classList.contains('annotationLayer')) {
+	    return;
+	  }
 	  if (_candraw) {
 	    savePoint(e.clientX, e.clientY);
 	  }
 	}
 	
 	function handleDocumentPointermoveChrome(e) {
+	  if (!e.srcElement.classList.contains('annotationLayer')) {
+	    return;
+	  }
 	  if (_candraw) {
 	    savePoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
 	  }
@@ -3636,7 +3674,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  var rect = svg.getBoundingClientRect();
 	  var point = (0, _utils.convertToSvgPoint)([x - rect.left, y - rect.top], svg);
-	
+	  point[0] = point[0].toFixed(2);
+	  point[1] = point[1].toFixed(2);
 	  lines.push(point);
 	
 	  if (lines.length <= 1) {
@@ -3679,7 +3718,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  _enabled = true;
 	  // Chrome and Firefox has different behaviors with how pen works, so we need different events.
-	  if (navigator.userAgent.indexOf("Chrome") !== -1) {
+	  if (!isFirefox) {
 	    document.addEventListener('touchstart', handleDocumentPointerdown);
 	    document.addEventListener('touchmove', handleDocumentPointermoveChrome);
 	    document.addEventListener('touchend', handleDocumentKeyupChrome);
@@ -3704,7 +3743,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	
 	  _enabled = false;
-	  if (navigator.userAgent.indexOf("Chrome") !== -1) {
+	  if (!isFirefox) {
 	    document.removeEventListener('touchstart', handleDocumentPointerdown);
 	    document.removeEventListener('touchmove', handleDocumentPointermoveChrome);
 	    document.removeEventListener('touchend', handleDocumentKeyupChrome);
@@ -3736,11 +3775,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
+	var _config = __webpack_require__(27);
+	
+	var _config2 = _interopRequireDefault(_config);
+	
 	var _utils = __webpack_require__(6);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+	
 	var _canerase = false;
+	var userId = "user";
 	
 	function handleDocumentMouseDown(e) {
 	  _canerase = true;
@@ -3753,23 +3799,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	function handleDocumentMouseMove(e) {
 	  if (_canerase) {
 	    var target = (0, _utils.findAnnotationAtPoint)(e.clientX, e.clientY);
-	    if (target) {
-	      console.log(target);
-	      // let annotationId = target.getAttribute('data-pdf-annotate-id');
-	      // let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
-	      // let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
-	      // let { documentId } = getMetadata(svg);
+	    if (target && target.getAttribute('data-pdf-annotate-userId') == userId) {
+	      var _getMetadata = (0, _utils.getMetadata)(target.parentElement),
+	          documentId = _getMetadata.documentId;
 	
-	      // [...nodes].forEach((n) => {
-	      //   n.parentNode.removeChild(n);
-	      // });
+	      var annotationId = target.getAttribute('data-pdf-annotate-id');
+	      var nodes = document.querySelectorAll('[data-pdf-annotate-id="' + annotationId + '"]');
+	      [].concat(_toConsumableArray(nodes)).forEach(function (n) {
+	        n.parentNode.removeChild(n);
+	      });
 	
-	      // PDFJSAnnotate.getStoreAdapter().deleteAnnotation(documentId, annotationId);
+	      _PDFJSAnnotate2.default.getStoreAdapter().deleteAnnotation(documentId, annotationId);
 	    }
 	  }
 	}
 	
 	function enableEraser() {
+	  userId = _PDFJSAnnotate2.default.getStoreAdapter().userId;
 	  document.addEventListener('mousemove', handleDocumentMouseMove);
 	  document.addEventListener('mousedown', handleDocumentMouseDown);
 	  document.addEventListener('mouseup', handleDocumentMouseUp);
@@ -3777,6 +3823,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function disableEraser() {
 	  document.removeEventListener('mousemove', handleDocumentMouseMove);
+	  document.removeEventListener('mousedown', handleDocumentMouseDown);
+	  document.removeEventListener('mouseup', handleDocumentMouseUp);
 	}
 
 /***/ },
@@ -4545,7 +4593,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (input || !(0, _utils.findSVGAtPoint)(e.clientX, e.clientY)) {
 	    return;
 	  }
-	
+	  if (!e.srcElement.classList.contains('annotationLayer')) {
+	    return;
+	  }
 	  input = document.createElement('input');
 	  input.setAttribute('id', 'pdf-annotate-text-input');
 	  input.setAttribute('placeholder', 'Enter text');

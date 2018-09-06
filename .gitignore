@@ -2,6 +2,10 @@ node_modules/
 coverage/
 sandbox/shared
 web/shared
-dist
+dist/
 web-dist
 npm-debug.log
+dist/pdf-annotate.js
+dist/pdf-annotate.js.map
+dist/pdf-annotate.min.js
+dist/pdf-annotate.min.js.map

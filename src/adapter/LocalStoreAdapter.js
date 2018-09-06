@@ -4,11 +4,11 @@ import StoreAdapter from './StoreAdapter';
 // StoreAdapter for working with localStorage
 // This is ideal for testing, examples, and prototyping
 export default class LocalStoreAdapter extends StoreAdapter {
-  constructor() {
+  constructor(userId = "user") {
     super({
       getAnnotations(documentId, userId, pageNumber) {
         return new Promise((resolve, reject) => {
-          let annotations = getAnnotations(documentId, userId).filter((i) => {
+          let annotations = getAllAnnotations().filter((i) => {
             return i.page === pageNumber && i.class === 'Annotation';
           });
 
@@ -21,7 +21,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
         });
       },
 
-      getAnnotation(documentId, userId, annotationId) {
+      getAnnotation(documentId, annotationId) {
         return Promise.resolve(getAnnotations(documentId, userId)[findAnnotation(documentId, userId, annotationId)]);
       },
 
@@ -30,6 +30,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
           annotation.class = 'Annotation';
           annotation.uuid = uuid();
           annotation.page = pageNumber;
+          annotation.userId = userId;
 
           let annotations = getAnnotations(documentId, userId);
           annotations.push(annotation);
@@ -108,10 +109,14 @@ export default class LocalStoreAdapter extends StoreAdapter {
         });
       }
     });
+    this._userId = userId;
+  }
+  get userId(){
+    return this._userId;
   }
 }
 
-function getAnnotations(documentId, userId) {
+function getAllAnnotations(){
   let all_annotations = [];
   for(let i = 0 ; i < localStorage.length; i++){
     if(localStorage.key(i).includes('annotations')){
@@ -121,10 +126,23 @@ function getAnnotations(documentId, userId) {
   return all_annotations;
 }
 
+function getAnnotations(documentId, userId) {
+  return JSON.parse(localStorage.getItem(`${documentId}/${userId}/annotations`)) || [];
+}
+
 function updateAnnotations(documentId, userId, annotations) {
   localStorage.setItem(`${documentId}/${userId}/annotations`, JSON.stringify(annotations));
 }
-
+/**
+ * 
+ * @param {String} documentId Document id of the annotation
+ * @param {String} userId User id of the annotation
+ * @param {String} annotationId The id of the annotation
+ * 
+ * This function finds all the annotation made by one user.
+ * 
+ * @return {int} The index of the annotation in localstorage
+ */
 function findAnnotation(documentId, userId, annotationId) {
   let index = -1;
   let annotations = getAnnotations(documentId, userId);

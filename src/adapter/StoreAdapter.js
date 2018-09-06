@@ -99,10 +99,10 @@ export default class StoreAdapter {
   __deleteAnnotation(documentId, annotationId) { abstractFunction('deleteAnnotation'); }
   get deleteAnnotation() { return this.__deleteAnnotation; }
   set deleteAnnotation(fn) {
-    this.__deleteAnnotation = function deleteAnnotation(documentId, annotationId) {
+    this.__deleteAnnotation = function deleteAnnotation(documentId, userId, annotationId) {
       return fn(...arguments).then((success) => {
         if (success) {
-          fireEvent('annotation:delete', documentId, annotationId);
+          fireEvent('annotation:delete', documentId, userId, annotationId);
         }
         return success;
       });
