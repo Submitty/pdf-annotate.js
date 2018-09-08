@@ -2,16 +2,36 @@ language: node_js
 dist: trusty
 sudo: true
 node_js:
-  - '8'
-  - '9'
-  - '10'
+- '8'
+- '9'
+- '10'
+
 addons:
   firefox: latest
+
+install:
+  - npm install
+
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
-after_success:
-  - npm run coveralls
+
+script:
+  - npm run-script build
+#after_success: 
+#  - npm run coveralls
+
 email:
   on_failure: change
   on_success: never
+
+deploy:
+  provider: releases
+  file:
+    - dist/pdf-annotate.js
+  on:
+    tags: true
+    node: '8'
+    repo: Submitty/pdf-annotate.js
+  api_key:
+    secure: WGShh0arDdVd4UNWPtT29xXIehxJR4maAStcoLOea6JMZnGVjrqkcfWbLRwqM7du/ymOhpAFX5R14lVJQzLB6DNOw0QAJ0cbdMdOuHIkvyLeb/YiovycBTNUkCpbQvDKmfqaaebFFHGU6PBVXrCmpylyZODesA8Wr+rTc7A9BlFEUjK+DLVvhTxMf/WK87P13aMRsQ70F4MQbQnpW+xhY+i8ET6Tm94KSopEsDxGly4oWkXsu1aKm52mD4ksKTO4RX9fD5ByQgCRoYlPT70sm0NBCOCd3cxeXPDX7akjDWNQ1tnkUvlacrRExmBYffXnGBBMLcqv2Kg9CqU1efRUnRQY/0skD2fDjgsjo7s8Cn+I+BOnMuJI4SkvY0M+IMB9+xbu17VZ+7vI7uaWevA5AyB5a0zQMKUqv2GxyORPiw9RlEE7EjMh7TUbal/nmsxthIFQXP0zMlsBwob7iqNSE6x2RBUXS+n/iaedszg17Xy1Um7d6acPWZ4ZgcdAIKbyyGMjyukS/GMfusSIxzN3K1XnK5+swmtaQ1aJdJJWyBCJlfp3Ht2afH/2DNBBvt4LLnGeTzi7ybvn3kcaPoWeAKiQc70VjrS6o2gfKVjcbpQT20/Jd8VY6PsdgzNSNw2qkyxykhD+Rf0fV1ljCJMxCFDJG40SU5kLga9MELV+Z+4=
