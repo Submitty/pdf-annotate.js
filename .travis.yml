@@ -2,9 +2,9 @@ language: node_js
 dist: trusty
 sudo: true
 node_js:
-- '8'
-- '9'
-- '10'
+  - '8'
+  - '9'
+  - '10'
 
 addons:
   firefox: latest
@@ -18,7 +18,8 @@ before_script:
 
 script:
   - npm run-script build
-#after_success: 
+
+#after_script:
 #  - npm run coveralls
 
 email:
@@ -27,6 +28,8 @@ email:
 
 deploy:
   provider: releases
+  api_key:
+    secure: q6pLvIM8REEcfP/jxr9roQatJ4PwIsu2tI3AN8VnOmtvpfe9A1syggJIhhPpN3cPMW/kt+X38uQM4vyOM738Iw64vKxVBet3D5CtpUJTXbj90JZApR24Jndet2Hg4nj2sKpVvVRBRxGKZts6IdFiaYq/kYNbYVlCtspfLmVss+1xUN54oUJWQNoeSWX/dPnniKiFsr5j8ejwrv3JI4U1HzLbuF+EfQi93nQuSAvsrsvzdPAwMpOX3F0ADI9sUkNyOLw7OnLPaOYSOmf1zmI1nntQaJbh0Sug5CWlHPMDYZwYl/iebs0XDWKk9iXB3qa7DfAS9j8hAH+kAsqrrXSfsay8yY3Yw8q8oCZm45awiXGe8iTwXBNw5Nt3n8iz/rV72OJRccIrZskhX9HvCk+rXRf1WtdpmFr5cXkDLm4ZmdubRNHeuI6Vr/u/Zqqo7gJUYgSs4wtOKaMS8ydFk9T/3pj4T0N5Bi+mzKRk4tu/SIMjtbnbeIa/ya+/F1HRH0T9nRscrwELo9SeYY+4LhcYJybBFcoj8kXftFdv1UbfXeEUTb6Zm/qoS+0uVoogH/bml5oOVBNnYkD4lGU+btHlbez2M0Xz3BciQ3a8bjNrFq58U1TFfWurRptg5n5041cmQS+ifjGwCOutBzGolUSIl67SKKK2968MehketNE96Yo=
   file:
     - dist/pdf-annotate.js
     - dist/pdf-annotate.js.map
@@ -36,5 +39,3 @@ deploy:
     tags: true
     node: '8'
     repo: Submitty/pdf-annotate.js
-  api_key:
-    secure: WGShh0arDdVd4UNWPtT29xXIehxJR4maAStcoLOea6JMZnGVjrqkcfWbLRwqM7du/ymOhpAFX5R14lVJQzLB6DNOw0QAJ0cbdMdOuHIkvyLeb/YiovycBTNUkCpbQvDKmfqaaebFFHGU6PBVXrCmpylyZODesA8Wr+rTc7A9BlFEUjK+DLVvhTxMf/WK87P13aMRsQ70F4MQbQnpW+xhY+i8ET6Tm94KSopEsDxGly4oWkXsu1aKm52mD4ksKTO4RX9fD5ByQgCRoYlPT70sm0NBCOCd3cxeXPDX7akjDWNQ1tnkUvlacrRExmBYffXnGBBMLcqv2Kg9CqU1efRUnRQY/0skD2fDjgsjo7s8Cn+I+BOnMuJI4SkvY0M+IMB9+xbu17VZ+7vI7uaWevA5AyB5a0zQMKUqv2GxyORPiw9RlEE7EjMh7TUbal/nmsxthIFQXP0zMlsBwob7iqNSE6x2RBUXS+n/iaedszg17Xy1Um7d6acPWZ4ZgcdAIKbyyGMjyukS/GMfusSIxzN3K1XnK5+swmtaQ1aJdJJWyBCJlfp3Ht2afH/2DNBBvt4LLnGeTzi7ybvn3kcaPoWeAKiQc70VjrS6o2gfKVjcbpQT20/Jd8VY6PsdgzNSNw2qkyxykhD+Rf0fV1ljCJMxCFDJG40SU5kLga9MELV+Z+4=
