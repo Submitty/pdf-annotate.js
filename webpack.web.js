@@ -1,7 +1,6 @@
-var webpack = require('webpack');
-
 module.exports = {
   entry: './web/index.js',
+  mode: 'development',
 
   output: {
     filename: 'index.js',
@@ -10,13 +9,13 @@ module.exports = {
   },
 
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
         loader: 'babel-loader',
-        query: {
-          presets: ['es2015']
+        options: {
+          presets: ['@babel/preset-env']
         }
       }
     ]

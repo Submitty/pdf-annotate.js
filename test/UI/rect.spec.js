@@ -1,29 +1,32 @@
 import { equal } from 'assert';
-import simulant from 'simulant';
 import PDFJSAnnotate from '../../src/PDFJSAnnotate';
 import { enableRect, disableRect } from '../../src/UI/rect';
+import { fireMouseEvent } from '../fireEvent';
 import mockAddAnnotation from '../mockAddAnnotation';
 import mockSVGContainer from '../mockSVGContainer';
+import mockGetAnnotations from "../mockGetAnnotations";
 
 let svg;
 let div;
 let addAnnotationSpy;
 let __addAnnotation = PDFJSAnnotate.__storeAdapter.addAnnotation;
+let __getAnnotations = PDFJSAnnotate.__storeAdapter.getAnnotations;
+
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz';
 
 function simulateCreateRectAnnotation(type) {
   let rect = svg.getBoundingClientRect();
-  simulant.fire(svg, 'mousedown', {
+  fireMouseEvent(svg, 'mousedown', {
     clientX: rect.left + 10,
     clientY: rect.top + 10
   });
 
-  simulant.fire(svg, 'mousemove', {
+  fireMouseEvent(svg, 'mousemove', {
     clientX: rect.left + 50,
     clientY: rect.top + 50
   });
 
-  simulant.fire(svg, 'mouseup', {
+  fireMouseEvent(svg, 'mouseup', {
     clientX: rect.left + 50,
     clientY: rect.top + 50
   });
@@ -52,6 +55,7 @@ describe('UI::rect', function () {
 
     addAnnotationSpy = sinon.spy();
     PDFJSAnnotate.__storeAdapter.addAnnotation = mockAddAnnotation(addAnnotationSpy);
+    PDFJSAnnotate.__storeAdapter.getAnnotations = mockGetAnnotations();
   });
 
   afterEach(function () {
@@ -68,6 +72,7 @@ describe('UI::rect', function () {
 
   after(function () {
     PDFJSAnnotate.__storeAdapter.addAnnotation = __addAnnotation;
+    PDFJSAnnotate.__storeAdapter.getAnnotations = __getAnnotations;
   });
 
   it('should do nothing when disabled', function (done) {
@@ -79,7 +84,7 @@ describe('UI::rect', function () {
       done();
     }, 0);
   });
-  
+
   it('should create an area annotation when enabled', function (done) {
     disableRect();
     enableRect('area');
@@ -88,8 +93,9 @@ describe('UI::rect', function () {
       let args = addAnnotationSpy.getCall(0).args;
       equal(addAnnotationSpy.called, true);
       equal(args[0], 'test-document-id');
-      equal(args[1], '1');
-      equal(args[2].type, 'area');
+      equal(args[1], 'testUser');
+      equal(args[2], '1');
+      equal(args[3].type, 'area');
       done();
     }, 0);
   });

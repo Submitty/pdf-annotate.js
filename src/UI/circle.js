@@ -44,8 +44,10 @@ function handleDocumentMouseup(e) {
 /**
  * Save a circle annotation
  *
+ * @param {SVGElement} svg
  * @param {String} type The type of circle (circle, emptycircle, fillcircle)
  * @param {Object} pt The point to use for annotation
+ * @param {float} radius
  * @param {String} color The color of the rects
  */
 function saveCircle(svg, type, pt, radius, color) {
@@ -73,7 +75,7 @@ function saveCircle(svg, type, pt, radius, color) {
  */
 export function enableCircle(type) {
   _type = type;
-  
+
   if (_enabled) { return; }
 
   _enabled = true;
@@ -94,5 +96,5 @@ export function addCircle(type, e) {
   let oldType = _type;
   _type = type;
   handleDocumentMouseup(e);
-  _type = oldType; 
+  _type = oldType;
 }

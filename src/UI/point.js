@@ -19,7 +19,7 @@ function handleDocumentMouseup(e) {
   if (input || !findSVGAtPoint(e.clientX, e.clientY)) {
     return
   }
-  
+
   input = document.createElement('input');
   input.setAttribute('id', 'pdf-annotate-point-input');
   input.setAttribute('placeholder', 'Enter comment');
@@ -83,6 +83,7 @@ function savePoint() {
       .then((annotation) => {
         PDFJSAnnotate.getStoreAdapter().addComment(
           documentId,
+          userId,
           annotation.uuid,
           content
         );

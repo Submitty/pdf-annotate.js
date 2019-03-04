@@ -13,15 +13,12 @@ export default function renderText(a) {
   // Text should be rendered at 0 degrees relative to
   // document rotation
   let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-  let x = a.x;
-  let y = a.y;
-
   setAttributes(text, {
-    x: x,
-    y: y,
+    x: a.x,
+    y: a.y,
     fill: normalizeColor(a.color || '#000'),
     fontSize: a.size,
-    transform: `rotate(${a.rotation}, ${x}, ${y})`
+    transform: `rotate(${a.rotation})`
   });
   text.innerHTML = a.content;
 

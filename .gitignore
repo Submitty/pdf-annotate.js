@@ -9,3 +9,5 @@ dist/pdf-annotate.js
 dist/pdf-annotate.js.map
 dist/pdf-annotate.min.js
 dist/pdf-annotate.min.js.map
+.DS_Store
+.idea/

@@ -1,11 +1,11 @@
 import createStyleSheet from 'create-stylesheet';
 import { getTranslation } from '../render/appendChild';
-import { 
-  applyTransform, 
-  applyInverseTransform, 
+import {
+  applyTransform,
+  applyInverseTransform,
   translate,
   rotate,
-  scale 
+  scale
 } from '../utils/mathUtils';
 
 
@@ -65,7 +65,7 @@ export function findSVGAtPoint(x, y) {
 
 /**
  * Find an Element that represents an annotation at a given point.
- * 
+ *
  * IMPORTANT: Requires the annotation layer to be the top most element so
  *            either use z-ordering or make it the leaf container.
  *
@@ -76,7 +76,7 @@ export function findSVGAtPoint(x, y) {
 export function findAnnotationAtPoint(x, y) {
   let el = null;
   var candidate = document.elementFromPoint(x, y)
-  while (!el && candidate && candidate !== document) {  
+  while (!el && candidate && candidate !== document) {
     let type = candidate.getAttribute('data-pdf-annotate-type');
     if (type) {
       el = candidate;
@@ -106,14 +106,24 @@ export function pointIntersectsRect(x, y, rect) {
  */
 export function getOffsetAnnotationRect(el) {
   let rect = el.getBoundingClientRect();
+  let { width, height } = rect;
+  let extraOffsetWidth = 0;
+  let extraOffsetHeight = 0;
+  if (['line', 'path'].indexOf(el.tagName.toLowerCase()) > -1 && el.getBBox) {
+    let bbox = el.getBBox();
+    extraOffsetWidth = (rect.width - bbox.width) / 2;
+    extraOffsetHeight = (rect.height - bbox.height) / 2;
+    width = bbox.width;
+    height = bbox.height;
+  }
   let { offsetLeft, offsetTop } = getOffset(el);
   return {
-    top: rect.top - offsetTop,
-    left: rect.left - offsetLeft,
-    right: rect.right - offsetLeft,
-    bottom: rect.bottom - offsetTop,
-    width: rect.width,
-    height: rect.height
+    top: rect.top - offsetTop + extraOffsetHeight,
+    left: rect.left - offsetLeft + extraOffsetWidth,
+    bottom: rect.bottom - offsetTop - extraOffsetHeight,
+    right: rect.right - offsetLeft - extraOffsetWidth,
+    width: width,
+    height: height
   };
 }
 

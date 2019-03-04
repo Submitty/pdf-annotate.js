@@ -50,7 +50,7 @@ function handleDocumentMousedown(e) {
       let rect = svg.getBoundingClientRect();
 
       originX = point[0] + rect.left;
-      originY = point[1] + rect.top;    
+      originY = point[1] + rect.top;
 
       document.addEventListener('mousemove', handleDocumentMousemove);
       document.addEventListener('mouseup', handleDocumentMouseup);
@@ -66,9 +66,9 @@ function handleDocumentMousedown(e) {
 function handleDocumentMouseup(e) {
   let svg;
   if (lines.length > 1 && (svg = findSVGAtPoint(e.clientX, e.clientY))) {
-    let { documentId, pageNumber } = getMetadata(svg);
+    let { documentId, userId, pageNumber } = getMetadata(svg);
 
-    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, {
+    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, userId, pageNumber, {
         type: 'arrow',
         width: _penSize,
         color: _penColor,

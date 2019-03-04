@@ -1,20 +1,21 @@
 import { equal } from 'assert';
-import simulant from 'simulant';
 import PDFJSAnnotate from '../../src/PDFJSAnnotate';
 import { setText, enableText, disableText } from '../../src/UI/text';
+import { fireMouseEvent, fireFocusEvent } from '../fireEvent';
 import mockAddAnnotation from '../mockAddAnnotation';
 import mockSVGContainer from '../mockSVGContainer';
+import mockGetAnnotations from "../mockGetAnnotations";
 
 let svg;
 let addAnnotationSpy;
 let __addAnnotation = PDFJSAnnotate.__storeAdapter.addAnnotation;
+let __getAnnotations = PDFJSAnnotate.__storeAdapter.getAnnotations;
 
 function simulateCreateTextAnnotation(textContent, textSize, textColor) {
   setText(textSize, textColor);
 
   let rect = svg.getBoundingClientRect();
-  simulant.fire(svg, 'mouseup', {
-    target: svg,
+  fireMouseEvent(svg, 'mouseup', {
     clientX: rect.left + 10,
     clientY: rect.top + 10
   });
@@ -24,7 +25,7 @@ function simulateCreateTextAnnotation(textContent, textSize, textColor) {
     if (input) {
       input.focus();
       input.value = textContent;
-      simulant.fire(input, 'blur');
+      fireFocusEvent(input, 'blur');
     }
   }, 0);
 }
@@ -38,6 +39,7 @@ describe('UI::text', function () {
 
     addAnnotationSpy = sinon.spy();
     PDFJSAnnotate.__storeAdapter.addAnnotation = mockAddAnnotation(addAnnotationSpy);
+    PDFJSAnnotate.__storeAdapter.getAnnotations = mockGetAnnotations();
   });
 
   afterEach(function () {
@@ -55,6 +57,7 @@ describe('UI::text', function () {
 
   after(function () {
     PDFJSAnnotate.__storeAdapter.addAnnotation = __addAnnotation;
+    PDFJSAnnotate.__storeAdapter.getAnnotations = __getAnnotations;
   });
 
   it('should do nothing when disabled', function (done) {
@@ -75,11 +78,12 @@ describe('UI::text', function () {
       let args = addAnnotationSpy.getCall(0).args;
       equal(addAnnotationSpy.called, true);
       equal(args[0], 'test-document-id');
-      equal(args[1], '1');
-      equal(args[2].type, 'textbox');
-      equal(args[2].size, '12');
-      equal(args[2].color, '000000');
-      equal(args[2].content, 'foo bar baz');
+      equal(args[1], 'testUser');
+      equal(args[2], '1');
+      equal(args[3].type, 'textbox');
+      equal(args[3].size, '12');
+      equal(args[3].color, '000000');
+      equal(args[3].content, 'foo bar baz');
       done();
     }, 0);
   });

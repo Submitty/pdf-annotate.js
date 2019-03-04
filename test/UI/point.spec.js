@@ -1,8 +1,9 @@
 import { equal } from 'assert';
-import simulant from 'simulant';
 import PDFJSAnnotate from '../../src/PDFJSAnnotate';
 import { enablePoint, disablePoint } from '../../src/UI/point';
+import { fireMouseEvent, fireFocusEvent } from '../fireEvent';
 import mockAddAnnotation from '../mockAddAnnotation';
+import mockGetAnnotations from '../mockGetAnnotations';
 import mockAddComment from '../mockAddComment';
 import mockSVGContainer from '../mockSVGContainer';
 
@@ -12,12 +13,11 @@ let addCommentSpy;
 let __addComment = PDFJSAnnotate.__storeAdapter.addComment;
 let __getComments = PDFJSAnnotate.__storeAdapter.getComments;
 let __addAnnotation = PDFJSAnnotate.__storeAdapter.addAnnotation;
-let __getAnnotations = PDFJSAnnotate.__storeAdapter.getAnnotations
+let __getAnnotations = PDFJSAnnotate.__storeAdapter.getAnnotations;
 
 function simulateCreatePointAnnotation(textContent) {
   let rect = svg.getBoundingClientRect();
-  simulant.fire(svg, 'mouseup', {
-    target: svg,
+  fireMouseEvent(svg, 'mouseup', {
     clientX: rect.left + 10,
     clientY: rect.top + 10
   });
@@ -27,7 +27,7 @@ function simulateCreatePointAnnotation(textContent) {
     if (input) {
       input.focus();
       input.value = textContent;
-      simulant.fire(input, 'blur');
+      fireFocusEvent(input, 'blur');
     }
   });
 }
@@ -44,15 +44,9 @@ describe('UI::point', function () {
     PDFJSAnnotate.__storeAdapter.addComment = mockAddComment(addCommentSpy);
     PDFJSAnnotate.__storeAdapter.getComments = () => {
       return Promise.resolve([]);
-    }
+    };
     PDFJSAnnotate.__storeAdapter.addAnnotation = mockAddAnnotation(addAnnotationSpy);
-    PDFJSAnnotate.__storeAdapter.getAnnotations = (documentId, pageNumber) => {
-      return Promise.resolve({
-        documentId,
-        pageNumber,
-        annotations: []
-      });
-    }
+    PDFJSAnnotate.__storeAdapter.getAnnotations = mockGetAnnotations();
   });
 
   afterEach(function () {
@@ -98,13 +92,15 @@ describe('UI::point', function () {
       equal(addCommentSpy.called, true);
 
       equal(addAnnotationArgs[0], 'test-document-id');
-      equal(addAnnotationArgs[1], '1');
-      equal(addAnnotationArgs[2].type, 'point');
+      equal(addAnnotationArgs[1], 'testUser');
+      equal(addAnnotationArgs[2], '1');
+      equal(addAnnotationArgs[3].type, 'point');
 
       equal(addCommentArgs[0], 'test-document-id');
-      equal(addCommentArgs[1], addAnnotationArgs[2].uuid);
-      equal(addCommentArgs[2], 'foo bar baz');
-      
+      equal(addCommentArgs[1], 'testUser');
+      equal(addCommentArgs[2], addAnnotationArgs[3].uuid);
+      equal(addCommentArgs[3], 'foo bar baz');
+
       done();
     });
   });

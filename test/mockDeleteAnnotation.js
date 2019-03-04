@@ -1,6 +1,6 @@
 export default (spy) => {
-  return function (documentId, annotationId) {
-    spy(documentId, annotationId);
+  return function (documentId, userId, annotationId) {
+    spy(documentId, userId, annotationId);
     return Promise.resolve(true);
   };
 }

@@ -1,11 +1,14 @@
-var webpack = require('webpack');
-var fileName = 'pdf-annotate';
-var plugins = [];
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+
+let fileName = 'pdf-annotate';
+let plugins = [];
 
 if (process.env.MINIFY) {
-  fileName += '.min'
+  fileName += '.min';
   plugins.push(
-    new webpack.optimize.UglifyJsPlugin()
+    new UglifyJsPlugin({
+      sourceMap: true
+    })
   );
 }
 
@@ -13,19 +16,20 @@ module.exports = {
   devtool: 'source-map',
   plugins: plugins,
   entry: './index.js',
+  mode: 'production',
   output: {
     filename: 'dist/' + fileName + '.js',
     library: 'PDFAnnotate',
     libraryTarget: 'umd'
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
         loader: 'babel-loader',
-        query: {
-          presets: ['es2015'],
+        options: {
+          presets: ['@babel/preset-env'],
           plugins: ['add-module-exports']
         }
       }

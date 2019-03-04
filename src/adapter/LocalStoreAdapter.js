@@ -21,7 +21,7 @@ export default class LocalStoreAdapter extends StoreAdapter {
         });
       },
 
-      getAnnotation(documentId, annotationId) {
+      getAnnotation(documentId, userId, annotationId) {
         return Promise.resolve(getAnnotations(documentId, userId)[findAnnotation(documentId, userId, annotationId)]);
       },
 
@@ -45,7 +45,6 @@ export default class LocalStoreAdapter extends StoreAdapter {
           let annotations = getAnnotations(documentId, userId);
           annotations[findAnnotation(documentId, userId, annotationId)] = annotation;
           updateAnnotations(documentId, userId, annotations);
-
           resolve(annotation);
         });
       },
@@ -77,7 +76,8 @@ export default class LocalStoreAdapter extends StoreAdapter {
             class: 'Comment',
             uuid: uuid(),
             annotation: annotationId,
-            content: content
+            content: content,
+            userId: userId
           };
 
           let annotations = getAnnotations(documentId, userId);
@@ -134,13 +134,13 @@ function updateAnnotations(documentId, userId, annotations) {
   localStorage.setItem(`${documentId}/${userId}/annotations`, JSON.stringify(annotations));
 }
 /**
- * 
+ *
  * @param {String} documentId Document id of the annotation
  * @param {String} userId User id of the annotation
  * @param {String} annotationId The id of the annotation
- * 
+ *
  * This function finds all the annotation made by one user.
- * 
+ *
  * @return {int} The index of the annotation in localstorage
  */
 function findAnnotation(documentId, userId, annotationId) {

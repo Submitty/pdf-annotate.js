@@ -21,7 +21,7 @@ function handleDocumentMouseup(e) {
   if (input || !findSVGAtPoint(e.clientX, e.clientY)) {
     return;
   }
-  if(!e.srcElement.classList.contains('annotationLayer')){
+  if (!e.srcElement.classList.contains('annotationLayer')) {
     return;
   }
   input = document.createElement('input');
@@ -56,7 +56,8 @@ function handleInputBlur() {
 function handleInputKeyup(e) {
   if (e.keyCode === 27) {
     closeInput();
-  } else if (e.keyCode === 13) {
+  }
+  else if (e.keyCode === 13) {
     saveText();
   }
 }
@@ -65,7 +66,8 @@ function handleInputKeyup(e) {
  * Save a text annotation from input
  */
 function saveText() {
-  if (input.value.trim().length > 0) {
+  let value = (input.value) ? input.value.replace(/ +$/, '') || '';
+  if (value.length > 0) {
     let clientX = parseInt(input.style.left, 10);
     let clientY = parseInt(input.style.top, 10);
     let svg = findSVGAtPoint(clientX, clientY);
@@ -83,7 +85,7 @@ function saveText() {
         type: 'textbox',
         size: _textSize * scale,
         color: _textColor,
-        content: input.value.trim(),
+        content: input.value,
         x: pt[0],
         y: pt[1],
         rotation: -viewport.rotation
@@ -126,7 +128,9 @@ export function setText(textSize = 12, textColor = '000000') {
  * Enable text behavior
  */
 export function enableText() {
-  if (_enabled) { return; }
+  if (_enabled) {
+    return;
+  }
 
   _enabled = true;
   document.addEventListener('mouseup', handleDocumentMouseup);
