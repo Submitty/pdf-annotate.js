@@ -85,7 +85,7 @@ describe('a11y::renderScreenReaderHints', function () {
         rectangles: [{
           height: 10,
           width: 50,
-          x: (process.env.CI === 'true' ? 60 : 50),
+          x: (process.env.CI === 'true' && /firefox/i.test(navigator.userAgent) ? 60 : 50),
           y: 10
         }]
       }]);
