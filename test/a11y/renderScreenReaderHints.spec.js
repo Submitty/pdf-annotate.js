@@ -1,6 +1,7 @@
 import renderScreenReaderHints from '../../src/a11y/renderScreenReaderHints';
 import mockPageWithTextLayer, { CHAR_WIDTH } from '../mockPageWithTextLayer';
 import PDFJSAnnotate from '../../src/PDFJSAnnotate';
+import checkCIEnvironment from '../checkCIEnvironment';
 import { equal } from 'assert';
 
 const SR_STYLE = 'position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden;';
@@ -85,7 +86,7 @@ describe('a11y::renderScreenReaderHints', function () {
         rectangles: [{
           height: 10,
           width: 50,
-          x: (process.env.CI === 'true' && /firefox/i.test(navigator.userAgent) ? 60 : 50),
+          x: (checkCIEnvironment() ? 60 : 50),
           y: 10
         }]
       }]);

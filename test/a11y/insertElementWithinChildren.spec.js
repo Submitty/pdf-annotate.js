@@ -1,5 +1,6 @@
 import insertElementWithinChildren from '../../src/a11y/insertElementWithinChildren';
 import mockPageWithTextLayer, { CHAR_WIDTH } from '../mockPageWithTextLayer';
+import checkCIEnvironment from '../checkCIEnvironment';
 import { strictEqual } from 'assert';
 
 function createElement(content) {
@@ -41,7 +42,7 @@ describe('a11y::insertElementWithinChildren', function () {
   it('should insert within an element if needed', function () {
     let el = createElement('hello');
     let textLayer = page.querySelector('.textLayer');
-    insertElementWithinChildren(el, rect.left + 10 + (CHAR_WIDTH * (process.env.CI === 'true' && /firefox/i.test(navigator.userAgent ? 6 : 5)), rect.top + 15, 1);
+    insertElementWithinChildren(el, rect.left + 10 + (CHAR_WIDTH * (checkCIEnvironment() ? 6 : 5)), rect.top + 15, 1);
     let node = textLayer.children[0];
     strictEqual(node.innerHTML, 'abcde<div>hello</div>fghijklmnopqrstuvwxyz');
   });

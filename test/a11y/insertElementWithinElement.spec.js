@@ -1,5 +1,6 @@
 import insertElementWithinElement from '../../src/a11y/insertElementWithinElement';
 import mockPageWithTextLayer, { CHAR_WIDTH } from '../mockPageWithTextLayer';
+import checkCIEnvironment from '../checkCIEnvironment';
 import { strictEqual } from 'assert';
 
 function createElement(content) {
@@ -39,7 +40,7 @@ describe('a11y::insertElementWithinElement', function () {
   it('should insert an element at the proper point', function () {
     let el = createElement('hello');
     let textLayer = page.querySelector('.textLayer');
-    insertElementWithinElement(el, rect.left + 10 + (CHAR_WIDTH * (process.env.CI === 'true' && /firefox/i.test(navigator.userAgent ? 6 : 5)), rect.top + 15, 1);
+    insertElementWithinElement(el, rect.left + 10 + (CHAR_WIDTH * (checkCIEnvironment() ? 6 : 5)), rect.top + 15, 1);
     let node = textLayer.children[0];
     strictEqual(node.innerHTML, 'abcde<div>hello</div>fghijklmnopqrstuvwxyz');
   });
@@ -49,7 +50,7 @@ describe('a11y::insertElementWithinElement', function () {
     let textLayer = page.querySelector('.textLayer');
     let node = textLayer.children[0];
     node.innerHTML = node.innerHTML.replace('ef', 'e<img>f');
-    insertElementWithinElement(el, rect.left + 10 + (CHAR_WIDTH * (process.env.CI === 'true' && /firefox/i.test(navigator.userAgent ? 6 : 5)), rect.top + 15, 1);
+    insertElementWithinElement(el, rect.left + 10 + (CHAR_WIDTH * (checkCIEnvironment() ? 6 : 5)), rect.top + 15, 1);
     strictEqual(node.innerHTML, 'abcde<div>hello</div><img>fghijklmnopqrstuvwxyz');
   });
 });
