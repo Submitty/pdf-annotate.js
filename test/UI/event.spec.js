@@ -47,8 +47,8 @@ describe('UI::event', function () {
   it('should emit an event when an annotation is clicked', function (done) {
 
     fireMouseEvent(svg, 'click', {
-      clientX: text.getBoundingClientRect().left + 1,
-      clientY: text.getBoundingClientRect().top + 1
+      clientX: text.getBoundingClientRect().left + 5,
+      clientY: text.getBoundingClientRect().top + 5
     });
 
     setTimeout(function () {
@@ -60,14 +60,14 @@ describe('UI::event', function () {
 
   it('should emit an event when an annotation is blurred', function (done) {
     fireMouseEvent(svg, 'click', {
-      clientX: text.getBoundingClientRect().left + 1,
-      clientY: text.getBoundingClientRect().top + 1
+      clientX: text.getBoundingClientRect().left + 5,
+      clientY: text.getBoundingClientRect().top + 5
     });
 
     setTimeout(function () {
       fireMouseEvent(svg, 'click', {
-        clientX: rect.left + 1,
-        clientY: rect.top + 1
+        clientX: rect.left + 5,
+        clientY: rect.top + 5
       });
 
       setTimeout(function () {
