@@ -8,5 +8,5 @@
  * @returns {boolean} True if using CI and Firefox, else False
  */
 export default () => {
-  return process.env.CI === 'true' && navigator && /firefox/i.test(navigator.userAgent);
+  return (process.env.CI === 'true' || process.env.CI === true) && navigator && /firefox/i.test(navigator.userAgent);
 };
