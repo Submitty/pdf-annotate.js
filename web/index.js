@@ -4,11 +4,11 @@ import initColorPicker from './shared/initColorPicker';
 
 const { UI } = PDFJSAnnotate;
 const documentId = 'example.pdf';
-const userId = 'aphacker';
+const userId = 'testUser';
 let PAGE_HEIGHT;
 let RENDER_OPTIONS = {
   documentId,
-  userId: 'aphacker',
+  userId: 'testUser',
   pdfDocument: null,
   scale: parseFloat(localStorage.getItem(`${documentId}/scale`), 10) || 1.33,
   rotate: parseInt(localStorage.getItem(`${documentId}/rotate`), 10) || 0

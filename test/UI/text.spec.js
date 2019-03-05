@@ -78,12 +78,11 @@ describe('UI::text', function () {
       let args = addAnnotationSpy.getCall(0).args;
       equal(addAnnotationSpy.called, true);
       equal(args[0], 'test-document-id');
-      equal(args[1], 'testUser');
-      equal(args[2], '1');
-      equal(args[3].type, 'textbox');
-      equal(args[3].size, '12');
-      equal(args[3].color, '000000');
-      equal(args[3].content, 'foo bar baz');
+      equal(args[1], '1');
+      equal(args[2].type, 'textbox');
+      equal(args[2].size, '12');
+      equal(args[2].color, '000000');
+      equal(args[2].content, 'foo bar baz');
       done();
     }, 0);
   });

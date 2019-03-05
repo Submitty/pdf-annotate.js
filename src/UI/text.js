@@ -75,7 +75,7 @@ function saveText() {
       return;
     }
     let height = _textSize;
-    let { documentId, userId, pageNumber, viewport } = getMetadata(svg);
+    let { documentId, pageNumber, viewport } = getMetadata(svg);
     let scale = 1 / viewport.scale;
     let rect = svg.getBoundingClientRect();
     let pt = convertToSvgPoint([
@@ -91,7 +91,7 @@ function saveText() {
       rotation: -viewport.rotation
     };
 
-    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, userId, pageNumber, annotation)
+    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
       .then((annotation) => {
         appendChild(svg, annotation);
       });

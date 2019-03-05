@@ -92,17 +92,14 @@ describe('UI::point', function () {
       equal(addCommentSpy.called, true);
 
       equal(addAnnotationArgs[0], 'test-document-id');
-      equal(addAnnotationArgs[1], 'testUser');
-      equal(addAnnotationArgs[2], '1');
-      equal(addAnnotationArgs[3].type, 'point');
+      equal(addAnnotationArgs[1], '1');
+      equal(addAnnotationArgs[2].type, 'point');
 
       equal(addCommentArgs[0], 'test-document-id');
-      equal(addCommentArgs[1], 'testUser');
-      equal(addCommentArgs[2], addAnnotationArgs[3].uuid);
-      equal(addCommentArgs[3], 'foo bar baz');
+      equal(addCommentArgs[1], addAnnotationArgs[2].uuid);
+      equal(addCommentArgs[2], 'foo bar baz');
 
       done();
     });
   });
-
 });

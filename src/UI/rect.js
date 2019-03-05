@@ -195,10 +195,10 @@ function saveRect(type, rects, color) {
     annotation.height = rect.height;
   }
 
-  let { documentId, userId, pageNumber } = getMetadata(svg);
+  let { documentId, pageNumber } = getMetadata(svg);
 
   // Add the annotation
-  PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, userId, pageNumber, annotation)
+  PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
     .then((annotation) => {
       appendChild(svg, annotation);
     });
@@ -209,7 +209,7 @@ function saveRect(type, rects, color) {
  */
 export function enableRect(type) {
   _type = type;
-  
+
   if (_enabled) { return; }
 
   _enabled = true;

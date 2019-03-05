@@ -35,10 +35,9 @@ function handleDocumentMouseup(e) {
   }
   let rect = svg.getBoundingClientRect();
   saveCircle(svg, _type, {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    }, _circleRadius, _circleColor
-  );
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top
+  }, _circleRadius, _circleColor);
 }
 
 /**
@@ -52,7 +51,7 @@ function handleDocumentMouseup(e) {
  */
 function saveCircle(svg, type, pt, radius, color) {
   // Initialize the annotation
-  let svg_pt = convertToSvgPoint([ pt.x, pt.y ], svg)
+  let svg_pt = convertToSvgPoint([ pt.x, pt.y ], svg);
   let annotation = {
     type,
     color,
@@ -61,10 +60,10 @@ function saveCircle(svg, type, pt, radius, color) {
     r: radius
   };
 
-  let { documentId, userId, pageNumber } = getMetadata(svg);
+  let { documentId, pageNumber } = getMetadata(svg);
 
   // Add the annotation
-  PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, userId, pageNumber, annotation)
+  PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
     .then((annotation) => {
       appendChild(svg, annotation);
     });

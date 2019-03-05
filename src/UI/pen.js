@@ -44,14 +44,13 @@ function saveToStorage(x, y) {
   _candraw = false;
   let svg;
   if (lines.length > 1 && (svg = findSVGAtPoint(x, y))) {
-    let { documentId, userId, pageNumber } = getMetadata(svg);
-    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, userId, pageNumber, {
-        type: 'drawing',
-        width: _penSize,
-        color: _penColor,
-        lines
-      }
-    ).then((annotation) => {
+    let { documentId, pageNumber } = getMetadata(svg);
+    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, {
+      type: 'drawing',
+      width: _penSize,
+      color: _penColor,
+      lines
+    }).then((annotation) => {
       if (path) {
         svg.removeChild(path);
       }

@@ -93,9 +93,8 @@ describe('UI::rect', function () {
       let args = addAnnotationSpy.getCall(0).args;
       equal(addAnnotationSpy.called, true);
       equal(args[0], 'test-document-id');
-      equal(args[1], 'testUser');
-      equal(args[2], '1');
-      equal(args[3].type, 'area');
+      equal(args[1], '1');
+      equal(args[2].type, 'area');
       done();
     }, 0);
   });

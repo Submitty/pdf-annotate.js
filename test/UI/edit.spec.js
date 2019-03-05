@@ -28,14 +28,14 @@ function findOverlay() {
 
 function simulateMoveOverlay(callback) {
   fireMouseEvent(document, 'click', {clientX: 20, clientY: 18});
-  setTimeout(function () {
+  setTimeout(function() {
     let overlay = findOverlay();
     fireMouseEvent(overlay, 'mousedown', {clientX: 20, clientY: 18});
-    setTimeout(function () {
+    setTimeout(function() {
       fireMouseEvent(overlay, 'mousemove', { clientX: 50, clientY: 50 });
-      setTimeout(function () {
+      setTimeout(function() {
         fireMouseEvent(overlay, 'mouseup', { clientX: 50, clientY: 50 });
-        setTimeout(function () {
+        setTimeout(function() {
           let call = editAnnotationSpy.getCall(0);
           callback(call ? call.args : []);
         });
@@ -73,7 +73,7 @@ describe('UI::edit', function () {
     deleteAnnotationSpy = sinon.spy();
     PDFJSAnnotate.__storeAdapter.editAnnotation = mockEditAnnotation(editAnnotationSpy);
     PDFJSAnnotate.__storeAdapter.deleteAnnotation = mockDeleteAnnotation(deleteAnnotationSpy);
-    PDFJSAnnotate.__storeAdapter.getAnnotation = function (documentId, userId, annotationId) {
+    PDFJSAnnotate.__storeAdapter.getAnnotation = function (documentId, annotationId) {
       return Promise.resolve(annotations[annotationId]);
     };
   });
@@ -144,8 +144,7 @@ describe('UI::edit', function () {
         strictEqual(deleteAnnotationSpy.called, true);
         let args = deleteAnnotationSpy.getCall(0).args;
         equal(args[0], 'test-document-id');
-        equal(args[1], 'testUser');
-        equal(args[2], text.getAttribute('data-pdf-annotate-id'));
+        equal(args[1], text.getAttribute('data-pdf-annotate-id'));
         done();
       });
     });
@@ -162,8 +161,7 @@ describe('UI::edit', function () {
         strictEqual(deleteAnnotationSpy.called, true);
         let args = deleteAnnotationSpy.getCall(0).args;
         equal(args[0], 'test-document-id');
-        equal(args[1], 'testUser');
-        equal(args[2], text.getAttribute('data-pdf-annotate-id'));
+        equal(args[1], text.getAttribute('data-pdf-annotate-id'));
         done();
       });
     });
@@ -175,9 +173,8 @@ describe('UI::edit', function () {
     simulateMoveOverlay(function (args) {
       equal(editAnnotationSpy.called, true);
       equal(args[0], 'test-document-id');
-      equal(args[1], 'testUser');
-      equal(args[2], text.getAttribute('data-pdf-annotate-id'));
-      equal(args[3], DEFAULT_TEXT_ANNOTATION);
+      equal(args[1], text.getAttribute('data-pdf-annotate-id'));
+      equal(args[2], DEFAULT_TEXT_ANNOTATION);
       done();
     });
   });
@@ -188,9 +185,8 @@ describe('UI::edit', function () {
     simulateMoveOverlay(function (args) {
       equal(editAnnotationSpy.called, true);
       equal(args[0], 'test-document-id');
-      equal(args[1], 'testUser');
-      equal(args[2], rect.getAttribute('data-pdf-annotate-id'));
-      equal(args[3], DEFAULT_RECT_ANNOTATION);
+      equal(args[1], rect.getAttribute('data-pdf-annotate-id'));
+      equal(args[2], DEFAULT_RECT_ANNOTATION);
       done();
     });
   });

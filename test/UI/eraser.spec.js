@@ -1,19 +1,19 @@
 import { equal } from 'assert';
 import PDFJSAnnotate from '../../src/PDFJSAnnotate';
 import { firePointerEvent } from '../fireEvent';
-import mockAddAnnotation from '../mockAddAnnotation';
+import mockDeleteAnnotation from "../mockDeleteAnnotation";
 import mockGetAnnotations from "../mockGetAnnotations";
 import mockSVGContainer from '../mockSVGContainer';
-import { setPen, enablePen, disablePen } from '../../src/UI/pen';
+import mockTextAnnotation from '../mockTextAnnotation';
+import { enableEraser, disableEraser } from '../../src/UI/eraser';
 
 let svg;
-let addAnnotationSpy;
-let __addAnnotation = PDFJSAnnotate.__storeAdapter.addAnnotation;
+let text;
+let deleteAnnotationSpy;
+let __deleteAnnotation = PDFJSAnnotate.__storeAdapter.deleteAnnotation;
 let __getAnnotations = PDFJSAnnotate.__storeAdapter.getAnnotations;
 
-function simulateCreateDrawingAnnotation(penSize, penColor) {
-  setPen(penSize, penColor);
-
+function simulateEraserMovement() {
   firePointerEvent(svg, 'pointerdown', {
     clientX: 10,
     clientY: 10,
@@ -21,7 +21,7 @@ function simulateCreateDrawingAnnotation(penSize, penColor) {
   });
 
   firePointerEvent(svg, 'pointermove', {
-    clientX: 15,
+    clientX: 25,
     clientY: 15,
     pointerType: "mouse"
   });
@@ -39,15 +39,17 @@ function simulateCreateDrawingAnnotation(penSize, penColor) {
   });
 }
 
-describe('UI::pen', function () {
+describe('UI::eraser', function () {
   beforeEach(function () {
     svg = mockSVGContainer();
     svg.style.width = '100px';
     svg.style.height = '100px';
     document.body.appendChild(svg);
+    text = mockTextAnnotation();
+    svg.appendChild(text);
 
-    addAnnotationSpy = sinon.spy();
-    PDFJSAnnotate.__storeAdapter.addAnnotation = mockAddAnnotation(addAnnotationSpy);
+    deleteAnnotationSpy = sinon.spy();
+    PDFJSAnnotate.__storeAdapter.deleteAnnotation = mockDeleteAnnotation(deleteAnnotationSpy);
     PDFJSAnnotate.__storeAdapter.getAnnotations = mockGetAnnotations();
   });
 
@@ -56,37 +58,33 @@ describe('UI::pen', function () {
       svg.parentNode.removeChild(svg);
     }
 
-    disablePen();
+    disableEraser();
   });
 
   after(function () {
-    PDFJSAnnotate.__storeAdapter.addAnnotation = __addAnnotation;
+    PDFJSAnnotate.__storeAdapter.deleteAnnotation = __deleteAnnotation;
     PDFJSAnnotate.__storeAdapter.getAnnotations = __getAnnotations;
   });
 
   it('should do nothing when disabled', function (done) {
-    enablePen();
-    disablePen();
-    simulateCreateDrawingAnnotation();
+    enableEraser();
+    disableEraser();
+    simulateEraserMovement();
     setTimeout(function () {
-      equal(addAnnotationSpy.called, false);
+      equal(deleteAnnotationSpy.called, false);
       done();
     }, 0);
   });
 
   it('should create an annotation when enabled', function (done) {
-    disablePen();
-    enablePen();
-    simulateCreateDrawingAnnotation();
+    disableEraser();
+    enableEraser();
+    simulateEraserMovement();
     setTimeout(function () {
-      equal(addAnnotationSpy.called, true);
-      let args = addAnnotationSpy.getCall(0).args;
+      equal(deleteAnnotationSpy.called, true);
+      let args = deleteAnnotationSpy.getCall(0).args;
       equal(args[0], 'test-document-id');
-      equal(args[1], '1');
-      equal(args[2].type, 'drawing');
-      equal(args[2].width, 1);
-      equal(args[2].color, '000000');
-      equal(args[2].lines.length, 2);
+      equal(args[1], text.getAttribute('data-pdf-annotate-id'));
       done();
     }, 0);
   });

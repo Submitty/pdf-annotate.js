@@ -79,7 +79,7 @@ describe('StoreAdapter', function () {
 
     it('should emit annotation:add', function (done) {
       addEventListener('annotation:add', handleAnnotationAdd);
-      adapter.addAnnotation(12345, 'testUser', 1, {type: 'foo'});
+      adapter.addAnnotation(12345, 1, {type: 'foo'});
 
       setTimeout(() => {
         equal(handleAnnotationAdd.called, true);
@@ -89,7 +89,7 @@ describe('StoreAdapter', function () {
 
     it('should emit annotation:edit', function (done) {
       addEventListener('annotation:edit', handleAnnotationEdit);
-      adapter.editAnnotation(12345, 'testUser', 67890, {type: 'bar'});
+      adapter.editAnnotation(12345, 67890, {type: 'bar'});
 
       setTimeout(() => {
         equal(handleAnnotationEdit.called, true);
@@ -99,7 +99,7 @@ describe('StoreAdapter', function () {
 
     it('should emit annotation:delete', function (done) {
       addEventListener('annotation:delete', handleAnnotationDelete);
-      adapter.deleteAnnotation(12345, 'testUser', 67890);
+      adapter.deleteAnnotation(12345, 67890);
 
       setTimeout(() => {
         equal(handleAnnotationDelete.called, true);
@@ -109,7 +109,7 @@ describe('StoreAdapter', function () {
 
     it('should emit comment:add', function (done) {
       addEventListener('comment:add', handleCommentAdd);
-      adapter.addComment(12345, 'testUser', 67890, 'hello');
+      adapter.addComment(12345, 67890, 'hello');
 
       setTimeout(() => {
         equal(handleCommentAdd.called, true);
@@ -119,7 +119,7 @@ describe('StoreAdapter', function () {
 
     it('should emit comment:delete', function (done) {
       addEventListener('comment:delete', handleCommentDelete);
-      adapter.deleteComment(12345, 'testUser', 67890);
+      adapter.deleteComment(12345, 67890);
 
       setTimeout(() => {
         equal(handleCommentDelete.called, true);

@@ -117,15 +117,16 @@ function deleteAnnotation() {
   }
 
   let annotationId = overlay.getAttribute('data-target-id');
-  let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
   let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
-  let { documentId, userId } = getMetadata(svg);
+  let { documentId } = getMetadata(svg);
 
-  [...nodes].forEach((n) => {
-    n.parentNode.removeChild(n);
+  PDFJSAnnotate.getStoreAdapter().deleteAnnotation(documentId, annotationId).then(() => {
+    let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
+
+    [...nodes].forEach((n) => {
+      n.parentNode.removeChild(n);
+    });
   });
-
-  PDFJSAnnotate.getStoreAdapter().deleteAnnotation(documentId, userId, annotationId);
 
   destroyEditOverlay();
 }
@@ -158,7 +159,7 @@ function handleDocumentKeyup(e) {
   // keyCode is deprecated, so prefer the newer "key" method if possible
   let keyTest;
   if (e.key) {
-    keyTest = e.key.toLowerCase() === "delete" || e.key.toLowerCase() === "backspace";
+    keyTest = e.key.toLowerCase() === 'delete' || e.key.toLowerCase() === 'backspace';
   }
   else {
     keyTest = e.keyCode === 8 || e.keyCode === 46;
@@ -239,11 +240,11 @@ function handleDocumentMouseup(e) {
   let target = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
   let type = target[0].getAttribute('data-pdf-annotate-type');
   let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
-  let { documentId, userId } = getMetadata(svg);
+  let { documentId } = getMetadata(svg);
 
   overlay.querySelector('a').style.display = '';
 
-  PDFJSAnnotate.getStoreAdapter().getAnnotation(documentId, userId, annotationId).then((annotation) => {
+  PDFJSAnnotate.getStoreAdapter().getAnnotation(documentId, annotationId).then((annotation) => {
     let attribX = 'x';
     let attribY = 'y';
     if (['circle', 'fillcircle', 'emptycircle'].indexOf(type) > -1) {
@@ -343,7 +344,7 @@ function handleDocumentMouseup(e) {
       return;
     }
 
-    PDFJSAnnotate.getStoreAdapter().editAnnotation(documentId, userId, annotationId, annotation);
+    PDFJSAnnotate.getStoreAdapter().editAnnotation(documentId, annotationId, annotation);
   });
 
   setTimeout(() => {

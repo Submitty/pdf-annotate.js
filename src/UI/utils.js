@@ -274,7 +274,6 @@ export function enableUserSelect() {
 export function getMetadata(svg) {
   return {
     documentId: svg.getAttribute('data-pdf-annotate-document'),
-    userId: svg.getAttribute('data-pdf-annotate-user'),
     pageNumber: parseInt(svg.getAttribute('data-pdf-annotate-page'), 10),
     viewport: JSON.parse(svg.getAttribute('data-pdf-annotate-viewport'))
   };
