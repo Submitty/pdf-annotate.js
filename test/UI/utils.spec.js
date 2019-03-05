@@ -89,15 +89,10 @@ describe('UI::utils', function () {
     svg.appendChild(textSvgGroup);
     document.body.appendChild(svg);
 
-    let rect = svg.getBoundingClientRect();
     let textRect = text.getBoundingClientRect();
-    let textW = textRect.width;
-    let textH = textRect.height;
-    let textX = parseInt(text.getAttribute('x'), 10);
-    let textY = parseInt(text.getAttribute('y'), 10);
 
-    equal(findAnnotationAtPoint(textRect.left + 1, textRect.top + 1), text);
-    equal(findAnnotationAtPoint(textRect.right + 1, textRect.bottom + 1), null);
+    equal(findAnnotationAtPoint(textRect.left + 5, textRect.top + 5), text);
+    equal(findAnnotationAtPoint(textRect.right + 5, textRect.bottom + 5), null);
   });
 
   it('should detect if a rect collides with points', function () {
