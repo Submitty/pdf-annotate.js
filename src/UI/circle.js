@@ -35,22 +35,23 @@ function handleDocumentMouseup(e) {
   }
   let rect = svg.getBoundingClientRect();
   saveCircle(svg, _type, {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    }, _circleRadius, _circleColor
-  );
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top
+  }, _circleRadius, _circleColor);
 }
 
 /**
  * Save a circle annotation
  *
+ * @param {SVGElement} svg
  * @param {String} type The type of circle (circle, emptycircle, fillcircle)
  * @param {Object} pt The point to use for annotation
+ * @param {float} radius
  * @param {String} color The color of the rects
  */
 function saveCircle(svg, type, pt, radius, color) {
   // Initialize the annotation
-  let svg_pt = convertToSvgPoint([ pt.x, pt.y ], svg)
+  let svg_pt = convertToSvgPoint([ pt.x, pt.y ], svg);
   let annotation = {
     type,
     color,
@@ -59,10 +60,10 @@ function saveCircle(svg, type, pt, radius, color) {
     r: radius
   };
 
-  let { documentId, userId, pageNumber } = getMetadata(svg);
+  let { documentId, pageNumber } = getMetadata(svg);
 
   // Add the annotation
-  PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, userId, pageNumber, annotation)
+  PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
     .then((annotation) => {
       appendChild(svg, annotation);
     });
@@ -73,7 +74,7 @@ function saveCircle(svg, type, pt, radius, color) {
  */
 export function enableCircle(type) {
   _type = type;
-  
+
   if (_enabled) { return; }
 
   _enabled = true;
@@ -94,5 +95,5 @@ export function addCircle(type, e) {
   let oldType = _type;
   _type = type;
   handleDocumentMouseup(e);
-  _type = oldType; 
+  _type = oldType;
 }

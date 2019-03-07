@@ -55,7 +55,7 @@ function transform(node, viewport) {
 
   // Let SVG natively transform the element
   node.setAttribute('transform', `scale(${viewport.scale}) rotate(${viewport.rotation}) translate(${trans.x}, ${trans.y})`);
-  
+
   // Manually adjust x/y for nested SVG nodes
   if (!isFirefox && node.nodeName.toLowerCase() === 'svg') {
     node.setAttribute('x', parseInt(node.getAttribute('x'), 10) * viewport.scale);
@@ -67,7 +67,7 @@ function transform(node, viewport) {
     let height = parseInt(node.getAttribute('height'), 10);
     let path = node.querySelector('path');
     let svg = path.parentNode;
-   
+
     // Scale width/height
     [node, svg, path, node.querySelector('rect')].forEach((n) => {
       n.setAttribute('width', parseInt(n.getAttribute('width'), 10) * viewport.scale);
@@ -76,8 +76,8 @@ function transform(node, viewport) {
 
     // Transform path but keep scale at 100% since it will be handled natively
     transform(path, objectAssign({}, viewport, { scale: 1 }));
-    
-    switch(viewport.rotation % 360) {
+
+    switch (viewport.rotation % 360) {
       case 90:
         node.setAttribute('x', viewport.width - y - width);
         node.setAttribute('y', x);
@@ -113,7 +113,7 @@ export function appendChild(svg, annotation, viewport) {
   if (!viewport) {
     viewport = JSON.parse(svg.getAttribute('data-pdf-annotate-viewport'));
   }
-  
+
   let child;
   switch (annotation.type) {
     case 'area':
@@ -147,9 +147,15 @@ export function appendChild(svg, annotation, viewport) {
   if (child) {
     // Set attributes
     child.setAttribute('data-pdf-annotate-id', annotation.uuid);
-    child.setAttribute('data-pdf-annotate-type', annotation.type);
-    child.setAttribute('data-pdf-annotate-userId', annotation.userId);
     child.setAttribute('aria-hidden', true);
+
+    // Dynamically set any other attributes associated with annotation that is not related to drawing it
+    Object.keys(annotation).filter((key) => {
+      return ['color', 'x', 'y', 'cx', 'cy', 'color', 'documentId', 'lines', 'page',
+        'width', 'class', 'content', 'size', 'rotation', 'r'].indexOf(key) === -1
+    }).forEach((key) => {
+      child.setAttribute(`data-pdf-annotate-${key}`, annotation[key]);
+    });
 
     svg.appendChild(transform(child, viewport));
   }
@@ -185,7 +191,7 @@ export default {
    * based on the rotation of the viewport.
    */
   getTranslation,
-  
+
   /**
    * Append an SVG child for an annotation
    */
@@ -193,6 +199,6 @@ export default {
 
   /**
    * Transform an existing SVG child
-   */  
+   */
   transformChild
 }

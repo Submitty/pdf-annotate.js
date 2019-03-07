@@ -4,11 +4,11 @@ import initColorPicker from './shared/initColorPicker';
 
 const { UI } = PDFJSAnnotate;
 const documentId = 'example.pdf';
-const userId = 'aphacker';
+const userId = 'testUser';
 let PAGE_HEIGHT;
 let RENDER_OPTIONS = {
   documentId,
-  userId: 'aphacker',
+  userId: 'testUser',
   pdfDocument: null,
   scale: parseFloat(localStorage.getItem(`${documentId}/scale`), 10) || 1.33,
   rotate: parseInt(localStorage.getItem(`${documentId}/rotate`), 10) || 0
@@ -21,19 +21,20 @@ PDFJS.workerSrc = './shared/pdf.worker.js';
 let NUM_PAGES = 0;
 let renderedPages = [];
 let okToRender = false;
-document.getElementById('content-wrapper').addEventListener('scroll', function (e) {
+document.getElementById('content-wrapper').addEventListener('scroll', (e) => {
   let visiblePageNum = Math.round(e.target.scrollTop / PAGE_HEIGHT) + 1;
   let visiblePage = document.querySelector(`.page[data-page-number="${visiblePageNum}"][data-loaded="false"]`);
 
-  if (renderedPages.indexOf(visiblePageNum) == -1){
+  if (renderedPages.indexOf(visiblePageNum) == -1) {
     okToRender = true;
     renderedPages.push(visiblePageNum);
-  } else {
+  }
+  else {
     okToRender = false;
   }
 
   if (visiblePage && okToRender) {
-    setTimeout(function () {
+    setTimeout(() => {
       UI.renderPage(visiblePageNum, RENDER_OPTIONS);
     });
   }
@@ -46,8 +47,8 @@ function render() {
     let viewer = document.getElementById('viewer');
     viewer.innerHTML = '';
     NUM_PAGES = pdf.pdfInfo.numPages;
-    for (let i=0; i<NUM_PAGES; i++) {
-      let page = UI.createPage(i+1);
+    for (let i = 0; i < NUM_PAGES; i++) {
+      let page = UI.createPage(i + 1);
       viewer.appendChild(page);
     }
 
@@ -63,7 +64,7 @@ render();
 (function () {
   let hotspotColor = localStorage.getItem(`${RENDER_OPTIONS.documentId}/hotspot/color`) || 'darkgoldenrod';
   let currentTarget = undefined;
-  
+
   function handleAnnotationClick(target) {
     let type = target.getAttribute('data-pdf-annotate-type');
     if (['fillcircle', 'arrow'].indexOf(type) === -1) {
@@ -90,7 +91,7 @@ render();
 
   initColorPicker(document.querySelector('.hotspot-color'), hotspotColor, function (value) {
     if (value === hotspotColor) {
-      return; // nothing to do     
+      return; // nothing to do
     }
     localStorage.setItem(`${RENDER_OPTIONS.documentId}/hotspot/color`, value);
     hotspotColor = value;
@@ -138,7 +139,7 @@ render();
       localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/size`) || 10,
       localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/color`) || '#000000'
     );
-  
+
     initColorPicker(document.querySelector('.text-color'), textColor, function (value) {
       setText(textSize, value);
     });
@@ -158,7 +159,7 @@ render();
       modified = true;
       textColor = color;
       localStorage.setItem(`${RENDER_OPTIONS.documentId}/text/color`, textColor);
-      
+
       let selected = document.querySelector('.toolbar .text-color.color-selected');
       if (selected) {
         selected.classList.remove('color-selected');
@@ -177,7 +178,7 @@ render();
       UI.setText(textSize, textColor);
     }
   }
-  
+
   function handleTextSizeChange(e) {
     setText(e.target.value, textColor);
   }
@@ -222,7 +223,7 @@ render();
       modified = true;
       penColor = color;
       localStorage.setItem(`${RENDER_OPTIONS.documentId}/pen/color`, penColor);
-      
+
       let selected = document.querySelector('.toolbar .pen-color.color-selected');
       if (selected) {
         selected.classList.remove('color-selected');
@@ -266,6 +267,9 @@ render();
         case 'cursor':
           UI.disableEdit();
           break;
+        case 'eraser':
+          UI.disableEraser();
+          break;
         case 'draw':
           UI.disablePen();
           break;
@@ -280,9 +284,6 @@ render();
           break;
         case 'area':
         case 'highlight':
-        // Using highlight as eraser for testing purposes
-          UI.disableEraser();
-          break;
         case 'strikeout':
           UI.disableRect();
           break;
@@ -306,6 +307,9 @@ render();
       case 'cursor':
         UI.enableEdit();
         break;
+      case 'eraser':
+        UI.enableEraser();
+        break;
       case 'draw':
         UI.enablePen();
         break;
@@ -320,8 +324,6 @@ render();
         break;
       case 'area':
       case 'highlight':
-        UI.enableEraser();
-        break;
       case 'strikeout':
         UI.enableRect(type);
         break;
@@ -413,15 +415,16 @@ render();
   function handleAnnotationClick(target) {
     if (supportsComments(target)) {
       let documentId = target.parentNode.getAttribute('data-pdf-annotate-document');
+      let userId = target.parentNode.getAttribute('data-pdf-annotate-user');
       let annotationId = target.getAttribute('data-pdf-annotate-id');
 
-      PDFJSAnnotate.getStoreAdapter().getComments(documentId, annotationId).then((comments) => {
+      PDFJSAnnotate.getStoreAdapter().getComments(documentId, userId, annotationId).then((comments) => {
         commentList.innerHTML = '';
         commentForm.style.display = '';
         commentText.focus();
 
         commentForm.onsubmit = function () {
-          PDFJSAnnotate.getStoreAdapter().addComment(documentId, annotationId, commentText.value.trim())
+          PDFJSAnnotate.getStoreAdapter().addComment(documentId, userId, annotationId, commentText.value.trim())
             .then(insertComment)
             .then(() => {
               commentText.value = '';
@@ -441,7 +444,7 @@ render();
       commentList.innerHTML = '';
       commentForm.style.display = 'none';
       commentForm.onsubmit = null;
-      
+
       insertComment({content: 'No comments'});
     }
   }

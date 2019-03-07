@@ -8,4 +8,4 @@ export default (documentId = 'test-document-id', pageNumber = '1') => {
   svg.setAttribute('data-pdf-annotate-page', pageNumber);
   svg.setAttribute('data-pdf-annotate-viewport', JSON.stringify(mockViewport()));
   return svg;
-}
+};

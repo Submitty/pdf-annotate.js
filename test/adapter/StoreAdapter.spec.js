@@ -27,15 +27,15 @@ describe('StoreAdapter', function () {
     it('should error by default when calling getAnnotations', testExpectedError(function () {
       adapter.getAnnotations();
     }));
-    
+
     it('should error by default when calling getAnnotation', testExpectedError(function () {
       adapter.getAnnotation();
     }));
-  
+
     it('should error by default when calling addAnnotation', testExpectedError(function () {
       adapter.addAnnotation();
     }));
-      
+
     it('should error by default when calling editAnnotation', testExpectedError(function () {
       adapter.editAnnotation();
     }));
@@ -86,7 +86,7 @@ describe('StoreAdapter', function () {
         done();
       });
     });
-    
+
     it('should emit annotation:edit', function (done) {
       addEventListener('annotation:edit', handleAnnotationEdit);
       adapter.editAnnotation(12345, 67890, {type: 'bar'});
@@ -96,7 +96,7 @@ describe('StoreAdapter', function () {
         done();
       });
     });
-    
+
     it('should emit annotation:delete', function (done) {
       addEventListener('annotation:delete', handleAnnotationDelete);
       adapter.deleteAnnotation(12345, 67890);

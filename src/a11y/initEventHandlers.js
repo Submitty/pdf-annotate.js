@@ -9,11 +9,11 @@ import PDFJSAnnotate from '../PDFJSAnnotate';
  * Initialize the event handlers for keeping screen reader hints synced with data
  */
 export default function initEventHandlers() {
-  addEventListener('annotation:add', (documentId, userId, pageNumber, annotation) => {
-    reorderAnnotationsByType(documentId, userId, pageNumber, annotation.type);
+  addEventListener('annotation:add', (documentId, pageNumber, annotation) => {
+    reorderAnnotationsByType(documentId, pageNumber, annotation.type);
   });
-  addEventListener('annotation:edit', (documentId, userId, annotationId, annotation) => {
-    reorderAnnotationsByType(documentId, userId, annotation.page, annotation.type);
+  addEventListener('annotation:edit', (documentId, annotationId, annotation) => {
+    reorderAnnotationsByType(documentId, annotation.page, annotation.type);
   });
   addEventListener('annotation:delete', removeAnnotation);
   addEventListener('comment:add', insertComment);
@@ -24,12 +24,11 @@ export default function initEventHandlers() {
  * Reorder the annotation numbers by annotation type
  *
  * @param {String} documentId The ID of the document
- * @param {String} userId The ID of the user
  * @param {Number} pageNumber The page number of the annotations
  * @param {Strig} type The annotation type
  */
-function reorderAnnotationsByType(documentId, userId, pageNumber, type) {
-  PDFJSAnnotate.getStoreAdapter().getAnnotations(documentId, userId, pageNumber)
+function reorderAnnotationsByType(documentId, pageNumber, type) {
+  PDFJSAnnotate.getStoreAdapter().getAnnotations(documentId, pageNumber)
     .then((annotations) => {
       return annotations.annotations.filter((a) => {
         return a.type === type;

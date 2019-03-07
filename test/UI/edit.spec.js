@@ -1,7 +1,7 @@
-import { equal } from 'assert';
-import simulant from 'simulant';
+import { strictEqual, equal } from 'assert';
 import PDFJSAnnotate from '../../src/PDFJSAnnotate';
 import { enableEdit, disableEdit, destroyEditOverlay } from '../../src/UI/edit';
+import { fireMouseEvent, fireKeyboardEvent } from '../fireEvent';
 import mockEditAnnotation from '../mockEditAnnotation';
 import mockDeleteAnnotation from '../mockDeleteAnnotation';
 import mockSVGContainer from '../mockSVGContainer';
@@ -27,15 +27,15 @@ function findOverlay() {
 }
 
 function simulateMoveOverlay(callback) {
-  simulant.fire(document, 'click', { clientX: 25, clientY: 25 });
-  setTimeout(function () {
+  fireMouseEvent(document, 'click', {clientX: 20, clientY: 18});
+  setTimeout(function() {
     let overlay = findOverlay();
-    simulant.fire(overlay, 'mousedown', { clientX: 25, clientY: 25 });
-    setTimeout(function () {
-      simulant.fire(overlay, 'mousemove', { clientX: 50, clientY: 50 });
-      setTimeout(function () {
-        simulant.fire(overlay, 'mouseup', { clientX: 50, clientY: 50 });
-        setTimeout(function () {
+    fireMouseEvent(overlay, 'mousedown', {clientX: 20, clientY: 18});
+    setTimeout(function() {
+      fireMouseEvent(overlay, 'mousemove', { clientX: 50, clientY: 50 });
+      setTimeout(function() {
+        fireMouseEvent(overlay, 'mouseup', { clientX: 50, clientY: 50 });
+        setTimeout(function() {
           let call = editAnnotationSpy.getCall(0);
           callback(call ? call.args : []);
         });
@@ -45,7 +45,7 @@ function simulateMoveOverlay(callback) {
 }
 
 function simulateClickAnnotation(callback) {
-  simulant.fire(document, 'click', { clientX: 25, clientY: 25 });
+  fireMouseEvent(document, 'click', { clientX: 25, clientY: 25 });
   setTimeout(function () {
     let overlay = findOverlay();
     callback(overlay);
@@ -96,7 +96,7 @@ describe('UI::edit', function () {
     enableEdit();
     disableEdit();
     svg.appendChild(text);
-    simulant.fire(document, 'click', { clientX: 25, clientY: 25 });
+    fireMouseEvent(document, 'click', { clientX: 25, clientY: 25 });
 
     setTimeout(function () {
       equal(findOverlay(), null);
@@ -107,8 +107,7 @@ describe('UI::edit', function () {
   it('should create an overlay when annotation is clicked', function (done) {
     enableEdit();
     svg.appendChild(text);
-    simulant.fire(document, 'click', { clientX: 25, clientY: 25 });
-
+    fireMouseEvent(document, 'click', { clientX: 25, clientY: 10 });
     setTimeout(function () {
       let overlay = findOverlay();
       equal(overlay.nodeName, 'DIV');
@@ -120,11 +119,11 @@ describe('UI::edit', function () {
   it('should destroy overlay when document is clicked', function (done) {
     enableEdit();
     svg.appendChild(text);
-    simulant.fire(document, 'click', { clientX: 25, clientY: 25 });
+    fireMouseEvent(document, 'click', { clientX: 25, clientY: 10 });
 
     setTimeout(function () {
       equal(findOverlay().nodeName, 'DIV');
-      simulant.fire(document, 'click', { clientX: 10, clientY: 10 });
+      fireMouseEvent(document, 'click', { clientX: 10, clientY: 10 });
 
       setTimeout(function () {
         equal(findOverlay(), null);
@@ -136,14 +135,31 @@ describe('UI::edit', function () {
   it('should delete annotation when DELETE is pressed', function (done) {
     enableEdit();
     svg.appendChild(text);
-    simulant.fire(document, 'click', { clientX: 25, clientY: 25 });
+    fireMouseEvent(document, 'click', { clientX: 25, clientY: 10 });
 
     setTimeout(function () {
-      simulant.fire(document, 'keyup', { keyCode: 46 });
+      fireKeyboardEvent(document, 'keyup', { key: 'Delete' });
 
       setTimeout(function () {
+        strictEqual(deleteAnnotationSpy.called, true);
         let args = deleteAnnotationSpy.getCall(0).args;
-        equal(deleteAnnotationSpy.called, true);
+        equal(args[0], 'test-document-id');
+        equal(args[1], text.getAttribute('data-pdf-annotate-id'));
+        done();
+      });
+    });
+  });
+
+  it('should delete annotation when BACKSPACE is pressed', function (done) {
+    enableEdit();
+    svg.appendChild(text);
+    fireMouseEvent(document, 'click', { clientX: 25, clientY: 10 });
+    setTimeout(function() {
+      fireKeyboardEvent(document, 'keyup', { key: 'Backspace' });
+
+      setTimeout(function() {
+        strictEqual(deleteAnnotationSpy.called, true);
+        let args = deleteAnnotationSpy.getCall(0).args;
         equal(args[0], 'test-document-id');
         equal(args[1], text.getAttribute('data-pdf-annotate-id'));
         done();
@@ -162,7 +178,7 @@ describe('UI::edit', function () {
       done();
     });
   });
-  
+
   it('should edit rect annotation when overlay moved', function (done) {
     enableEdit();
     svg.appendChild(rect);
@@ -188,10 +204,7 @@ describe('UI::edit', function () {
     enableEdit();
     svg.appendChild(path);
     simulateMoveOverlay(function (args) {
-      equal(editAnnotationSpy.called, true);
-      equal(args[0], 'test-document-id');
-      equal(args[1], path.getAttribute('data-pdf-annotate-id'));
-      equal(args[2], DEFAULT_PATH_ANNOTATION);
+      equal(editAnnotationSpy.called, false);
       done();
     });
   });
@@ -200,7 +213,7 @@ describe('UI::edit', function () {
     enableEdit();
     svg.appendChild(rect);
     simulateClickAnnotation(function (overlay) {
-      simulant.fire(overlay, 'mouseover', { clientX: 30, clientY: 30 });
+      fireMouseEvent(overlay, 'mouseover', { clientX: 30, clientY: 30 });
       setTimeout(function () {
         let a = overlay.querySelector('a');
         equal(a.style.display, '');
@@ -213,9 +226,9 @@ describe('UI::edit', function () {
     enableEdit();
     svg.appendChild(rect);
     simulateClickAnnotation(function (overlay) {
-      simulant.fire(overlay, 'mouseover', { clientX: 30, clientY: 30 });
+      fireMouseEvent(overlay, 'mouseover', { clientX: 30, clientY: 30 });
       setTimeout(function () {
-        simulant.fire(overlay, 'mouseout', { clientX: 10, clientY: 10 });
+        fireMouseEvent(overlay, 'mouseout', { clientX: 10, clientY: 10 });
         setTimeout(function () {
           let a = overlay.querySelector('a');
           equal(a.style.display, 'none');

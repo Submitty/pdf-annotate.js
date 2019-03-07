@@ -22,14 +22,13 @@ export default class StoreAdapter {
    * Get all the annotations for a given document and page number.
    *
    * @param {String} documentId The ID for the document the annotations belong to
-   * @param {String} userId The user makeing changes to this document
    * @param {Number} pageNumber The number of the page the annotations belong to
    * @return {Promise}
    */
-  __getAnnotations(documentId, userId, pageNumber) { abstractFunction('getAnnotations'); }
+  __getAnnotations(documentId, pageNumber) { abstractFunction('getAnnotations'); }
   get getAnnotations() { return this.__getAnnotations; }
   set getAnnotations(fn) {
-    this.__getAnnotations = function getAnnotations(documentId, userId, pageNumber) {
+    this.__getAnnotations = function getAnnotations(documentId, pageNumber) {
       return fn(...arguments).then((annotations) => {
         // TODO may be best to have this happen on the server
         if (annotations.annotations) {
@@ -59,12 +58,12 @@ export default class StoreAdapter {
    * @param {Object} annotation The definition for the new annotation
    * @return {Promise}
    */
-  __addAnnotation(documentId, userId, pageNumber, annotation) { abstractFunction('addAnnotation'); }
+  __addAnnotation(documentId, pageNumber, annotation) { abstractFunction('addAnnotation'); }
   get addAnnotation() { return this.__addAnnotation; }
   set addAnnotation(fn) {
-    this.__addAnnotation = function addAnnotation(documentId, userId, pageNumber, annotation) {
+    this.__addAnnotation = function addAnnotation(documentId, pageNumber, annotation) {
       return fn(...arguments).then((annotation) => {
-        fireEvent('annotation:add', documentId, userId, pageNumber, annotation);
+        fireEvent('annotation:add', documentId, pageNumber, annotation);
         return annotation;
       });
     };
@@ -99,10 +98,10 @@ export default class StoreAdapter {
   __deleteAnnotation(documentId, annotationId) { abstractFunction('deleteAnnotation'); }
   get deleteAnnotation() { return this.__deleteAnnotation; }
   set deleteAnnotation(fn) {
-    this.__deleteAnnotation = function deleteAnnotation(documentId, userId, annotationId) {
+    this.__deleteAnnotation = function deleteAnnotation(documentId, annotationId) {
       return fn(...arguments).then((success) => {
         if (success) {
-          fireEvent('annotation:delete', documentId, userId, annotationId);
+          fireEvent('annotation:delete', documentId, annotationId);
         }
         return success;
       });

@@ -7,6 +7,7 @@ node_js:
   - '10'
 
 addons:
+  chrome: stable
   firefox: latest
 
 install:
@@ -17,7 +18,8 @@ before_script:
   - sh -e /etc/init.d/xvfb start
 
 script:
-  - npm run-script build
+  - npm test
+  - npm run build
 
 #after_script:
 #  - npm run coveralls

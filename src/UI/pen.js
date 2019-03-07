@@ -30,7 +30,7 @@ function handleDocumentPointerdown(e) {
 /**
  * Handle document.touchup or document.pointerup event
  *
- * @param {Event} e The DOM event to be handled
+ * @param {TouchEvent} e The DOM event to be handled
  */
 function handleDocumentPointerupChrome(e){
   saveToStorage(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
@@ -40,18 +40,17 @@ function handleDocumentPointerup(e) {
   saveToStorage(e.clientX, e.clientY);
 }
 
-function saveToStorage(x, y){
+function saveToStorage(x, y) {
   _candraw = false;
   let svg;
   if (lines.length > 1 && (svg = findSVGAtPoint(x, y))) {
-    let { documentId, userId, pageNumber } = getMetadata(svg);
-    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, userId, pageNumber, {
-        type: 'drawing',
-        width: _penSize,
-        color: _penColor,
-        lines
-      }
-    ).then((annotation) => {
+    let { documentId, pageNumber } = getMetadata(svg);
+    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, {
+      type: 'drawing',
+      width: _penSize,
+      color: _penColor,
+      lines
+    }).then((annotation) => {
       if (path) {
         svg.removeChild(path);
       }
@@ -64,30 +63,22 @@ function saveToStorage(x, y){
 /**
  * Handle document.mousemove event
  *
- * @param {Event} e The DOM event to be handled
+ * @param {PointerEvent} e The DOM event to be handled
  */
 function handleDocumentPointermove(e) {
-  if(!e.srcElement.classList.contains('annotationLayer')){
+  if (!e.srcElement.classList.contains('annotationLayer')) {
     return;
   }
-  if(_candraw){
+  if (_candraw) {
     savePoint(e.clientX, e.clientY);
-  }
-}
-
-function handleDocumentPointermoveChrome(e){
-  if(!e.srcElement.classList.contains('annotationLayer')){
-    return;
-  }
-  if(_candraw){
-    savePoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
   }
 }
 
 /**
  * Handle document.keyup event
  *
- * @param {Event} e The DOM event to be handled
+ * @param {KeyboardEvent} e The DOM event to be handled
+ * } e The DOM event to be handled
  */
 function handleDocumentKeyup(e) {
   // Cancel rect if Esc is pressed
@@ -155,18 +146,10 @@ export function enablePen() {
 
   _enabled = true;
   // Chrome and Firefox has different behaviors with how pen works, so we need different events.
-  if (!isFirefox){
-    document.addEventListener('touchstart', handleDocumentPointerdown);
-    document.addEventListener('touchmove', handleDocumentPointermoveChrome);
-    document.addEventListener('touchend', handleDocumentPointerupChrome);
-    document.addEventListener('mousedown', handleDocumentPointerdown);
-    document.addEventListener('mousemove', handleDocumentPointermove);
-    document.addEventListener('mouseup', handleDocumentPointerup);
-  } else {
-    document.addEventListener('pointerdown', handleDocumentPointerdown);
-    document.addEventListener('pointermove', handleDocumentPointermove);
-    document.addEventListener('pointerup', handleDocumentPointerup);
-  }
+  document.addEventListener('pointerdown', handleDocumentPointerdown);
+  document.addEventListener('pointermove', handleDocumentPointermove);
+  document.addEventListener('pointerup', handleDocumentPointerup);
+
   document.addEventListener('keyup', handleDocumentKeyup);
   disableUserSelect();
 }
@@ -178,18 +161,10 @@ export function disablePen() {
   if (!_enabled) { return; }
 
   _enabled = false;
-  if (!isFirefox){
-    document.removeEventListener('touchstart', handleDocumentPointerdown);
-    document.removeEventListener('touchmove', handleDocumentPointermoveChrome);
-    document.removeEventListener('touchend', handleDocumentPointerupChrome);
-    document.removeEventListener('mousedown', handleDocumentPointerdown);
-    document.removeEventListener('mousemove', handleDocumentPointermove);
-    document.removeEventListener('mouseup', handleDocumentPointerup);
-  } else {
-    document.removeEventListener('pointerdown', handleDocumentPointerdown);
-    document.removeEventListener('pointermove', handleDocumentPointermove);
-    document.removeEventListener('pointerup', handleDocumentPointerup);
-  }
+  document.removeEventListener('pointerdown', handleDocumentPointerdown);
+  document.removeEventListener('pointermove', handleDocumentPointermove);
+  document.removeEventListener('pointerup', handleDocumentPointerup);
+
   document.removeEventListener('keyup', handleDocumentKeyup);
   enableUserSelect();
 }

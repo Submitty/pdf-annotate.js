@@ -1,4 +1,4 @@
-var webpack = require('webpack');
+const webpack = require('webpack');
 
 module.exports = function(config) {
   config.set({
@@ -6,7 +6,7 @@ module.exports = function(config) {
     basePath: '',
 
     frameworks: ['mocha', 'sinon-chai'],
-    
+
     files: [
       'test/**/*.spec.js'
     ],
@@ -25,34 +25,39 @@ module.exports = function(config) {
     colors: true,
 
     logLevel: config.LOG_INFO,
-    
+
     autoWatch: true,
 
-    browsers: ['Firefox'],
+    browsers: ['Firefox', 'Chrome'],
 
     singleRun: false,
 
     webpack: {
+      mode: 'development',
       cache: true,
       devtool: 'inline-source-map',
       module: {
-        loaders: [
+        rules: [
           {
             test: /\.js$/,
             exclude: /node_modules/,
-            loader: 'babel',
-            query: {
-              presets: ['es2015']
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-env']
             }
-          }
-        ],
-        postLoaders: [
+          },
+          /*
           {
             test: /\.js$/,
             exclude: /(node_modules|test)/,
-            loader: 'istanbul-instrumenter'
+            loader: 'istanbul-instrumenter-loader',
+            enforce: 'post',
+            options: {
+              esModules: true
+            }
           }
-        ]
+          */
+        ],
       },
       plugins: [
         new webpack.DefinePlugin({
@@ -67,12 +72,12 @@ module.exports = function(config) {
         colors: true
       }
     },
-
+/*
     coverageReporter: {
       type: 'lcov',
       dir: 'coverage/',
       subdir: '.'
     }
-
+*/
   });
 };

@@ -23,14 +23,13 @@ export default function render(svg, viewport, data) {
 
     // If there's no data nothing can be done
     if (!data) {
-      svg.innerHTML = ''; 
+      svg.innerHTML = '';
       return resolve(svg);
     }
 
     svg.setAttribute('data-pdf-annotate-document', data.documentId);
-    svg.setAttribute('data-pdf-annotate-user', data.userId);
     svg.setAttribute('data-pdf-annotate-page', data.pageNumber);
-  
+
     // Make sure annotations is an array
     if (!Array.isArray(data.annotations) || data.annotations.length === 0) {
       return resolve(svg);
@@ -38,10 +37,11 @@ export default function render(svg, viewport, data) {
 
     // Append or transform annotation to svg
     data.annotations.forEach((a) => {
-      var node = svg.querySelector('[data-pdf-annotate-id="' + a.uuid + '"]');
+      let node = svg.querySelector('[data-pdf-annotate-id="' + a.uuid + '"]');
       if (node) {
         transformChild(svg, node, viewport);
-      } else {
+      }
+      else {
         appendChild(svg, a, viewport);
       }
     });

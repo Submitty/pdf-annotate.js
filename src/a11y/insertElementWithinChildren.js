@@ -29,7 +29,7 @@ export default function insertElementWithinChildren(el, x, y, pageNumber) {
   x = scaleUp(svg, {x}).x + rect.left;
 
   // Find the best node to insert before
-  for (let i=0, l=nodes.length; i<l; i++) {
+  for (let i = 0, l = nodes.length; i < l; i++) {
     let n = nodes[i];
     let r = n.getBoundingClientRect();
     if (y <= r.top) {

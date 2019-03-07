@@ -89,15 +89,10 @@ describe('UI::utils', function () {
     svg.appendChild(textSvgGroup);
     document.body.appendChild(svg);
 
-    let rect = svg.getBoundingClientRect();
     let textRect = text.getBoundingClientRect();
-    let textW = textRect.width;
-    let textH = textRect.height;
-    let textX = parseInt(text.getAttribute('x'), 10);
-    let textY = parseInt(text.getAttribute('y'), 10);
 
-    equal(findAnnotationAtPoint(textRect.left + 1, textRect.top + 1), text);
-    equal(findAnnotationAtPoint(textRect.right + 1, textRect.bottom + 1), null);
+    equal(findAnnotationAtPoint(textRect.left + 5, textRect.top + 5), text);
+    equal(findAnnotationAtPoint(textRect.right + 5, textRect.bottom + 5), null);
   });
 
   it('should detect if a rect collides with points', function () {
@@ -130,7 +125,7 @@ describe('UI::utils', function () {
     equal(pointIntersectsRect(20, 20, rect), true);
   });
 
-  describe('getAnnotationRect', function () {
+  describe('getOffsetAnnotationRect', function () {
     it('should get the size of a line', function () {
       document.body.appendChild(svg);
       let line = renderLine({
@@ -151,13 +146,13 @@ describe('UI::utils', function () {
       let y1 = parseInt(line.children[0].getAttribute('y1'), 10);
       let y2 = parseInt(line.children[0].getAttribute('y2'), 10);
 
-      deepEqual(getAnnotationRect(line.children[0]), {
+      deepEqual(getOffsetAnnotationRect(line.children[0]), {
         width: x2 - x1,
-        height: (y2 - y1) + 16,
+        height: (y2 - y1),
         left: x1,
-        top: y1 - (16 / 2),
+        top: y1,
         right: x1 + (x2 - x1),
-        bottom: y1 - (16 / 2) + (y2 - y1) + 16
+        bottom: y1 + (y2 - y1)
       });
     });
 
@@ -251,7 +246,7 @@ describe('UI::utils', function () {
     let path = createPath();
     svg.appendChild(path);
 
-    let size = getAnnotationRect(path);
+    let size = getOffsetAnnotationRect(path);
 
     equal(size.left, 33);
     equal(size.top, 36);

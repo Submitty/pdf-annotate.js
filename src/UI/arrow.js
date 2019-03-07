@@ -24,8 +24,9 @@ let originX;
  */
 function handleDocumentMousedown(e) {
   let target = findAnnotationAtPoint(e.clientX, e.clientY);
-  if (target === null)
+  if (target === null) {
     return;
+  }
 
   let type = target.getAttribute('data-pdf-annotate-type');
   if (type !== 'circle' && type !== 'fillcircle' && type !== 'emptycircle') {
@@ -33,11 +34,10 @@ function handleDocumentMousedown(e) {
   }
 
   let svg = findSVGContainer(target);
-  let { documentId, userId } = getMetadata(svg);
+  let { documentId } = getMetadata(svg);
   let annotationId = target.getAttribute('data-pdf-annotate-id');
 
-  let event = e;
-  PDFJSAnnotate.getStoreAdapter().getAnnotation(documentId, userId, annotationId).then((annotation) => {
+  PDFJSAnnotate.getStoreAdapter().getAnnotation(documentId, annotationId).then((annotation) => {
     if (annotation) {
       path = null;
       lines = [];
@@ -50,7 +50,7 @@ function handleDocumentMousedown(e) {
       let rect = svg.getBoundingClientRect();
 
       originX = point[0] + rect.left;
-      originY = point[1] + rect.top;    
+      originY = point[1] + rect.top;
 
       document.addEventListener('mousemove', handleDocumentMousemove);
       document.addEventListener('mouseup', handleDocumentMouseup);
@@ -69,12 +69,11 @@ function handleDocumentMouseup(e) {
     let { documentId, pageNumber } = getMetadata(svg);
 
     PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, {
-        type: 'arrow',
-        width: _penSize,
-        color: _penColor,
-        lines
-      }
-    ).then((annotation) => {
+      type: 'arrow',
+      width: _penSize,
+      color: _penColor,
+      lines
+    }).then((annotation) => {
       if (path) {
         svg.removeChild(path);
       }

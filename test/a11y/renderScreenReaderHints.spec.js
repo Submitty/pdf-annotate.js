@@ -1,11 +1,12 @@
 import renderScreenReaderHints from '../../src/a11y/renderScreenReaderHints';
 import mockPageWithTextLayer, { CHAR_WIDTH } from '../mockPageWithTextLayer';
 import PDFJSAnnotate from '../../src/PDFJSAnnotate';
+import checkCIEnvironment from '../checkCIEnvironment';
 import { equal } from 'assert';
 
 const SR_STYLE = 'position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden;';
 function mockHint(id, content) {
-  return `<div style="${SR_STYLE}" id="pdf-annotate-screenreader-${id}">${content}</div>`;
+  return `<div id="pdf-annotate-screenreader-${id}" style="${SR_STYLE}">${content}</div>`;
 }
 
 let page;
@@ -76,7 +77,7 @@ describe('a11y::renderScreenReaderHints', function () {
 
       equal(target.innerHTML, result);
     });
-    
+
     it('should render strikeout', function () {
       renderScreenReaderHints([{
         type: 'strikeout',
@@ -85,11 +86,11 @@ describe('a11y::renderScreenReaderHints', function () {
         rectangles: [{
           height: 10,
           width: 50,
-          x: (process.env.CI === 'true' ? 60 : 50),
+          x: (checkCIEnvironment() ? 60 : 50),
           y: 10
         }]
       }]);
-      
+
       let target = textLayer.children[0];
       let begin = mockHint(12345, 'Begin strikeout annotation 1');
       let end = mockHint('12345-end', 'End strikeout annotation 1');
@@ -97,7 +98,7 @@ describe('a11y::renderScreenReaderHints', function () {
 
       equal(target.innerHTML, result);
     });
-    
+
     it('should render drawing', function () {
       renderScreenReaderHints([{
         type: 'drawing',
@@ -110,7 +111,7 @@ describe('a11y::renderScreenReaderHints', function () {
 
       equal(target.innerHTML, 'Unlabeled drawing');
     });
-    
+
     it('should render area', function () {
       renderScreenReaderHints([{
         type: 'area',
@@ -125,7 +126,7 @@ describe('a11y::renderScreenReaderHints', function () {
 
       equal(target.innerHTML, 'Unlabeled drawing');
     });
-    
+
     it('should render textbox', function () {
       renderScreenReaderHints([{
         type: 'textbox',
@@ -142,7 +143,7 @@ describe('a11y::renderScreenReaderHints', function () {
 
       equal(target.innerHTML, 'textbox annotation 1 (content: hello)');
     });
-    
+
     it('should render point', function () {
       renderScreenReaderHints([{
         type: 'point',
@@ -180,7 +181,7 @@ describe('a11y::renderScreenReaderHints', function () {
       equal(textLayer.children[0].getAttribute('id'), 'pdf-annotate-screenreader-67890');
       equal(textLayer.children[1].getAttribute('id'), 'pdf-annotate-screenreader-12345');
     });
-    
+
     it('should sort by rect point', function () {
       renderScreenReaderHints([{
         type: 'highlight',
@@ -209,7 +210,7 @@ describe('a11y::renderScreenReaderHints', function () {
       equal(children[0].getAttribute('id'), 'pdf-annotate-screenreader-67890');
       equal(children[2].getAttribute('id'), 'pdf-annotate-screenreader-12345');
     });
-    
+
     it('should sort by line point', function () {
       renderScreenReaderHints([{
         type: 'drawing',
@@ -226,5 +227,5 @@ describe('a11y::renderScreenReaderHints', function () {
       equal(textLayer.children[0].getAttribute('id'), 'pdf-annotate-screenreader-67890');
       equal(textLayer.children[1].getAttribute('id'), 'pdf-annotate-screenreader-12345');
     });
-  });  
+  });
 });
