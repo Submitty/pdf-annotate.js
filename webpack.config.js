@@ -1,3 +1,4 @@
+const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 let fileName = 'pdf-annotate';
@@ -18,7 +19,8 @@ module.exports = {
   entry: './index.js',
   mode: 'production',
   output: {
-    filename: 'dist/' + fileName + '.js',
+    filename: fileName + '.js',
+    path: path.join(__dirname, 'dist'),
     library: 'PDFAnnotate',
     libraryTarget: 'umd'
   },
