@@ -14,8 +14,8 @@ let RENDER_OPTIONS = {
   rotate: parseInt(localStorage.getItem(`${documentId}/rotate`), 10) || 0
 };
 
-PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.LocalStoreAdapter(userId));
-PDFJS.workerSrc = './shared/pdf.worker.js';
+PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.LocalStoreAdapter(userId, true));
+pdfjsLib.workerSrc = './shared/pdf.worker.js';
 
 // Render stuff
 let NUM_PAGES = 0;
@@ -41,12 +41,13 @@ document.getElementById('content-wrapper').addEventListener('scroll', (e) => {
 });
 
 function render() {
-  PDFJS.getDocument(RENDER_OPTIONS.documentId).then((pdf) => {
+  pdfjsLib.getDocument(RENDER_OPTIONS.documentId).then((pdf) => {
     RENDER_OPTIONS.pdfDocument = pdf;
 
     let viewer = document.getElementById('viewer');
     viewer.innerHTML = '';
-    NUM_PAGES = pdf.pdfInfo.numPages;
+    console.log(pdf);
+    NUM_PAGES = pdf.numPages;
     for (let i = 0; i < NUM_PAGES; i++) {
       let page = UI.createPage(i + 1);
       viewer.appendChild(page);

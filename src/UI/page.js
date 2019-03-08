@@ -77,7 +77,7 @@ export function renderPage(pageNumber, renderOptions) {
         return new Promise((resolve, reject) => {
           // Render text layer for a11y of text content
           let textLayer = page.querySelector(config.textClassQuery());
-          let textLayerFactory = new PDFJS.DefaultTextLayerFactory();
+          let textLayerFactory = new pdfjsViewer.DefaultTextLayerFactory();
           let textLayerBuilder = textLayerFactory.createTextLayerBuilder(textLayer, pageNumber -1, viewport);
           textLayerBuilder.setTextContent(textContent);
           textLayerBuilder.render();

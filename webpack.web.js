@@ -1,11 +1,13 @@
+const path = require('path');
+
 module.exports = {
   entry: './web/index.js',
   mode: 'development',
 
   output: {
     filename: 'index.js',
-    path: 'web/__build__',
-    publicPath: '/__build__/'
+    path: path.resolve('web/__build__'),
+    publicPath: path.resolve('/__build__/')
   },
 
   module: {
