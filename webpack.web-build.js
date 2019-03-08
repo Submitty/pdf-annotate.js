@@ -1,4 +1,4 @@
-const path = require('path')
+const path = require('path');
 
 module.exports = {
   devtool: 'source-map',
@@ -7,7 +7,7 @@ module.exports = {
   mode: 'production',
   output: {
     filename: 'index.js',
-    path: path.join(__dirname, 'web-dist', '__build__'),
+    path: path.join(__dirname, 'web-dist'),
     library: 'PDFAnnotate',
     libraryTarget: 'umd'
   },
