@@ -1,17 +1,17 @@
 import PDFJSAnnotate from '../../src/PDFJSAnnotate';
 import { createPage, renderPage } from '../../src/UI/page';
 import mockPDFDocument from '../mockPDFDocument';
-import mockPDFJS from '../mockPDFJS';
+import mockPDFJSViewer from '../mockPDFJSViewer';
 import { equal } from 'assert';
 
 let page;
-let _PDFJS = window.PDFJS;
+let _pdfjsViewer = window.pdfjsViewer;
 let getAnnotations = PDFJSAnnotate.getAnnotations;
 
 describe('UI::page', function () {
   before(function () {
-    _PDFJS = window.PDFJS;
-    window.PDFJS = mockPDFJS();
+    _pdfjsViewer = window.pdfjsViewer;
+    window.pdfjsViewer = mockPDFJSViewer();
     PDFJSAnnotate.getAnnotations = function (documentId, pageNumber) {
       return new Promise((resolve, reject) => {
         resolve({
@@ -24,7 +24,7 @@ describe('UI::page', function () {
   });
 
   after(function () {
-    window.PDFJS = _PDFJS;
+    window.pdfjsViewer = _pdfjsViewer;
     PDFJSAnnotate.getAnnotations = getAnnotations;
   });
 

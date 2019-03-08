@@ -4,9 +4,9 @@ DefaultTextLayerFactory.prototype.createTextLayerBuilder = function () {
     setTextContent: function () {},
     render: function () {}
   };
-}
+};
 
-export default function mockPDFJS() {
+export default function mockPDFJSViewer() {
   return {
     DefaultTextLayerFactory
   };
