@@ -18,7 +18,8 @@ export default function renderText(a) {
     y: a.y,
     fill: normalizeColor(a.color || '#000'),
     fontSize: a.size,
-    transform: `rotate(${a.rotation})`
+    transform: `rotate(${a.rotation})`,
+    style: 'white-space: pre'
   });
   text.innerHTML = a.content;
 

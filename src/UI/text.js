@@ -33,7 +33,7 @@ function handleDocumentMouseup(e) {
   input.style.top = `${e.clientY}px`;
   input.style.left = `${e.clientX}px`;
   input.style.fontSize = `${_textSize}px`;
-  input.style.zIndex = "41";
+  input.style.zIndex = '41';
   input.addEventListener('blur', handleInputBlur);
   input.addEventListener('keyup', handleInputKeyup);
 
@@ -85,7 +85,7 @@ function saveText() {
       type: 'textbox',
       size: _textSize * scale,
       color: _textColor,
-      content: input.value,
+      content: value,
       x: pt[0],
       y: pt[1],
       rotation: -viewport.rotation
