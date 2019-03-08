@@ -7,8 +7,8 @@ const documentId = 'example.pdf';
 const userId = 'testUser';
 let PAGE_HEIGHT;
 let RENDER_OPTIONS = {
-  documentId,
-  userId: 'testUser',
+  documentId: documentId,
+  userId: userId,
   pdfDocument: null,
   scale: parseFloat(localStorage.getItem(`${documentId}/scale`), 10) || 1.33,
   rotate: parseInt(localStorage.getItem(`${documentId}/rotate`), 10) || 0
@@ -46,7 +46,6 @@ function render() {
 
     let viewer = document.getElementById('viewer');
     viewer.innerHTML = '';
-    console.log(pdf);
     NUM_PAGES = pdf.numPages;
     for (let i = 0; i < NUM_PAGES; i++) {
       let page = UI.createPage(i + 1);
@@ -62,7 +61,7 @@ function render() {
 render();
 
 // Hotspot color stuff
-(function () {
+(function() {
   let hotspotColor = localStorage.getItem(`${RENDER_OPTIONS.documentId}/hotspot/color`) || 'darkgoldenrod';
   let currentTarget = undefined;
 
@@ -90,7 +89,7 @@ render();
     }
   }
 
-  initColorPicker(document.querySelector('.hotspot-color'), hotspotColor, function (value) {
+  initColorPicker(document.querySelector('.hotspot-color'), hotspotColor, function(value) {
     if (value === hotspotColor) {
       return; // nothing to do
     }
@@ -126,7 +125,7 @@ render();
 })();
 
 // Text stuff
-(function () {
+(function() {
   let textSize;
   let textColor;
 
