@@ -3,12 +3,7 @@
 [![build 
 status](https://img.shields.io/travis/com/Submitty/pdf-annotate.js.svg?style=flat-square)](https://travis-ci.com/Submitty/pdf-annotate.js)
 
-<!---
-[![code 
-coverage](https://img.shields.io/coveralls/mzabriskie/pdf-annotate.js.svg?style=flat-square)](https://coveralls.io/r/mzabriskie/pdf-annotate.js)
--->
-
-Annotation layer for [pdf.js](https://github.com/mozilla/pdf.js)
+Annotation layer for [pdf.js](https://github.com/mozilla/pdf.js). Fork of original by [instructure/pdf-annotate.js](https://github.com/instructure/pdf-annotate.js/), developed for usage within Submitty.
 
 ## Objectives
 
@@ -20,7 +15,7 @@ Annotation layer for [pdf.js](https://github.com/mozilla/pdf.js)
 ## Example
 
 ```js
-import __pdfjs from 'pdfjs-dist/build/pdf';
+import pdfjsLib from 'pdfjs-dist/build/pdf';
 import PDFJSAnnotate from 'pdfjs-annotate';
 import MyStoreAdapter from './myStoreAdapter';
 
@@ -33,10 +28,10 @@ const RENDER_OPTIONS = {
   rotate: 0
 };
 
-PDFJS.workerSrc = 'pdf.worker.js';
+pdfjsLib.workerSrc = 'pdf.worker.js';
 PDFJSAnnotate.setStoreAdapter(MyStoreAdapter);
 
-PDFJS.getDocument(RENDER_OPTIONS.documentId).then((pdf) => {
+pdfjsLib.getDocument(RENDER_OPTIONS.documentId).then((pdf) => {
   RENDER_OPTIONS.pdfDocument = pdf;
   VIEWER.appendChild(UI.createPage(1));
   UI.renderPage(1, RENDER_OPTIONS);
