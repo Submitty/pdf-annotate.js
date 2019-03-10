@@ -3,7 +3,7 @@
 [![build 
 status](https://img.shields.io/travis/com/Submitty/pdf-annotate.js.svg?style=flat-square)](https://travis-ci.com/Submitty/pdf-annotate.js)
 
-Annotation layer for [pdf.js](https://github.com/mozilla/pdf.js). Fork of original by [instructure/pdf-annotate.js](https://github.com/instructure/pdf-annotate.js/), developed for usage within Submitty.
+Annotation layer for [pdf.js](https://github.com/mozilla/pdf.js). Fork of [instructure/pdf-annotate.js](https://github.com/instructure/pdf-annotate.js/) and DynamicEnvironmentSystems/pdf-annotate.js, developed for usage within Submitty.
 
 ## Objectives
 
