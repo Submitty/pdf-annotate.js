@@ -34,7 +34,7 @@ function createPath() {
       [42, 36],
       [43, 36],
       [43, 35]
-    ],
+    ]
   });
 }
 
@@ -43,15 +43,15 @@ let svg;
 let text;
 let textSvgGroup;
 
-describe('UI::utils', function () {
-  beforeEach(function () {
+describe('UI::utils', function() {
+  beforeEach(function() {
     div = document.createElement('div');
     svg = mockSVGContainer();
     textSvgGroup = mockTextAnnotation();
     text = textSvgGroup.firstChild;
   });
 
-  afterEach(function () {
+  afterEach(function() {
     enableUserSelect();
 
     if (div.parentNode) {
@@ -63,17 +63,17 @@ describe('UI::utils', function () {
     }
   });
 
-  it('should provide a border color constant', function () {
+  it('should provide a border color constant', function() {
     equal(BORDER_COLOR, '#00BFFF');
   });
 
-  it('should find svg container', function () {
+  it('should find svg container', function() {
     svg.appendChild(textSvgGroup);
 
     equal(findSVGContainer(textSvgGroup), svg);
   });
 
-  it('should find svg at point', function () {
+  it('should find svg at point', function() {
     svg.style.width = '10px';
     svg.style.height = '10px';
     document.body.appendChild(svg);
@@ -84,7 +84,7 @@ describe('UI::utils', function () {
     equal(findSVGAtPoint(rect.left + rect.width + 1, rect.top + rect.height + 1), null);
   });
 
-  it('should find annotation at point', function () {
+  it('should find annotation at point', function() {
     text.setAttribute('data-pdf-annotate-type', 'text');
     svg.appendChild(textSvgGroup);
     document.body.appendChild(svg);
@@ -95,7 +95,7 @@ describe('UI::utils', function () {
     equal(findAnnotationAtPoint(textRect.right + 5, textRect.bottom + 5), null);
   });
 
-  it('should detect if a rect collides with points', function () {
+  it('should detect if a rect collides with points', function() {
     let rect = {
       top: 10,
       left: 10,
@@ -125,8 +125,8 @@ describe('UI::utils', function () {
     equal(pointIntersectsRect(20, 20, rect), true);
   });
 
-  describe('getOffsetAnnotationRect', function () {
-    it('should get the size of a line', function () {
+  describe('getOffsetAnnotationRect', function() {
+    it('should get the size of a line', function() {
       document.body.appendChild(svg);
       let line = renderLine({
         rectangles: [
@@ -156,12 +156,12 @@ describe('UI::utils', function () {
       });
     });
 
-    it('should get the size of text', function () {
+    it('should get the size of text', function() {
       svg.appendChild(textSvgGroup);
       document.body.appendChild(svg);
 
       let rect = textSvgGroup.getBoundingClientRect();
-      let svgRect = svg.getBoundingClientRect()
+      let svgRect = svg.getBoundingClientRect();
 
       deepEqual(getOffsetAnnotationRect(text), {
         width: rect.width,
@@ -173,7 +173,7 @@ describe('UI::utils', function () {
       });
     });
 
-    it('should get the size of a rectangle', function () {
+    it('should get the size of a rectangle', function() {
       document.body.appendChild(svg);
       let rect = renderRect({
         type: 'highlight',
@@ -201,7 +201,7 @@ describe('UI::utils', function () {
     });
   });
 
-  it('should get the size of a rectangle', function () {
+  it('should get the size of a rectangle', function() {
     document.body.appendChild(svg);
     let rect = renderRect({
       type: 'highlight',
@@ -211,7 +211,7 @@ describe('UI::utils', function () {
           x: 65,
           y: 103,
           width: 228,
-          height: 9,
+          height: 9
         },
         {
           x: 53,
@@ -241,7 +241,7 @@ describe('UI::utils', function () {
     equal(size.bottom, 103 + 29);
   });
 
-  it('should get the size of a drawing', function () {
+  it('should get the size of a drawing', function() {
     document.body.appendChild(svg);
     let path = createPath();
     svg.appendChild(path);
@@ -256,7 +256,7 @@ describe('UI::utils', function () {
     equal(size.bottom, 36 + 4);
   });
 
-  it('should scale up', function () {
+  it('should scale up', function() {
     svg.setAttribute('data-pdf-annotate-viewport', JSON.stringify(mockViewport(undefined, undefined, 1.5)));
     let rect = scaleUp(svg, {top: 100, left: 100, width: 200, height: 200});
 
@@ -266,7 +266,7 @@ describe('UI::utils', function () {
     equal(rect.height, 300);
   });
 
-  it('should scale down', function () {
+  it('should scale down', function() {
     svg.setAttribute('data-pdf-annotate-viewport', JSON.stringify(mockViewport(undefined, undefined, 1.5)));
     let rect = scaleDown(svg, {top: 150, left: 150, width: 300, height: 300});
 
@@ -276,7 +276,7 @@ describe('UI::utils', function () {
     equal(rect.height, 200);
   });
 
-  it('should get scroll', function () {
+  it('should get scroll', function() {
     svg.appendChild(text);
     div.appendChild(svg);
     document.body.appendChild(div);
@@ -292,20 +292,20 @@ describe('UI::utils', function () {
     equal(scrollTop, 10);
   });
 
-  it('should disable user select', function () {
+  it('should disable user select', function() {
     disableUserSelect();
 
     equal(document.head.querySelector('style[data-pdf-annotate-user-select]').nodeName, 'STYLE');
   });
 
-  it('should enable user select', function () {
+  it('should enable user select', function() {
     disableUserSelect();
     enableUserSelect();
 
     equal(document.head.querySelector('style[data-pdf-annotate-user-select]'), null);
   });
 
-  it('should get metadata', function () {
+  it('should get metadata', function() {
     let {
       documentId,
       pageNumber,

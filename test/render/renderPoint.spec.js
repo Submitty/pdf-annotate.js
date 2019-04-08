@@ -1,8 +1,8 @@
 import renderPoint from '../../src/render/renderPoint';
 import { equal } from 'assert';
 
-describe('render::renderPoint', function () {
-  it('should render a point', function () {
+describe('render::renderPoint', function() {
+  it('should render a point', function() {
     let point = renderPoint({
       x: 100,
       y: 200

@@ -4,7 +4,7 @@ import { setText, enableText, disableText } from '../../src/UI/text';
 import { fireMouseEvent, fireFocusEvent } from '../fireEvent';
 import mockAddAnnotation from '../mockAddAnnotation';
 import mockSVGContainer from '../mockSVGContainer';
-import mockGetAnnotations from "../mockGetAnnotations";
+import mockGetAnnotations from '../mockGetAnnotations';
 
 let svg;
 let addAnnotationSpy;
@@ -20,7 +20,7 @@ function simulateCreateTextAnnotation(textContent, textSize, textColor) {
     clientY: rect.top + 10
   });
 
-  setTimeout(function () {
+  setTimeout(function() {
     let input = document.getElementById('pdf-annotate-text-input');
     if (input) {
       input.focus();
@@ -30,8 +30,8 @@ function simulateCreateTextAnnotation(textContent, textSize, textColor) {
   }, 0);
 }
 
-describe('UI::text', function () {
-  beforeEach(function () {
+describe('UI::text', function() {
+  beforeEach(function() {
     svg = mockSVGContainer();
     svg.style.width = '100px';
     svg.style.height = '100px';
@@ -42,7 +42,7 @@ describe('UI::text', function () {
     PDFJSAnnotate.__storeAdapter.getAnnotations = mockGetAnnotations();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     let input = document.getElementById('pdf-annotate-text-input');
     if (input && input.parentNode) {
       input.parentNode.removeChild(input);
@@ -55,26 +55,26 @@ describe('UI::text', function () {
     disableText();
   });
 
-  after(function () {
+  after(function() {
     PDFJSAnnotate.__storeAdapter.addAnnotation = __addAnnotation;
     PDFJSAnnotate.__storeAdapter.getAnnotations = __getAnnotations;
   });
 
-  it('should do nothing when disabled', function (done) {
+  it('should do nothing when disabled', function(done) {
     enableText();
     disableText();
     simulateCreateTextAnnotation('foo bar baz');
-    setTimeout(function () {
+    setTimeout(function() {
       equal(addAnnotationSpy.called, false);
       done();
     }, 0);
   });
 
-  it('should create an annotation when enabled', function (done) {
+  it('should create an annotation when enabled', function(done) {
     disableText();
     enableText();
     simulateCreateTextAnnotation('foo bar baz');
-    setTimeout(function () {
+    setTimeout(function() {
       let args = addAnnotationSpy.getCall(0).args;
       equal(addAnnotationSpy.called, true);
       equal(args[0], 'test-document-id');

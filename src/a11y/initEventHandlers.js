@@ -1,4 +1,3 @@
-import insertScreenReaderHint from './insertScreenReaderHint';
 import renderScreenReaderHints from './renderScreenReaderHints';
 import insertScreenReaderComment from './insertScreenReaderComment';
 import renderScreenReaderComments from './renderScreenReaderComments';
@@ -71,7 +70,8 @@ function insertComment(documentId, annotationId, comment) {
       list = document.querySelector(`pdf-annotate-screenreader-comment-list-${annotationId}`);
       return true;
     });
-  } else {
+  }
+  else {
     promise = Promise.resolve(true);
   }
 
@@ -93,7 +93,7 @@ function removeComment(documentId, commentId) {
 /**
  * Remove an element from the DOM by it's ID if it exists
  *
- * @param {String} elementID The ID of the element to be removed
+ * @param {String} elementId The ID of the element to be removed
  */
 function removeElementById(elementId) {
   let el = document.getElementById(elementId);

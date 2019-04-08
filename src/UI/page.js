@@ -78,7 +78,7 @@ export function renderPage(pageNumber, renderOptions) {
           // Render text layer for a11y of text content
           let textLayer = page.querySelector(config.textClassQuery());
           let textLayerFactory = new pdfjsViewer.DefaultTextLayerFactory();
-          let textLayerBuilder = textLayerFactory.createTextLayerBuilder(textLayer, pageNumber -1, viewport);
+          let textLayerBuilder = textLayerFactory.createTextLayerBuilder(textLayer, pageNumber - 1, viewport);
           textLayerBuilder.setTextContent(textContent);
           textLayerBuilder.render();
 
@@ -88,7 +88,8 @@ export function renderPage(pageNumber, renderOptions) {
             try {
               renderScreenReaderHints(annotations.annotations);
               resolve();
-            } catch (e) {
+            }
+            catch (e) {
               reject(e);
             }
           });
@@ -142,7 +143,6 @@ function scalePage(pageNumber, viewport, context) {
   return transform;
 }
 
-
 /**
  * Approximates a float number as a fraction using Farey sequence (max order of 8).
  *
@@ -160,25 +160,27 @@ function approximateFraction(x) {
   const limit = 8;
   if (xinv > limit) {
     return [1, limit];
-  } else if (Math.floor(xinv) === xinv) {
+  }
+  else if (Math.floor(xinv) === xinv) {
     return [1, xinv];
   }
 
   const x_ = x > 1 ? xinv : x;
-  
+
   // a/b and c/d are neighbours in Farey sequence.
-  let a = 0, b = 1, c = 1, d = 1;
-  
+  let a = 0; let b = 1; let c = 1; let d = 1;
+
   // Limit search to order 8.
   while (true) {
     // Generating next term in sequence (order of q).
-    let p = a + c, q = b + d;
+    let p = a + c; let q = b + d;
     if (q > limit) {
       break;
     }
     if (x_ <= p / q) {
       c = p; d = q;
-    } else {
+    }
+    else {
       a = p; b = q;
     }
   }
@@ -186,7 +188,8 @@ function approximateFraction(x) {
   // Select closest of neighbours to x.
   if (x_ - a / b < c / d - x_) {
     return x_ === x ? [a, b] : [b, a];
-  } else {
+  }
+  else {
     return x_ === x ? [c, d] : [d, c];
   }
 }

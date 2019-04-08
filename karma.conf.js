@@ -45,7 +45,7 @@ module.exports = function(config) {
             options: {
               presets: ['@babel/preset-env']
             }
-          },
+          }
           /*
           {
             test: /\.js$/,
@@ -57,7 +57,7 @@ module.exports = function(config) {
             }
           }
           */
-        ],
+        ]
       },
       plugins: [
         new webpack.DefinePlugin({
@@ -71,13 +71,13 @@ module.exports = function(config) {
       stats: {
         colors: true
       }
-    },
-/*
+    }
+  /*
     coverageReporter: {
       type: 'lcov',
       dir: 'coverage/',
       subdir: '.'
     }
-*/
+  */
   });
 };

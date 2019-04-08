@@ -10,15 +10,15 @@ PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.LocalStoreAdapter());
 
 // Get the annotations
 Promise.all([
-    PDFJSAnnotate.getAnnotations(DOCUMENT_ID, 1),
-    PDFJSAnnotate.getAnnotations(DOCUMENT_ID, 2)
-  ]).then(([ann1, ann2]) => {
-    PDFJSAnnotate.render(page1, mockViewport(page1), ann1);
-    PDFJSAnnotate.render(page2, mockViewport(page2), ann2);
-  });
+  PDFJSAnnotate.getAnnotations(DOCUMENT_ID, 1),
+  PDFJSAnnotate.getAnnotations(DOCUMENT_ID, 2)
+]).then(([ann1, ann2]) => {
+  PDFJSAnnotate.render(page1, mockViewport(page1), ann1);
+  PDFJSAnnotate.render(page2, mockViewport(page2), ann2);
+});
 
 // Rect stuff
-(function () {
+(function() {
   let tooltype = localStorage.getItem(`${DOCUMENT_ID}/tooltype`) || 'area';
   if (tooltype) {
     setActiveToolbarItem(tooltype, document.querySelector(`.toolbar button[data-tooltype=${tooltype}]`));
@@ -36,7 +36,7 @@ Promise.all([
       localStorage.setItem(`${DOCUMENT_ID}/tooltype`, type);
     }
     tooltype = type;
-    
+
     UI.enableRect(type);
   }
 

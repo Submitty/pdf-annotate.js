@@ -1,7 +1,7 @@
 import render from '../../src/render';
 import mockViewport from '../mockViewport';
 import { equal } from 'assert';
-import uuid from "../../src/utils/uuid"
+import uuid from '../../src/utils/uuid';
 
 function _render(annotations) {
   let data = Array.isArray(annotations) ? { annotations } : annotations;
@@ -11,14 +11,13 @@ function _render(annotations) {
 let svg;
 let viewport;
 
-describe('render::index', function () {
-  beforeEach(function () {
+describe('render::index', function() {
+  beforeEach(function() {
     svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     viewport = mockViewport();
   });
 
-  it('should not render the same annotation multiple times', function () {
-    let viewport = mockViewport(undefined, undefined, .5);
+  it('should not render the same annotation multiple times', function() {
     let id1 = uuid();
     let id2 = uuid();
 
@@ -57,7 +56,7 @@ describe('render::index', function () {
     equal(svg.children.length, 2);
   });
 
-  it('should add data-attributes', function () {
+  it('should add data-attributes', function() {
     _render({
       documentId: '/render',
       pageNumber: 1
@@ -69,7 +68,7 @@ describe('render::index', function () {
     equal(svg.getAttribute('data-pdf-annotate-page'), '1');
   });
 
-  it('should add document and page if annotations are empty', function () {
+  it('should add document and page if annotations are empty', function() {
     _render({
       documentId: '/render',
       pageNumber: 1,
@@ -82,7 +81,7 @@ describe('render::index', function () {
     equal(svg.getAttribute('data-pdf-annotate-page'), '1');
   });
 
-  it('should reset document and page if no data', function () {
+  it('should reset document and page if no data', function() {
     _render({
       documentId: '/render',
       pageNumber: 1,
@@ -97,11 +96,12 @@ describe('render::index', function () {
     equal(svg.getAttribute('data-pdf-annotate-page'), null);
   });
 
-  it('should fail gracefully if no annotations are provided', function () {
+  it('should fail gracefully if no annotations are provided', function() {
     let error = false;
     try {
       _render(null);
-    } catch (e) {
+    }
+    catch (e) {
       error = true;
     }
 

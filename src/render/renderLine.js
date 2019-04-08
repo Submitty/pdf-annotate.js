@@ -22,7 +22,7 @@ export default function renderLine(a) {
       x1: r.x,
       y1: r.y,
       x2: r.x + r.width,
-      y2: r.y,
+      y2: r.y
     });
 
     group.appendChild(line);

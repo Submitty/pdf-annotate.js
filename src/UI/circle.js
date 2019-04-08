@@ -1,5 +1,4 @@
 import PDFJSAnnotate from '../PDFJSAnnotate';
-import config from '../config';
 import { appendChild } from '../render/appendChild';
 import {
   findSVGAtPoint,

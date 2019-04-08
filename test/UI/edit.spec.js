@@ -1,6 +1,6 @@
 import { strictEqual, equal } from 'assert';
 import PDFJSAnnotate from '../../src/PDFJSAnnotate';
-import { enableEdit, disableEdit, destroyEditOverlay } from '../../src/UI/edit';
+import { enableEdit, disableEdit } from '../../src/UI/edit';
 import { fireMouseEvent, fireKeyboardEvent } from '../fireEvent';
 import mockEditAnnotation from '../mockEditAnnotation';
 import mockDeleteAnnotation from '../mockDeleteAnnotation';
@@ -46,14 +46,14 @@ function simulateMoveOverlay(callback) {
 
 function simulateClickAnnotation(callback) {
   fireMouseEvent(document, 'click', { clientX: 25, clientY: 25 });
-  setTimeout(function () {
+  setTimeout(function() {
     let overlay = findOverlay();
     callback(overlay);
   });
 }
 
-describe('UI::edit', function () {
-  beforeEach(function () {
+describe('UI::edit', function() {
+  beforeEach(function() {
     svg = mockSVGContainer();
     svg.style.width = '100px';
     svg.style.height = '100px';
@@ -73,12 +73,12 @@ describe('UI::edit', function () {
     deleteAnnotationSpy = sinon.spy();
     PDFJSAnnotate.__storeAdapter.editAnnotation = mockEditAnnotation(editAnnotationSpy);
     PDFJSAnnotate.__storeAdapter.deleteAnnotation = mockDeleteAnnotation(deleteAnnotationSpy);
-    PDFJSAnnotate.__storeAdapter.getAnnotation = function (documentId, annotationId) {
+    PDFJSAnnotate.__storeAdapter.getAnnotation = function(documentId, annotationId) {
       return Promise.resolve(annotations[annotationId]);
     };
   });
 
-  afterEach(function () {
+  afterEach(function() {
     if (svg.parentNode) {
       svg.parentNode.removeChild(svg);
     }
@@ -86,29 +86,29 @@ describe('UI::edit', function () {
     disableEdit();
   });
 
-  after(function () {
+  after(function() {
     PDFJSAnnotate.__storeAdapter.getAnnotation = __getAnnotation;
     PDFJSAnnotate.__storeAdapter.editAnnotation = __editAnnotation;
     PDFJSAnnotate.__storeAdapter.deleteAnnotation = __deleteAnnotation;
   });
 
-  it('should do nothing when disabled', function (done) {
+  it('should do nothing when disabled', function(done) {
     enableEdit();
     disableEdit();
     svg.appendChild(text);
     fireMouseEvent(document, 'click', { clientX: 25, clientY: 25 });
 
-    setTimeout(function () {
+    setTimeout(function() {
       equal(findOverlay(), null);
       done();
     });
   });
 
-  it('should create an overlay when annotation is clicked', function (done) {
+  it('should create an overlay when annotation is clicked', function(done) {
     enableEdit();
     svg.appendChild(text);
     fireMouseEvent(document, 'click', { clientX: 25, clientY: 10 });
-    setTimeout(function () {
+    setTimeout(function() {
       let overlay = findOverlay();
       equal(overlay.nodeName, 'DIV');
       equal(overlay.getAttribute('data-target-id'), text.getAttribute('data-pdf-annotate-id'));
@@ -116,31 +116,31 @@ describe('UI::edit', function () {
     });
   });
 
-  it('should destroy overlay when document is clicked', function (done) {
+  it('should destroy overlay when document is clicked', function(done) {
     enableEdit();
     svg.appendChild(text);
     fireMouseEvent(document, 'click', { clientX: 25, clientY: 10 });
 
-    setTimeout(function () {
+    setTimeout(function() {
       equal(findOverlay().nodeName, 'DIV');
       fireMouseEvent(document, 'click', { clientX: 10, clientY: 10 });
 
-      setTimeout(function () {
+      setTimeout(function() {
         equal(findOverlay(), null);
         done();
       });
     });
   });
 
-  it('should delete annotation when DELETE is pressed', function (done) {
+  it('should delete annotation when DELETE is pressed', function(done) {
     enableEdit();
     svg.appendChild(text);
     fireMouseEvent(document, 'click', { clientX: 25, clientY: 10 });
 
-    setTimeout(function () {
+    setTimeout(function() {
       fireKeyboardEvent(document, 'keyup', { key: 'Delete' });
 
-      setTimeout(function () {
+      setTimeout(function() {
         strictEqual(deleteAnnotationSpy.called, true);
         let args = deleteAnnotationSpy.getCall(0).args;
         equal(args[0], 'test-document-id');
@@ -150,7 +150,7 @@ describe('UI::edit', function () {
     });
   });
 
-  it('should delete annotation when BACKSPACE is pressed', function (done) {
+  it('should delete annotation when BACKSPACE is pressed', function(done) {
     enableEdit();
     svg.appendChild(text);
     fireMouseEvent(document, 'click', { clientX: 25, clientY: 10 });
@@ -167,10 +167,10 @@ describe('UI::edit', function () {
     });
   });
 
-  it('should edit text annotation when overlay moved', function (done) {
+  it('should edit text annotation when overlay moved', function(done) {
     enableEdit();
     svg.appendChild(text);
-    simulateMoveOverlay(function (args) {
+    simulateMoveOverlay(function(args) {
       equal(editAnnotationSpy.called, true);
       equal(args[0], 'test-document-id');
       equal(args[1], text.getAttribute('data-pdf-annotate-id'));
@@ -179,10 +179,10 @@ describe('UI::edit', function () {
     });
   });
 
-  it('should edit rect annotation when overlay moved', function (done) {
+  it('should edit rect annotation when overlay moved', function(done) {
     enableEdit();
     svg.appendChild(rect);
-    simulateMoveOverlay(function (args) {
+    simulateMoveOverlay(function(args) {
       equal(editAnnotationSpy.called, true);
       equal(args[0], 'test-document-id');
       equal(args[1], rect.getAttribute('data-pdf-annotate-id'));
@@ -191,30 +191,30 @@ describe('UI::edit', function () {
     });
   });
 
-  it('should not edit line annotation when overlay moved', function (done) {
+  it('should not edit line annotation when overlay moved', function(done) {
     enableEdit();
     svg.appendChild(line);
-    simulateMoveOverlay(function (args) {
+    simulateMoveOverlay(function(args) {
       equal(editAnnotationSpy.called, false);
       done();
     });
   });
 
-  it('should edit path annotation when overlay moved', function (done) {
+  it('should edit path annotation when overlay moved', function(done) {
     enableEdit();
     svg.appendChild(path);
-    simulateMoveOverlay(function (args) {
+    simulateMoveOverlay(function(args) {
       equal(editAnnotationSpy.called, false);
       done();
     });
   });
 
-  it('should show delete icon when overlay moused over', function (done) {
+  it('should show delete icon when overlay moused over', function(done) {
     enableEdit();
     svg.appendChild(rect);
-    simulateClickAnnotation(function (overlay) {
+    simulateClickAnnotation(function(overlay) {
       fireMouseEvent(overlay, 'mouseover', { clientX: 30, clientY: 30 });
-      setTimeout(function () {
+      setTimeout(function() {
         let a = overlay.querySelector('a');
         equal(a.style.display, '');
         done();
@@ -222,14 +222,14 @@ describe('UI::edit', function () {
     });
   });
 
-  it('should hide delete icon when overlay moused out', function (done) {
+  it('should hide delete icon when overlay moused out', function(done) {
     enableEdit();
     svg.appendChild(rect);
-    simulateClickAnnotation(function (overlay) {
+    simulateClickAnnotation(function(overlay) {
       fireMouseEvent(overlay, 'mouseover', { clientX: 30, clientY: 30 });
-      setTimeout(function () {
+      setTimeout(function() {
         fireMouseEvent(overlay, 'mouseout', { clientX: 10, clientY: 10 });
-        setTimeout(function () {
+        setTimeout(function() {
           let a = overlay.querySelector('a');
           equal(a.style.display, 'none');
           done();

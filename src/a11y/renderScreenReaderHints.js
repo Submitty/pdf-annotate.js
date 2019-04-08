@@ -28,7 +28,8 @@ export default function renderScreenReaderHints(annotations) {
 function sortByPoint(a, b) {
   if (a.y < b.y) {
     return a.x - b.x;
-  } else {
+  }
+  else {
     return 1;
   }
 }

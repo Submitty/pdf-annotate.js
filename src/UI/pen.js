@@ -15,10 +15,9 @@ let _penColor;
 let path;
 let lines = [];
 
-const isFirefox = /firefox/i.test(navigator.userAgent);
-
 /**
  * Handle document.touchdown or document.pointerdown event
+ * @param {PointerEvent} e The DOM event to be handled
  */
 function handleDocumentPointerdown(e) {
   e.preventDefault();
@@ -28,14 +27,10 @@ function handleDocumentPointerdown(e) {
 }
 
 /**
- * Handle document.touchup or document.pointerup event
+ * Handle document.pointerup event
  *
- * @param {TouchEvent} e The DOM event to be handled
+ * @param {PointerEvent} e The DOM event to be handled
  */
-function handleDocumentPointerupChrome(e){
-  saveToStorage(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-}
-
 function handleDocumentPointerup(e) {
   saveToStorage(e.clientX, e.clientY);
 }
@@ -142,7 +137,9 @@ export function setPen(penSize = 1, penColor = '000000') {
  * Enable the pen behavior
  */
 export function enablePen() {
-  if (_enabled) { return; }
+  if (_enabled) {
+    return;
+  }
 
   _enabled = true;
   // Chrome and Firefox has different behaviors with how pen works, so we need different events.
@@ -158,7 +155,9 @@ export function enablePen() {
  * Disable the pen behavior
  */
 export function disablePen() {
-  if (!_enabled) { return; }
+  if (!_enabled) {
+    return;
+  }
 
   _enabled = false;
   document.removeEventListener('pointerdown', handleDocumentPointerdown);

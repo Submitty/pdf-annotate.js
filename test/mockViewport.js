@@ -2,5 +2,5 @@ export default function mockViewport(width = 100, height = 100, scale = 1, rotat
   return {
     width, height, scale, rotation
   };
-}
+};
 

@@ -9,7 +9,6 @@ import normalizeColor from '../utils/normalizeColor';
  * @return {SVGTextElement} A text to be rendered
  */
 export default function renderText(a) {
-
   // Text should be rendered at 0 degrees relative to
   // document rotation
   let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -23,7 +22,7 @@ export default function renderText(a) {
   });
   text.innerHTML = a.content;
 
-  var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   g.appendChild(text);
 
   return g;

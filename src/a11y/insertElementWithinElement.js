@@ -1,9 +1,9 @@
-import config from '../config'
+import config from '../config';
 import {
   pointIntersectsRect,
   scaleUp,
   scaleDown
-} from '../UI/utils'; 
+} from '../UI/utils';
 
 /**
  * Insert an element at a point within the document.
@@ -29,7 +29,7 @@ export default function insertElementWithinElement(el, x, y, pageNumber, insertB
   if (!node) {
     return false;
   }
-  
+
   // Now that node has been found inverse the adjustment for `x`.
   // This is done to accomodate tolerance by cutting off on the outside of the
   // text boundary, instead of missing a character by cutting off within.
@@ -50,14 +50,14 @@ export default function insertElementWithinElement(el, x, y, pageNumber, insertB
   while (head.length) {
     // Don't insert within HTML tags
     if (head[head.length - 1] === '>') {
-      while(head.length) {
+      while (head.length) {
         tail.unshift(head.pop());
         if (tail[0] === '<') {
           break;
         }
       }
     }
-    
+
     // Check if width of temp based on current head value satisfies x
     temp.innerHTML = head.join('');
     let width = scaleDown(svg, {width: temp.getBoundingClientRect().width}).width;
@@ -66,7 +66,7 @@ export default function insertElementWithinElement(el, x, y, pageNumber, insertB
     }
     tail.unshift(head.pop());
   }
-  
+
   // Update original node with new markup, including element to be inserted
   node.innerHTML = head.join('') + el.outerHTML + tail.join('');
   temp.parentNode.removeChild(temp);

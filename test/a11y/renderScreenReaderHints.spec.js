@@ -1,5 +1,5 @@
 import renderScreenReaderHints from '../../src/a11y/renderScreenReaderHints';
-import mockPageWithTextLayer, { CHAR_WIDTH } from '../mockPageWithTextLayer';
+import mockPageWithTextLayer from '../mockPageWithTextLayer';
 import PDFJSAnnotate from '../../src/PDFJSAnnotate';
 import checkCIEnvironment from '../checkCIEnvironment';
 import { equal } from 'assert';
@@ -10,54 +10,54 @@ function mockHint(id, content) {
 }
 
 let page;
-let rect;
 let textLayer;
 let getComments = PDFJSAnnotate.__storeAdapter.getComments;
 
-describe('a11y::renderScreenReaderHints', function () {
-  beforeEach(function () {
+describe('a11y::renderScreenReaderHints', function() {
+  beforeEach(function() {
     page = mockPageWithTextLayer();
     document.body.appendChild(page);
     textLayer = page.querySelector('.textLayer');
-    rect = textLayer.getBoundingClientRect();
     PDFJSAnnotate.__storeAdapter.getComments = () => {
       return Promise.resolve([]);
-    }
+    };
   });
 
-  afterEach(function () {
+  afterEach(function() {
     PDFJSAnnotate.__storeAdapter.getComments = getComments;
     if (page && page.parentNode) {
       page.parentNode.removeChild(page);
     }
   });
 
-  describe('render', function () {
-    it('should render without annotations', function () {
+  describe('render', function() {
+    it('should render without annotations', function() {
       let error;
 
       try {
         renderScreenReaderHints();
-      } catch (e) {
+      }
+      catch (e) {
         error = e;
       }
 
       equal(typeof error, 'undefined');
     });
 
-    it('should render with non-array annotations', function () {
+    it('should render with non-array annotations', function() {
       let error;
 
       try {
         renderScreenReaderHints(null);
-      } catch (e) {
+      }
+      catch (e) {
         error = e;
       }
 
       equal(typeof error, 'undefined');
     });
 
-    it('should render highlight', function () {
+    it('should render highlight', function() {
       renderScreenReaderHints([{
         type: 'highlight',
         page: 1,
@@ -78,7 +78,7 @@ describe('a11y::renderScreenReaderHints', function () {
       equal(target.innerHTML, result);
     });
 
-    it('should render strikeout', function () {
+    it('should render strikeout', function() {
       renderScreenReaderHints([{
         type: 'strikeout',
         page: 1,
@@ -99,7 +99,7 @@ describe('a11y::renderScreenReaderHints', function () {
       equal(target.innerHTML, result);
     });
 
-    it('should render drawing', function () {
+    it('should render drawing', function() {
       renderScreenReaderHints([{
         type: 'drawing',
         page: 1,
@@ -112,7 +112,7 @@ describe('a11y::renderScreenReaderHints', function () {
       equal(target.innerHTML, 'Unlabeled drawing');
     });
 
-    it('should render area', function () {
+    it('should render area', function() {
       renderScreenReaderHints([{
         type: 'area',
         page: 1,
@@ -127,7 +127,7 @@ describe('a11y::renderScreenReaderHints', function () {
       equal(target.innerHTML, 'Unlabeled drawing');
     });
 
-    it('should render textbox', function () {
+    it('should render textbox', function() {
       renderScreenReaderHints([{
         type: 'textbox',
         page: 1,
@@ -144,7 +144,7 @@ describe('a11y::renderScreenReaderHints', function () {
       equal(target.innerHTML, 'textbox annotation 1 (content: hello)');
     });
 
-    it('should render point', function () {
+    it('should render point', function() {
       renderScreenReaderHints([{
         type: 'point',
         page: 1,
@@ -160,8 +160,8 @@ describe('a11y::renderScreenReaderHints', function () {
     });
   });
 
-  describe('sort', function () {
-    it('should sort by point', function () {
+  describe('sort', function() {
+    it('should sort by point', function() {
       renderScreenReaderHints([{
         type: 'point',
         page: 1,
@@ -182,7 +182,7 @@ describe('a11y::renderScreenReaderHints', function () {
       equal(textLayer.children[1].getAttribute('id'), 'pdf-annotate-screenreader-12345');
     });
 
-    it('should sort by rect point', function () {
+    it('should sort by rect point', function() {
       renderScreenReaderHints([{
         type: 'highlight',
         page: 1,
@@ -211,7 +211,7 @@ describe('a11y::renderScreenReaderHints', function () {
       equal(children[2].getAttribute('id'), 'pdf-annotate-screenreader-12345');
     });
 
-    it('should sort by line point', function () {
+    it('should sort by line point', function() {
       renderScreenReaderHints([{
         type: 'drawing',
         page: 1,

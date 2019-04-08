@@ -9,6 +9,6 @@ export default function mockLineAnnotation(annotation) {
   line.setAttribute('data-pdf-annotate-id', uuid());
   line.setAttribute('data-pdf-annotate-type', 'strikeout');
   return line;
-}
+};
 
 export { DEFAULT_LINE_ANNOTATION };

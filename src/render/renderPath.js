@@ -15,15 +15,15 @@ export default function renderPath(a) {
   if (a.lines.length > 0) {
     d.push(`M${a.lines[0][0]} ${a.lines[0][1]}`);
     for (let i = 1, l = a.lines.length; i < l; i++) {
-      var p1 = a.lines[i];
-      var p2 = a.lines[i+1];
+      let p1 = a.lines[i];
+      let p2 = a.lines[i + 1];
       if (p2) {
         d.push(`L${p1[0]} ${p1[1]}`);
       }
     }
   }
 
-/*
+  /*
 
    if(a.lines.length>2) {
     var p1 = a.lines[0];
@@ -32,8 +32,6 @@ export default function renderPath(a) {
     var p3 = []; //arrow
     var p4 = [];
     var p0 = []; //arrow intersection
-
-
 
     if (p2) {
       var k = -(p2[0]-p1[0])/(p2[1]-p1[1]);
@@ -64,10 +62,10 @@ export default function renderPath(a) {
       d.push(`M${p3[0]} ${p3[1]} ${p4[0]} ${p4[1]}`);
       d.push(`M${p4[0]} ${p4[1]} ${p2[0]} ${p2[1]}`);
      }
-    }*/
+    } */
 
   setAttributes(path, {
-    d: `${d.join(' ')}`,//`${d.join(' ')}Z`,
+    d: `${d.join(' ')}`, // `${d.join(' ')}Z`,
     stroke: normalizeColor(a.color || '#000'),
     strokeWidth: a.width || 1,
     fill: 'none'

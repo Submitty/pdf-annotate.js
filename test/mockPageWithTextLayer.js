@@ -37,4 +37,4 @@ export default function mockPageWithTextLayer(pageNumber = 1) {
   });
 
   return page;
-}
+};

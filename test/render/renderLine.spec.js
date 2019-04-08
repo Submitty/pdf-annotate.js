@@ -16,8 +16,8 @@ function assertLine(line, x, y, w) {
   equal(line.getAttribute('y2'), y);
 }
 
-describe('render::renderLine', function () {
-  it('should render a line', function () {
+describe('render::renderLine', function() {
+  it('should render a line', function() {
     let line = renderLine({
       rectangles: [
         {
@@ -27,12 +27,12 @@ describe('render::renderLine', function () {
         }
       ]
     });
-  
+
     assertG(line, 1);
     assertLine(line.children[0], 25, 50, 100);
   });
 
-  it('should render multiple lines', function () {
+  it('should render multiple lines', function() {
     let line = renderLine({
       rectangles: [
         {

@@ -20,7 +20,8 @@ function testScale(scale = 0.5, passViewportArg = true) {
     equal(nested.getAttribute('x'), annotation.x);
     equal(nested.getAttribute('y'), annotation.y);
     equal(nested.querySelector('path').getAttribute('transform'), null);
-  } else {
+  }
+  else {
     equal(nested.getAttribute('x'), annotation.x * scale);
     equal(nested.getAttribute('y'), annotation.y * scale);
     equal(nested.querySelector('path').getAttribute('transform'), `scale(1) rotate(0) translate(0, 0)`);
@@ -40,7 +41,7 @@ function testRotation(rotation, transX, transY) {
   let expectX = annotation.x;
   let expectY = annotation.y;
 
-  switch(viewport.rotation % 360) {
+  switch (viewport.rotation % 360) {
     case 90:
       expectX = viewport.width - annotation.y - width;
       expectY = annotation.x;
@@ -59,7 +60,8 @@ function testRotation(rotation, transX, transY) {
     equal(node.getAttribute('transform'), `scale(1) rotate(${rotation}) translate(${transX}, ${transY})`);
     equal(parseInt(node.getAttribute('x'), 10), annotation.x);
     equal(parseInt(node.getAttribute('y'), 10), annotation.y);
-  } else {
+  }
+  else {
     equal(node.getAttribute('transform'), `scale(1) rotate(${rotation}) translate(${transX}, ${transY})`);
     equal(parseInt(node.getAttribute('x'), 10), expectX);
     equal(parseInt(node.getAttribute('y'), 10), expectY);
@@ -69,13 +71,13 @@ function testRotation(rotation, transX, transY) {
 let svg;
 let viewport;
 
-describe('render::appendChild', function () {
-  beforeEach(function () {
+describe('render::appendChild', function() {
+  beforeEach(function() {
     svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     viewport = mockViewport();
   });
 
-  it('should add data-attributes', function () {
+  it('should add data-attributes', function() {
     let point = appendChild(svg, {
       uuid: 1234,
       type: 'point',
@@ -97,7 +99,7 @@ describe('render::appendChild', function () {
     equal(area.getAttribute('data-pdf-annotate-type'), 'area');
   });
 
-  it('should render area', function () {
+  it('should render area', function() {
     let area = appendChild(svg, {
       type: 'area',
       x: 125,
@@ -109,7 +111,7 @@ describe('render::appendChild', function () {
     equal(area.nodeName.toLowerCase(), 'rect');
   });
 
-  it('should render highlight', function () {
+  it('should render highlight', function() {
     let highlight = appendChild(svg, {
       type: 'highlight',
       color: 'FF0000',
@@ -128,7 +130,7 @@ describe('render::appendChild', function () {
     equal(highlight.children[0].nodeName.toLowerCase(), 'rect');
   });
 
-  it('should render strikeout', function () {
+  it('should render strikeout', function() {
     let strikeout = appendChild(svg, {
       type: 'strikeout',
       color: 'FF0000',
@@ -137,7 +139,7 @@ describe('render::appendChild', function () {
         y: 320,
         width: 270,
         height: 1
-      }],
+      }]
     }, viewport);
 
     equal(strikeout.nodeName.toLowerCase(), 'g');
@@ -145,8 +147,7 @@ describe('render::appendChild', function () {
     equal(strikeout.children[0].nodeName.toLowerCase(), 'line');
   });
 
-  it('should render textbox', function () {
-
+  it('should render textbox', function() {
     let textboxGroup = appendChild(svg, {
       type: 'textbox',
       x: 125,
@@ -162,7 +163,7 @@ describe('render::appendChild', function () {
     equal(textbox.nodeName.toLowerCase(), 'text');
   });
 
-  it('should render point', function () {
+  it('should render point', function() {
     let point = appendChild(svg, {
       type: 'point',
       x: 5,
@@ -172,7 +173,7 @@ describe('render::appendChild', function () {
     equal(point.nodeName.toLowerCase(), 'svg');
   });
 
-  it('should render drawing', function () {
+  it('should render drawing', function() {
     let drawing = appendChild(svg, {
       type: 'drawing',
       x: 10,
@@ -183,24 +184,25 @@ describe('render::appendChild', function () {
     equal(drawing.nodeName.toLowerCase(), 'path');
   });
 
-  it('should fail gracefully if no type is provided', function () {
+  it('should fail gracefully if no type is provided', function() {
     let error = false;
     try {
       appendChild(svg, { x: 1, y: 1 }, viewport);
-    } catch (e) {
+    }
+    catch (e) {
       error = true;
     }
 
     equal(error, false);
   });
 
-  it('should transform scale', function () { testScale(0.5); });
-  it('should use viewport from svg data-attribute', function () { testScale(0.5, false); });
+  it('should transform scale', function() { testScale(0.5); });
+  it('should use viewport from svg data-attribute', function() { testScale(0.5, false); });
 
-  it('should transform rotation 0', function () { testRotation(0, 0, 0); });
-  it('should transform rotation 90', function () { testRotation(90, 0, -100); });
-  it('should transform rotation 180', function () { testRotation(180, -100, -100); });
-  it('should transform rotation 270', function () { testRotation(270, -100, 0); });
-  it('should transform rotation 360', function () { testRotation(360, 0, 0); });
-  it('should transform rotation 540', function () { testRotation(540, -100, -100); });
+  it('should transform rotation 0', function() { testRotation(0, 0, 0); });
+  it('should transform rotation 90', function() { testRotation(90, 0, -100); });
+  it('should transform rotation 180', function() { testRotation(180, -100, -100); });
+  it('should transform rotation 270', function() { testRotation(270, -100, 0); });
+  it('should transform rotation 360', function() { testRotation(360, 0, 0); });
+  it('should transform rotation 540', function() { testRotation(540, -100, -100); });
 });

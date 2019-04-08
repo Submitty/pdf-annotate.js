@@ -15,13 +15,14 @@ export default function renderRect(a) {
       fill: normalizeColor(a.color || '#ff0'),
       fillOpacity: 0.2
     });
-    
+
     a.rectangles.forEach((r) => {
       group.appendChild(createRect(r));
     });
 
     return group;
-  } else {
+  }
+  else {
     let rect = createRect(a);
     setAttributes(rect, {
       stroke: normalizeColor(a.color || '#f00'),

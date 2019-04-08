@@ -22,7 +22,7 @@ function simulateCreatePointAnnotation(textContent) {
     clientY: rect.top + 10
   });
 
-  setTimeout(function () {
+  setTimeout(function() {
     let input = document.getElementById('pdf-annotate-point-input');
     if (input) {
       input.focus();
@@ -32,8 +32,8 @@ function simulateCreatePointAnnotation(textContent) {
   });
 }
 
-describe('UI::point', function () {
-  beforeEach(function () {
+describe('UI::point', function() {
+  beforeEach(function() {
     svg = mockSVGContainer();
     svg.style.width = '100px';
     svg.style.height = '100px';
@@ -49,7 +49,7 @@ describe('UI::point', function () {
     PDFJSAnnotate.__storeAdapter.getAnnotations = mockGetAnnotations();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     let input = document.getElementById('pdf-annotate-point-input');
     if (input && input.parentNode) {
       input.parentNode.removeChild(input);
@@ -62,29 +62,29 @@ describe('UI::point', function () {
     disablePoint();
   });
 
-  after(function () {
+  after(function() {
     PDFJSAnnotate.__storeAdapter.addComment = __addComment;
     PDFJSAnnotate.__storeAdapter.getComments = __getComments;
     PDFJSAnnotate.__storeAdapter.addAnnotation = __addAnnotation;
     PDFJSAnnotate.__storeAdapter.getAnnotations = __getAnnotations;
   });
 
-  it('should do nothing when disabled', function (done) {
+  it('should do nothing when disabled', function(done) {
     enablePoint();
     disablePoint();
     simulateCreatePointAnnotation('foo bar baz');
-    setTimeout(function () {
+    setTimeout(function() {
       equal(addAnnotationSpy.called, false);
       equal(addCommentSpy.called, false);
       done();
     });
   });
 
-  it('should create an annotation when enabled', function (done) {
+  it('should create an annotation when enabled', function(done) {
     disablePoint();
     enablePoint();
     simulateCreatePointAnnotation('foo bar baz');
-    setTimeout(function () {
+    setTimeout(function() {
       let addAnnotationArgs = addAnnotationSpy.getCall(0).args;
       let addCommentArgs = addCommentSpy.getCall(0).args;
 

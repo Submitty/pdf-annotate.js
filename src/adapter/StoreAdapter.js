@@ -1,3 +1,6 @@
+// Disable JSDoc as it cannot really deal with the odd way that the functions are defined
+/* eslint valid-jsdoc: 0 */
+
 import abstractFunction from '../utils/abstractFunction';
 import { fireEvent } from '../UI/event';
 
@@ -23,7 +26,7 @@ export default class StoreAdapter {
    *
    * @param {String} documentId The ID for the document the annotations belong to
    * @param {Number} pageNumber The number of the page the annotations belong to
-   * @return {Promise}
+   * @return {Promise} Promise that returns with list of annotations for document and page
    */
   __getAnnotations(documentId, pageNumber) { abstractFunction('getAnnotations'); }
   get getAnnotations() { return this.__getAnnotations; }
@@ -46,7 +49,7 @@ export default class StoreAdapter {
    *
    * @param {String} documentId The ID for the document the annotation belongs to
    * @param {String} annotationId The ID for the annotation
-   * @return {Promise}
+   * @return {Promise} Promise that returns the requested annotation
    */
   getAnnotation(documentId, annotationId) { abstractFunction('getAnnotation'); }
 
@@ -56,7 +59,7 @@ export default class StoreAdapter {
    * @param {String} documentId The ID for the document to add the annotation to
    * @param {String} pageNumber The page number to add the annotation to
    * @param {Object} annotation The definition for the new annotation
-   * @return {Promise}
+   * @return {Promise} Promise that returns with the added annotation
    */
   __addAnnotation(documentId, pageNumber, annotation) { abstractFunction('addAnnotation'); }
   get addAnnotation() { return this.__addAnnotation; }
@@ -75,7 +78,7 @@ export default class StoreAdapter {
    * @param {String} documentId The ID for the document
    * @param {String} pageNumber the page number of the annotation
    * @param {Object} annotation The definition of the modified annotation
-   * @return {Promise}
+   * @return {Promise} Promise that returns with the edited annotation
    */
   __editAnnotation(documentId, pageNumber, annotation) { abstractFunction('editAnnotation'); }
   get editAnnotation() { return this.__editAnnotation; }
@@ -93,7 +96,7 @@ export default class StoreAdapter {
    *
    * @param {String} documentId The ID for the document
    * @param {String} annotationId The ID for the annotation
-   * @return {Promise}
+   * @return {Promise} Promise that returns with boolean if annotation was deleted
    */
   __deleteAnnotation(documentId, annotationId) { abstractFunction('deleteAnnotation'); }
   get deleteAnnotation() { return this.__deleteAnnotation; }
@@ -113,7 +116,7 @@ export default class StoreAdapter {
    *
    * @param {String} documentId The ID for the document
    * @param {String} annotationId The ID for the annotation
-   * @return {Promise}
+   * @return {Promise} Promise that returns with comments for annotation
    */
   getComments(documentId, annotationId) { abstractFunction('getComments'); }
 
@@ -123,7 +126,7 @@ export default class StoreAdapter {
    * @param {String} documentId The ID for the document
    * @param {String} annotationId The ID for the annotation
    * @param {Object} content The definition of the comment
-   * @return {Promise}
+   * @return {Promise} Promise that returns with the added comment
    */
   __addComment(documentId, annotationId, content) { abstractFunction('addComment'); }
   get addComment() { return this.__addComment; }
@@ -141,7 +144,7 @@ export default class StoreAdapter {
    *
    * @param {String} documentId The ID for the document
    * @param {String} commentId The ID for the comment
-   * @return {Promise}
+   * @return {Promise} Promise that returns with boolean if comment was deleted
    */
   __deleteComment(documentId, commentId) { abstractFunction('deleteComment'); }
   get deleteComment() { return this.__deleteComment; }

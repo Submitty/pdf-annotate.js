@@ -3,4 +3,4 @@ export default (spy) => {
     spy(documentId, annotationId);
     return Promise.resolve(true);
   };
-}
+};

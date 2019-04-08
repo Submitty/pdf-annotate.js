@@ -22,7 +22,7 @@ export function getTranslation(viewport) {
 
   // Modulus 360 on the rotation so that we only
   // have to worry about four possible values.
-  switch(viewport.rotation % 360) {
+  switch (viewport.rotation % 360) {
     case 0:
       x = y = 0;
       break;
@@ -152,7 +152,7 @@ export function appendChild(svg, annotation, viewport) {
     // Dynamically set any other attributes associated with annotation that is not related to drawing it
     Object.keys(annotation).filter((key) => {
       return ['color', 'x', 'y', 'cx', 'cy', 'color', 'documentId', 'lines', 'page',
-        'width', 'class', 'content', 'size', 'rotation', 'r'].indexOf(key) === -1
+        'width', 'class', 'content', 'size', 'rotation', 'r'].indexOf(key) === -1;
     }).forEach((key) => {
       child.setAttribute(`data-pdf-annotate-${key}`, annotation[key]);
     });
@@ -201,4 +201,4 @@ export default {
    * Transform an existing SVG child
    */
   transformChild
-}
+};

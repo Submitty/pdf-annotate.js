@@ -1,7 +1,7 @@
 import uuid from '../src/utils/uuid';
 
 export default (spy) => {
-  return function (documentId, annotationId, content) {
+  return function(documentId, annotationId, content) {
     spy(documentId, annotationId, content);
 
     let comment = {
@@ -13,4 +13,4 @@ export default (spy) => {
 
     return Promise.resolve(comment);
   };
-}
+};

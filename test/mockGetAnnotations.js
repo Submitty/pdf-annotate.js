@@ -5,5 +5,5 @@ export default function() {
       pageNumber,
       annotations: []
     });
-  }
-}
+  };
+};

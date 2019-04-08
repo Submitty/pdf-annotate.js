@@ -1,7 +1,6 @@
 import config from '../config';
 import insertElementWithinElement from './insertElementWithinElement';
-import { pointIntersectsRect } from '../UI/utils';
-import { scaleUp } from '../UI/utils'; 
+import { pointIntersectsRect, scaleUp } from '../UI/utils';
 
 /**
  * Insert an element at a point within the document.

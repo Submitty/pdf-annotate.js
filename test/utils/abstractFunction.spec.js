@@ -1,13 +1,14 @@
 import abstractFunction from '../../src/utils/abstractFunction';
 import { equal } from 'assert';
 
-describe('utils::abstractFunction', function () {
-  it('should throw when not implemented', function () {
+describe('utils::abstractFunction', function() {
+  it('should throw when not implemented', function() {
     let err;
 
     try {
       abstractFunction('fn');
-    } catch (e) {
+    }
+    catch (e) {
       err = e;
     }
 

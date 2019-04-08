@@ -1,6 +1,5 @@
 // Color picker component
 const COLORS = [
-  {hex: 'darkgoldenrod', name: 'Delete Color'},
   {hex: '#000000', name: 'Black'},
   {hex: '#EF4437', name: 'Red'},
   {hex: '#E71F63', name: 'Pink'},
@@ -20,12 +19,21 @@ const COLORS = [
 ];
 
 export default function initColorPicker(el, value, onChange) {
-  function setColor(value, fireOnChange = true) {
-    currentValue = value;
-    a.setAttribute('data-color', value);
-    a.style.background = value;
+  function getNameFromHex(hex) {
+    for (let color of COLORS) {
+      if (color.hex === hex) {
+        return color.name;
+      }
+    }
+  }
+
+  function setColor(hex, name, fireOnChange = true) {
+    a.setAttribute('data-color', hex);
+    a.setAttribute('data-name', name);
+    a.setAttribute('title', name);
+    a.style.background = hex;
     if (fireOnChange && typeof onChange === 'function') {
-      onChange(value);
+      onChange(hex);
     }
     closePicker();
   }
@@ -33,7 +41,8 @@ export default function initColorPicker(el, value, onChange) {
   function togglePicker() {
     if (isPickerOpen) {
       closePicker();
-    } else {
+    }
+    else {
       openPicker();
     }
   }
@@ -59,7 +68,9 @@ export default function initColorPicker(el, value, onChange) {
 
       COLORS.map(createColorOption).forEach((c) => {
         c.style.margin = '2px';
-        c.onclick = function () { setColor(c.getAttribute('data-color')); };
+        c.onclick = function() {
+          setColor(c.getAttribute('data-color'), c.getAttribute('data-name'));
+        };
         picker.appendChild(c);
       });
     }
@@ -74,6 +85,7 @@ export default function initColorPicker(el, value, onChange) {
     e.className = 'color';
     e.setAttribute('href', 'javascript://');
     e.setAttribute('title', color.name);
+    e.setAttribute('data-name', color.name);
     e.setAttribute('data-color', color.hex);
     e.style.background = color.hex;
     return e;
@@ -87,9 +99,9 @@ export default function initColorPicker(el, value, onChange) {
 
   let picker;
   let isPickerOpen = false;
-  let currentValue;
-  let a = createColorOption({hex: value});
+  let name = getNameFromHex(value);
+  let a = createColorOption({hex: value, name: name});
   a.onclick = togglePicker;
   el.appendChild(a);
-  setColor(value, false);
+  setColor(value, name, false);
 }

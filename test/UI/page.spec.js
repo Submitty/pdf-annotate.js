@@ -8,11 +8,11 @@ let page;
 let _pdfjsViewer = window.pdfjsViewer;
 let getAnnotations = PDFJSAnnotate.getAnnotations;
 
-describe('UI::page', function () {
-  before(function () {
+describe('UI::page', function() {
+  before(function() {
     _pdfjsViewer = window.pdfjsViewer;
     window.pdfjsViewer = mockPDFJSViewer();
-    PDFJSAnnotate.getAnnotations = function (documentId, pageNumber) {
+    PDFJSAnnotate.getAnnotations = function(documentId, pageNumber) {
       return new Promise((resolve, reject) => {
         resolve({
           documentId,
@@ -23,22 +23,22 @@ describe('UI::page', function () {
     };
   });
 
-  after(function () {
+  after(function() {
     window.pdfjsViewer = _pdfjsViewer;
     PDFJSAnnotate.getAnnotations = getAnnotations;
   });
 
-  beforeEach(function () {
+  beforeEach(function() {
     page = createPage(1);
   });
 
-  afterEach(function () {
+  afterEach(function() {
     if (page.parentNode) {
       page.parentNode.removeChild(page);
     }
   });
 
-  it('should create a page', function () {
+  it('should create a page', function() {
     let canvas = page.querySelector('canvas');
     let svg = page.querySelector('svg');
     let wrapper = page.querySelector('.canvasWrapper');
@@ -59,7 +59,7 @@ describe('UI::page', function () {
     equal(container.className, 'textLayer');
   });
 
-  it('should render a page', function (done) {
+  it('should render a page', function(done) {
     document.body.appendChild(page);
 
     renderPage(1, {
@@ -67,7 +67,7 @@ describe('UI::page', function () {
       pdfDocument: mockPDFDocument(),
       scale: 1,
       rotate: 0
-    }).then(function ([pdfPage, annotations]) {
+    }).then(function([pdfPage, annotations]) {
       equal(page.getAttribute('data-loaded'), 'true');
       equal(page.style.visibility, '');
 

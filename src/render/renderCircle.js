@@ -10,27 +10,30 @@ import normalizeColor from '../utils/normalizeColor';
  */
 export default function renderCircle(a) {
   let circle = createCircle(a);
-  let color = normalizeColor(a.color || '#f00')
+  let color = normalizeColor(a.color || '#f00');
 
-  if (a.type === 'circle')
+  if (a.type === 'circle') {
     setAttributes(circle, {
       stroke: color,
       fill: 'none',
       'stroke-width': 5
     });
-  if (a.type === 'emptycircle')
+  }
+  if (a.type === 'emptycircle') {
     setAttributes(circle, {
       stroke: color,
       fill: 'none',
       'stroke-width': 2
     });
+  }
 
-  if (a.type === 'fillcircle')
+  if (a.type === 'fillcircle') {
     setAttributes(circle, {
       stroke: color,
       fill: color,
       'stroke-width': 5
     });
+  }
 
   return circle;
 }

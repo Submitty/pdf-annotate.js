@@ -12,32 +12,32 @@ function createElement(content) {
 let page;
 let rect;
 
-describe('a11y::insertElementWithinElement', function () {
-  beforeEach(function () {
+describe('a11y::insertElementWithinElement', function() {
+  beforeEach(function() {
     page = mockPageWithTextLayer();
     document.body.appendChild(page);
     rect = page.querySelector('.textLayer').getBoundingClientRect();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     if (page && page.parentNode) {
       page.parentNode.removeChild(page);
     }
   });
 
-  it('should insert an element within another element', function () {
+  it('should insert an element within another element', function() {
     let el = createElement();
     let result = insertElementWithinElement(el, rect.left + 10 + (CHAR_WIDTH * 5), rect.top + 15, 1);
     strictEqual(result, true);
   });
-  
-  it('should not insert if no element can be found', function () {
+
+  it('should not insert if no element can be found', function() {
     let el = createElement();
     let result = insertElementWithinElement(el, rect.left, rect.top + 25, 1);
     strictEqual(result, false);
   });
 
-  it('should insert an element at the proper point', function () {
+  it('should insert an element at the proper point', function() {
     let el = createElement('hello');
     let textLayer = page.querySelector('.textLayer');
     insertElementWithinElement(el, rect.left + 10 + (CHAR_WIDTH * (checkCIEnvironment() ? 6 : 5)), rect.top + 15, 1);
@@ -45,7 +45,7 @@ describe('a11y::insertElementWithinElement', function () {
     strictEqual(node.innerHTML, 'abcde<div>hello</div>fghijklmnopqrstuvwxyz');
   });
 
-  it('should not insert within a nested element', function () {
+  it('should not insert within a nested element', function() {
     let el = createElement('hello');
     let textLayer = page.querySelector('.textLayer');
     let node = textLayer.children[0];

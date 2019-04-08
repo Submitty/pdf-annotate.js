@@ -5,8 +5,8 @@ import { equal } from 'assert';
 let hint;
 let getComments = PDFJSAnnotate.__storeAdapter.getComments;
 
-describe('a11y::renderScreenReaderComments', function () {
-  beforeEach(function () {
+describe('a11y::renderScreenReaderComments', function() {
+  beforeEach(function() {
     hint = document.createElement('div');
     hint.setAttribute('id', 'pdf-annotate-screenreader-12345');
     document.body.appendChild(hint);
@@ -19,10 +19,10 @@ describe('a11y::renderScreenReaderComments', function () {
         annotation: 12345,
         content: 'bar'
       }]);
-    }
+    };
   });
 
-  afterEach(function () {
+  afterEach(function() {
     if (hint && hint.parentNode) {
       hint.parentNode.removeChild(hint);
     }
@@ -30,10 +30,10 @@ describe('a11y::renderScreenReaderComments', function () {
     PDFJSAnnotate.__storeAdapter.getComments = getComments;
   });
 
-  it('should render comments', function (done) {
+  it('should render comments', function(done) {
     renderScreenReaderComments(null, 12345);
 
-    setTimeout(function () {
+    setTimeout(function() {
       let list = hint.querySelector('ol');
       equal(list.getAttribute('aria-label'), 'Comments');
       equal(list.children.length, 2);

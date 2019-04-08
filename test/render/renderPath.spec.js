@@ -1,8 +1,8 @@
 import renderPath from '../../src/render/renderPath';
 import { equal } from 'assert';
 
-describe('render::renderPath', function () {
-  it('should render a path', function () {
+describe('render::renderPath', function() {
+  it('should render a path', function() {
     let path = renderPath({
       lines: [[0, 5], [10, 15], [20, 35]]
     });
@@ -14,7 +14,7 @@ describe('render::renderPath', function () {
     equal(path.getAttribute('fill'), 'none');
   });
 
-  it('shohuld render with custom options', function () {
+  it('shohuld render with custom options', function() {
     let path = renderPath({
       color: 'f00',
       width: 5,

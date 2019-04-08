@@ -8,15 +8,14 @@ import {
   scale
 } from '../utils/mathUtils';
 
-
 export const BORDER_COLOR = '#00BFFF';
 
 const userSelectStyleSheet = createStyleSheet({
   body: {
     '-webkit-user-select': 'none',
-       '-moz-user-select': 'none',
-        '-ms-user-select': 'none',
-            'user-select': 'none'
+    '-moz-user-select': 'none',
+    '-ms-user-select': 'none',
+    'user-select': 'none'
   }
 });
 userSelectStyleSheet.setAttribute('data-pdf-annotate-user-select', 'true');
@@ -51,7 +50,7 @@ export function findSVGContainer(node) {
 export function findSVGAtPoint(x, y) {
   let elements = document.querySelectorAll('svg[data-pdf-annotate-container="true"]');
 
-  for (let i=0, l=elements.length; i<l; i++) {
+  for (let i = 0, l = elements.length; i < l; i++) {
     let el = elements[i];
     let rect = el.getBoundingClientRect();
 
@@ -75,7 +74,7 @@ export function findSVGAtPoint(x, y) {
  */
 export function findAnnotationAtPoint(x, y) {
   let el = null;
-  var candidate = document.elementFromPoint(x, y)
+  let candidate = document.elementFromPoint(x, y);
   while (!el && candidate && candidate !== document) {
     let type = candidate.getAttribute('data-pdf-annotate-type');
     if (type) {
@@ -146,8 +145,8 @@ export function scaleUp(svg, rect) {
 }
 
 export function convertToSvgRect(rect, svg, viewport) {
-  var pt1 = [rect.x, rect.y];
-  var pt2 = [rect.x + rect.width, rect.y + rect.height];
+  let pt1 = [rect.x, rect.y];
+  let pt2 = [rect.x + rect.width, rect.y + rect.height];
 
   pt1 = convertToSvgPoint(pt1, svg, viewport);
   pt2 = convertToSvgPoint(pt2, svg, viewport);
@@ -161,7 +160,6 @@ export function convertToSvgRect(rect, svg, viewport) {
 }
 
 export function convertToSvgPoint(pt, svg, viewport) {
-  let result = {};
   viewport = viewport || getMetadata(svg).viewport;
 
   let xform = [ 1, 0, 0, 1, 0, 0 ];
@@ -175,7 +173,6 @@ export function convertToSvgPoint(pt, svg, viewport) {
 }
 
 export function convertToScreenPoint(pt, svg, viewport) {
-  let result = {};
   viewport = viewport || getMetadata(svg).viewport;
 
   let xform = [ 1, 0, 0, 1, 0, 0 ];
@@ -255,7 +252,6 @@ export function disableUserSelect() {
     document.head.appendChild(userSelectStyleSheet);
   }
 }
-
 
 /**
  * Enable user ability to select text on page

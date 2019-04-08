@@ -6,7 +6,6 @@ const { UI } = PDFJSAnnotate;
 const svg = document.getElementById('svg');
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
 const PAGE_NUMBER = 1;
-let annotations;
 
 PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.LocalStoreAdapter());
 
@@ -16,14 +15,14 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
 });
 
 // Pen stuff
-(function () {
+(function() {
   let penColor;
   let penSize;
 
   function initPen() {
     let size = document.querySelector('.toolbar .pen-size');
-    for (let i=0; i<20; i++) {
-      size.appendChild(new Option(i+1, i+1));
+    for (let i = 0; i < 20; i++) {
+      size.appendChild(new Option(i + 1, i + 1));
     }
 
     setPen(
@@ -32,7 +31,7 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
     );
 
     UI.enablePen();
-    initColorPicker(document.querySelector('.toolbar .pen-color'), penColor, function (value) {
+    initColorPicker(document.querySelector('.toolbar .pen-color'), penColor, function(value) {
       setPen(penSize, value);
     });
   }
@@ -51,7 +50,7 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
       modified = true;
       penColor = color;
       localStorage.setItem(`${DOCUMENT_ID}/pen/color`, penColor);
-      
+
       let selected = document.querySelector('.toolbar .pen-color.color-selected');
       if (selected) {
         selected.classList.remove('color-selected');

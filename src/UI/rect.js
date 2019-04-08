@@ -32,8 +32,9 @@ function getSelectionRects() {
         rects[0].height > 0) {
       return rects;
     }
-  } catch (e) {}
-  
+  }
+  catch (e) {}
+
   return null;
 }
 
@@ -59,7 +60,7 @@ function handleDocumentMousedown(e) {
   overlay.style.border = `3px solid ${BORDER_COLOR}`;
   overlay.style.borderRadius = '3px';
   svg.parentNode.appendChild(overlay);
-  
+
   document.addEventListener('mousemove', handleDocumentMousemove);
   disableUserSelect();
 }
@@ -90,7 +91,6 @@ function handleDocumentMousemove(e) {
 function handleDocumentMouseup(e) {
   let rects;
   if (_type !== 'area' && (rects = getSelectionRects())) {
-    let svg = findSVGAtPoint(rects[0].left, rects[0].top);
     saveRect(_type, [...rects].map((r) => {
       return {
         top: r.top,
@@ -99,7 +99,8 @@ function handleDocumentMouseup(e) {
         height: r.height
       };
     }));
-  } else if (_type === 'area' && overlay) {
+  }
+  else if (_type === 'area' && overlay) {
     let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
     let rect = svg.getBoundingClientRect();
     saveRect(_type, [{
@@ -155,7 +156,8 @@ function saveRect(type, rects, color) {
   if (!color) {
     if (type === 'highlight') {
       color = 'FFFF00';
-    } else if (type === 'strikeout') {
+    }
+    else if (type === 'strikeout') {
       color = 'FF0000';
     }
   }
@@ -179,7 +181,7 @@ function saveRect(type, rects, color) {
       }, svg);
     }).filter((r) => r.width > 0 && r.height > 0 && r.x > -1 && r.y > -1)
   };
-  
+
   // Short circuit if no rectangles exist
   if (annotation.rectangles.length === 0) {
     return;

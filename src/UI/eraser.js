@@ -9,7 +9,7 @@ let previousPoint = null;
 
 /**
  *
- * @param {PointerEvent} e
+ * @param {PointerEvent} e DOM event to handle
  */
 function handleDocumentDown(e) {
   _canerase = true;
@@ -18,7 +18,7 @@ function handleDocumentDown(e) {
 
 /**
  *
- * @param {PointerEvent} e
+ * @param {PointerEvent} e DOM event to handle
  */
 function handleDocumentUp(e) {
   _canerase = false;
@@ -27,12 +27,15 @@ function handleDocumentUp(e) {
 
 /**
  *
- * @param {PointerEvent} e
+ * @param {PointerEvent} e DOM event to handle
  */
 function handleDocumentMouseMove(e) {
   if (!_canerase) {
     return;
   }
+
+  // This algorithm attempts to get the various points between the last
+  // PointerEvent and this one
   let check = [];
   let diffX = Math.abs(previousPoint[0] - e.clientX);
   let diffY = Math.abs(previousPoint[1] - e.clientY);

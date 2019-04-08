@@ -4,8 +4,8 @@ import render from './render';
 import UI from './UI';
 import config from './config';
 import uuid from './utils/uuid';
-import { 
-  findAnnotationAtPoint, 
+import {
+  findAnnotationAtPoint,
   findSVGContainer,
   convertToScreenPoint
 } from './UI/utils';
@@ -85,4 +85,4 @@ export default {
   config,
 
   uuid
-}
+};

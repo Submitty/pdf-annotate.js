@@ -6,6 +6,7 @@
   "scripts": {
     "test": "karma start --single-run",
     "start": "./scripts/web",
+    "lint": "./node_modules/bin/eslint .",
     "startindocker": "./scripts/web-docker",
     "build": "webpack && MINIFY=1 webpack",
     "coveralls": "cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
@@ -31,6 +32,7 @@
     "babel-plugin-add-module-exports": "^1.0.0",
     "chai": "^4.2.0",
     "coveralls": "^3.0.2",
+    "eslint": "^5.16.0",
     "istanbul-instrumenter-loader": "^3.0.1",
     "karma": "^4.0.1",
     "karma-chrome-launcher": "^2.2.0",

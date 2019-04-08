@@ -4,7 +4,7 @@ import { enableRect, disableRect } from '../../src/UI/rect';
 import { fireMouseEvent } from '../fireEvent';
 import mockAddAnnotation from '../mockAddAnnotation';
 import mockSVGContainer from '../mockSVGContainer';
-import mockGetAnnotations from "../mockGetAnnotations";
+import mockGetAnnotations from '../mockGetAnnotations';
 
 let svg;
 let div;
@@ -32,8 +32,8 @@ function simulateCreateRectAnnotation(type) {
   });
 }
 
-describe('UI::rect', function () {
-  beforeEach(function () {
+describe('UI::rect', function() {
+  beforeEach(function() {
     svg = mockSVGContainer();
     svg.style.width = '100px';
     svg.style.height = '100px';
@@ -58,7 +58,7 @@ describe('UI::rect', function () {
     PDFJSAnnotate.__storeAdapter.getAnnotations = mockGetAnnotations();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     if (svg.parentNode) {
       svg.parentNode.removeChild(svg);
     }
@@ -70,26 +70,26 @@ describe('UI::rect', function () {
     disableRect();
   });
 
-  after(function () {
+  after(function() {
     PDFJSAnnotate.__storeAdapter.addAnnotation = __addAnnotation;
     PDFJSAnnotate.__storeAdapter.getAnnotations = __getAnnotations;
   });
 
-  it('should do nothing when disabled', function (done) {
+  it('should do nothing when disabled', function(done) {
     enableRect();
     disableRect();
     simulateCreateRectAnnotation();
-    setTimeout(function () {
+    setTimeout(function() {
       equal(addAnnotationSpy.called, false);
       done();
     }, 0);
   });
 
-  it('should create an area annotation when enabled', function (done) {
+  it('should create an area annotation when enabled', function(done) {
     disableRect();
     enableRect('area');
     simulateCreateRectAnnotation();
-    setTimeout(function () {
+    setTimeout(function() {
       let args = addAnnotationSpy.getCall(0).args;
       equal(addAnnotationSpy.called, true);
       equal(args[0], 'test-document-id');

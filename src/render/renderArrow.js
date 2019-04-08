@@ -1,6 +1,6 @@
 import setAttributes from '../utils/setAttributes';
 import normalizeColor from '../utils/normalizeColor';
-import { 
+import {
   makePoint, makeVector, makeVectorFromPoints,
   magnitude, unitVector, crossProduct,
   addVector, multiplyVector, negateVector
@@ -14,10 +14,9 @@ import {
  * @return {SVGPathElement} The path to be rendered
  */
 export default function renderArrow(a) {
-  let d = [];
   let arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
 
-  if (a.lines.length == 2) {
+  if (a.lines.length === 2) {
     let p1 = a.lines[0];
     let p2 = a.lines[a.lines.length - 1];
 
@@ -32,22 +31,22 @@ export default function renderArrow(a) {
     let unitY = unitVector(crossProduct(unitX, unitZ));
     let thickness = a.width || 10;
 
-    let A = addVector(pt0, multiplyVector(unitY, thickness * 0.5)); 
-    let B = addVector(A, multiplyVector(unitX, magnitude(x) - thickness * 2.0)); 
-    let C = addVector(B, multiplyVector(unitY, thickness)); 
+    let A = addVector(pt0, multiplyVector(unitY, thickness * 0.5));
+    let B = addVector(A, multiplyVector(unitX, magnitude(x) - thickness * 2.0));
+    let C = addVector(B, multiplyVector(unitY, thickness));
     let D = pt1;
-    let G = addVector(pt0, multiplyVector(negateVector(unitY), thickness * 0.5)); 
-    let F = addVector(G, multiplyVector(unitX, magnitude(x) - thickness * 2.0)); 
-    let E = addVector(F, multiplyVector(negateVector(unitY), thickness)); 
+    let G = addVector(pt0, multiplyVector(negateVector(unitY), thickness * 0.5));
+    let F = addVector(G, multiplyVector(unitX, magnitude(x) - thickness * 2.0));
+    let E = addVector(F, multiplyVector(negateVector(unitY), thickness));
 
-    let points = '' + 
+    let points = '' +
       A.x + ',' + A.y + ' ' +
       B.x + ',' + B.y + ' ' +
       C.x + ',' + C.y + ' ' +
       D.x + ',' + D.y + ' ' +
       E.x + ',' + E.y + ' ' +
       F.x + ',' + F.y + ' ' +
-      G.x + ',' + G.y
+      G.x + ',' + G.y;
 
     setAttributes(arrow, {
       points: points,

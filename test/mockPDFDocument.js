@@ -2,8 +2,8 @@ import mockPDFPage from './mockPDFPage';
 
 export default function mockPDFDocument() {
   return {
-    getPage: function (pageNumber) {
+    getPage: function(pageNumber) {
       return Promise.resolve(mockPDFPage());
     }
   };
-}
+};

@@ -1,6 +1,5 @@
 import PDFJSAnnotate from '../PDFJSAnnotate';
 import config from '../config';
-import { appendChild } from '../render/appendChild';
 import {
   addEventListener,
   removeEventListener
@@ -13,7 +12,6 @@ import {
   findSVGAtPoint,
   getOffsetAnnotationRect,
   getMetadata,
-  scaleUp,
   convertToSvgPoint
 } from './utils';
 
@@ -211,7 +209,6 @@ function handleDocumentMousedown(e) {
  * @param {Event} e The DOM event that needs to be handled
  */
 function handleDocumentMousemove(e) {
-  let annotationId = overlay.getAttribute('data-target-id');
   let parentNode = overlay.parentNode;
   let rect = parentNode.getBoundingClientRect();
   let y = (dragStartY + (e.clientY - dragOffsetY));
@@ -306,7 +303,8 @@ function handleDocumentMouseup(e) {
           }
         }
       });
-    } else if (type === 'strikeout') {
+    }
+    else if (type === 'strikeout') {
       return;
     //   let { deltaX, deltaY } = getDelta('x1', 'y1');
     //   [...target].forEach(target, (t, i) => {

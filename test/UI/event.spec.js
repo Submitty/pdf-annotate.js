@@ -10,8 +10,8 @@ let rect;
 let annotationClickSpy;
 let annotationBlurSpy;
 
-describe('UI::event', function () {
-  beforeEach(function () {
+describe('UI::event', function() {
+  beforeEach(function() {
     svg = mockSVGContainer();
     text = mockTextAnnotation();
 
@@ -29,7 +29,7 @@ describe('UI::event', function () {
     addEventListener('annotation:blur', annotationBlurSpy);
   });
 
-  afterEach(function () {
+  afterEach(function() {
     // Blur to reset internal state of add/remove event
     fireMouseEvent(svg, 'click', {
       clientX: rect.left + 1,
@@ -44,33 +44,32 @@ describe('UI::event', function () {
     removeEventListener('annotation:blur', annotationBlurSpy);
   });
 
-  it('should emit an event when an annotation is clicked', function (done) {
-
+  it('should emit an event when an annotation is clicked', function(done) {
     fireMouseEvent(svg, 'click', {
       clientX: text.getBoundingClientRect().left + 5,
       clientY: text.getBoundingClientRect().top + 5
     });
 
-    setTimeout(function () {
+    setTimeout(function() {
       equal(annotationClickSpy.calledOnce, true);
       equal(annotationClickSpy.getCall(0).args[0], text);
       done();
     }, 0);
   });
 
-  it('should emit an event when an annotation is blurred', function (done) {
+  it('should emit an event when an annotation is blurred', function(done) {
     fireMouseEvent(svg, 'click', {
       clientX: text.getBoundingClientRect().left + 5,
       clientY: text.getBoundingClientRect().top + 5
     });
 
-    setTimeout(function () {
+    setTimeout(function() {
       fireMouseEvent(svg, 'click', {
         clientX: rect.left + 5,
         clientY: rect.top + 5
       });
 
-      setTimeout(function () {
+      setTimeout(function() {
         equal(annotationBlurSpy.calledOnce, true);
         equal(annotationBlurSpy.getCall(0).args[0], text);
         done();
@@ -78,7 +77,7 @@ describe('UI::event', function () {
     }, 0);
   });
 
-  it('should allow removing an event listener', function (done) {
+  it('should allow removing an event listener', function(done) {
     removeEventListener('annotation:click', annotationClickSpy);
 
     fireMouseEvent(svg, 'click', {
@@ -86,7 +85,7 @@ describe('UI::event', function () {
       clientY: rect.top + 15
     });
 
-    setTimeout(function () {
+    setTimeout(function() {
       equal(annotationClickSpy.called, false);
       done();
     }, 0);

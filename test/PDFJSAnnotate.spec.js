@@ -3,8 +3,8 @@ import { equal } from 'assert';
 
 let __storeAdapter;
 
-describe('PDFJSAnnotate', function () {
-  beforeEach(function () {
+describe('PDFJSAnnotate', function() {
+  beforeEach(function() {
     __storeAdapter = PDFJSAnnotate.__storeAdapter;
     PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.StoreAdapter({
       getAnnotations: (documentId, pageNumber) => {
@@ -23,11 +23,11 @@ describe('PDFJSAnnotate', function () {
     }));
   });
 
-  afterEach(function () {
+  afterEach(function() {
     PDFJSAnnotate.setStoreAdapter(__storeAdapter);
   });
 
-  it('should get annotations', function (done) {
+  it('should get annotations', function(done) {
     PDFJSAnnotate.getAnnotations().then((annotations) => {
       equal(annotations.annotations[0].type, 'point');
       done();
@@ -43,8 +43,8 @@ describe('PDFJSAnnotate', function () {
   //   }
   //   equal(error instanceof Error, true);
   // });
- 
-  it('should inject documentId and pageNumber', function (done) {
+
+  it('should inject documentId and pageNumber', function(done) {
     PDFJSAnnotate.getAnnotations('document-id', 'page-number').then((annotations) => {
       equal(annotations.documentId, 'document-id');
       equal(annotations.pageNumber, 'page-number');

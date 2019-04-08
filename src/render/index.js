@@ -1,6 +1,4 @@
-import PDFJSAnnotate from '../PDFJSAnnotate';
 import { appendChild, transformChild } from './appendChild';
-import renderScreenReaderHints from '../a11y/renderScreenReaderHints';
 
 /**
  * Render the response from PDFJSAnnotate.getStoreAdapter().getAnnotations to SVG

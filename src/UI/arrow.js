@@ -134,7 +134,8 @@ function savePoint(x, y) {
   if (lines.length < 2) {
     lines.push(point);
     return;
-  } else {
+  }
+  else {
     lines[1] = point; // update end point
   }
 

@@ -16,7 +16,7 @@ export default function renderPoint(a) {
   let rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
   let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 
-  setAttributes(outerSVG,  {
+  setAttributes(outerSVG, {
     width: SIZE,
     height: SIZE,
     x: a.x,

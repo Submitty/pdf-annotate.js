@@ -17,7 +17,7 @@ let input;
  */
 function handleDocumentMouseup(e) {
   if (input || !findSVGAtPoint(e.clientX, e.clientY)) {
-    return
+    return;
   }
 
   input = document.createElement('input');
@@ -51,7 +51,8 @@ function handleInputBlur() {
 function handleInputKeyup(e) {
   if (e.keyCode === 27) {
     closeInput();
-  } else if (e.keyCode === 13) {
+  }
+  else if (e.keyCode === 13) {
     savePoint();
   }
 }

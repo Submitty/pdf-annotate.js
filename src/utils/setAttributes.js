@@ -10,7 +10,7 @@ let keyCase = (key) => {
     key = key.replace(UPPER_REGEX, match => '-' + match.toLowerCase());
   }
   return key;
-}
+};
 
 /**
  * Set attributes for a node from a map

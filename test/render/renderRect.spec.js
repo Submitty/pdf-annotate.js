@@ -7,7 +7,8 @@ function assertG(g, l, c) {
 
   if (c) {
     equal(g.getAttribute('fill'), `#${c}`);
-  } else {
+  }
+  else {
     equal(g.getAttribute('fill'), 'none');
     equal(g.getAttribute('stroke'), '#f00');
   }
@@ -21,8 +22,8 @@ function assertRect(rect, x, y, w, h) {
   equal(rect.getAttribute('height'), h);
 }
 
-describe('render::renderRect', function () {
-  it('should render a rect', function () {
+describe('render::renderRect', function() {
+  it('should render a rect', function() {
     let rect = renderRect({
       type: 'highlight',
       color: '0ff',
@@ -40,7 +41,7 @@ describe('render::renderRect', function () {
     assertRect(rect.children[0], 50, 75, 100, 125);
   });
 
-  it('should render multiple rects', function () {
+  it('should render multiple rects', function() {
     let rect = renderRect({
       type: 'highlight',
       rectangles: [
@@ -64,7 +65,7 @@ describe('render::renderRect', function () {
     assertRect(rect.children[1], 100, 200, 300, 400);
   });
 
-  it('should render area rect without group', function () {
+  it('should render area rect without group', function() {
     let rect = renderRect({
       type: 'area',
       x: 100,
