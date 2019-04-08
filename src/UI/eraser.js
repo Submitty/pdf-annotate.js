@@ -5,6 +5,7 @@ import {
 } from './utils';
 
 let _canerase = false;
+let previousPoint = null;
 
 /**
  *
@@ -12,6 +13,7 @@ let _canerase = false;
  */
 function handleDocumentDown(e) {
   _canerase = true;
+  previousPoint = [e.clientX, e.clientY];
 }
 
 /**
@@ -20,6 +22,7 @@ function handleDocumentDown(e) {
  */
 function handleDocumentUp(e) {
   _canerase = false;
+  erase(findAnnotationAtPoint(e.clientX, e.clientY));
 }
 
 /**
@@ -27,7 +30,33 @@ function handleDocumentUp(e) {
  * @param {PointerEvent} e
  */
 function handleDocumentMouseMove(e) {
-  erase(findAnnotationAtPoint(e.clientX, e.clientY));
+  if (!_canerase) {
+    return;
+  }
+  let check = [];
+  let diffX = Math.abs(previousPoint[0] - e.clientX);
+  let diffY = Math.abs(previousPoint[1] - e.clientY);
+  if (diffX >= 1 || diffY >= 1) {
+    let maxSteps = Math.round(Math.max(diffX, diffY));
+    let subStepSize = Math.min(diffX, diffY) / maxSteps;
+    let smallerTest = diffX < diffY;
+    let startPoint = [
+      Math.min(previousPoint[0], e.clientX),
+      Math.min(previousPoint[1], e.clientY)
+    ];
+    for (let i = 0; i < maxSteps; i++) {
+      if (smallerTest) {
+        check.push([Math.round(startPoint[0] + (subStepSize * i)), Math.round(startPoint[1] + i)]);
+      }
+      else {
+        check.push([Math.round(startPoint[0] + i), Math.round(startPoint[1] + (subStepSize * i))]);
+      }
+    }
+  }
+  for (let point of check) {
+    erase(findAnnotationAtPoint(point[0], point[1]));
+  }
+  previousPoint = [e.clientX, e.clientY];
 }
 
 function erase(target) {
