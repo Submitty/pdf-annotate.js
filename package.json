@@ -1,6 +1,6 @@
 {
   "name": "pdf-annotate.js",
-  "version": "18.10.0",
+  "version": "19.04.0",
   "description": "Annotation layer for pdf.js",
   "main": "index.js",
   "scripts": {
@@ -20,6 +20,15 @@
     "annotation"
   ],
   "author": "Matt Zabriskie",
+  "contributors": [
+    {
+      "name": "Victor Nazzaro"
+    },
+    {
+      "name": "Matthew Peveler",
+      "email": "matt.peveler@gmail.com"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Submitty/pdf-annotate.js/issues"

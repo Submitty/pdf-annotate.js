@@ -7,3 +7,7 @@ web-dist/
 npm-debug.log
 .DS_Store
 .idea/
+shared/pdf.js
+shared/pdf.worker.js
+shared/pdf_viewer.css
+shared/pdf_viewer.js
