@@ -6,7 +6,7 @@
   "scripts": {
     "test": "karma start --single-run",
     "start": "./scripts/web",
-    "lint": "./node_modules/bin/eslint .",
+    "lint": "./node_modules/.bin/eslint .",
     "startindocker": "./scripts/web-docker",
     "build": "webpack && MINIFY=1 webpack",
     "coveralls": "cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
