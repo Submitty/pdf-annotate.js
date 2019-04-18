@@ -3,7 +3,7 @@ import StoreAdapter from './StoreAdapter';
 
 // StoreAdapter for working with localStorage and associated user id
 // This is ideal for testing, examples, and prototyping
-export default class LocalStoreAdapter extends StoreAdapter {
+export default class LocalUserStoreAdapter extends StoreAdapter {
   constructor(userId = 'user', globalEdit = false) {
     super({
       getAnnotations(documentId, pageNumber) {

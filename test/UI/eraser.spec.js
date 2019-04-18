@@ -1,11 +1,13 @@
 import { equal } from 'assert';
 import PDFJSAnnotate from '../../src/PDFJSAnnotate';
+import { enableEraser, disableEraser } from '../../src/UI/eraser';
+
 import { firePointerEvent } from '../fireEvent';
 import mockDeleteAnnotation from '../mockDeleteAnnotation';
 import mockGetAnnotations from '../mockGetAnnotations';
 import mockSVGContainer from '../mockSVGContainer';
 import mockTextAnnotation from '../mockTextAnnotation';
-import { enableEraser, disableEraser } from '../../src/UI/eraser';
+
 
 let svg;
 let text;

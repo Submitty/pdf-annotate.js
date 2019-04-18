@@ -1,4 +1,12 @@
 const webpack = require('webpack');
+const path = require('path');
+
+process.traceDeprecation = true;
+
+let reporters = ['progress', 'coverage-istanbul'];
+if (process.env.COVERALLS_REPO_TOKEN) {
+  reporters.push('coveralls');
+}
 
 module.exports = function(config) {
   config.set({
@@ -18,7 +26,7 @@ module.exports = function(config) {
       'test/**/*.spec.js': ['webpack', 'sourcemap']
     },
 
-    reporters: ['dots', 'coverage'],
+    reporters: reporters,
 
     port: 9876,
 
@@ -34,6 +42,7 @@ module.exports = function(config) {
 
     webpack: {
       mode: 'development',
+
       cache: true,
       devtool: 'inline-source-map',
       module: {
@@ -45,18 +54,18 @@ module.exports = function(config) {
             options: {
               presets: ['@babel/preset-env']
             }
-          }
-          /*
+          },
           {
             test: /\.js$/,
-            exclude: /(node_modules|test)/,
-            loader: 'istanbul-instrumenter-loader',
             enforce: 'post',
-            options: {
-              esModules: true
-            }
+            use: {
+              loader: 'istanbul-instrumenter-loader',
+              options: {
+                esModules: true
+              }
+            },
+            include: path.resolve('src/')
           }
-          */
         ]
       },
       plugins: [
@@ -71,13 +80,12 @@ module.exports = function(config) {
       stats: {
         colors: true
       }
+    },
+    coverageIstanbulReporter: {
+      reports: [ 'html', 'lcov', 'text-summary' ],
+      dir: path.join(__dirname, 'coverage'),
+      combineBrowserReports: true,
+      fixWebpackSourcePaths: true
     }
-  /*
-    coverageReporter: {
-      type: 'lcov',
-      dir: 'coverage/',
-      subdir: '.'
-    }
-  */
   });
 };
