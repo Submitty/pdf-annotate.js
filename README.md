@@ -1,9 +1,11 @@
 # pdf-annotate.js
 
-[![build 
-status](https://img.shields.io/travis/com/Submitty/pdf-annotate.js.svg?style=flat-square)](https://travis-ci.com/Submitty/pdf-annotate.js)
+[![Build Status](https://travis-ci.com/Submitty/pdf-annotate.js.svg?branch=master)](https://travis-ci.com/Submitty/pdf-annotate.js)
+[![Coverage Status](https://coveralls.io/repos/github/Submitty/pdf-annotate.js/badge.svg?branch=master)](https://coveralls.io/github/Submitty/pdf-annotate.js?branch=master)
 
-Annotation layer for [pdf.js](https://github.com/mozilla/pdf.js). Fork of [instructure/pdf-annotate.js](https://github.com/instructure/pdf-annotate.js/) and DynamicEnvironmentSystems/pdf-annotate.js, developed for usage within Submitty.
+Annotation layer for [PDF.js](https://github.com/mozilla/pdf.js). 
+
+Combined fork of archived [instructure/pdf-annotate.js](https://github.com/instructure/pdf-annotate.js/) and deleted DynamicEnvironmentSystems/pdf-annotate.js. Under active development for usage within [Submitty](https://github.com/Submitty/Submitty).
 
 ## Objectives
 
@@ -60,5 +62,8 @@ $ open http://127.0.0.1:8080
 
 # run tests
 $ npm test
+
+# lint the code
+$ npm run lint
 ```
 
