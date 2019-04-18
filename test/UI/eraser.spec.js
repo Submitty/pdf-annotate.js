@@ -8,7 +8,6 @@ import mockGetAnnotations from '../mockGetAnnotations';
 import mockSVGContainer from '../mockSVGContainer';
 import mockTextAnnotation from '../mockTextAnnotation';
 
-
 let svg;
 let text;
 let deleteAnnotationSpy;
