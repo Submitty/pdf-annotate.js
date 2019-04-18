@@ -3,7 +3,10 @@ const path = require('path');
 
 process.traceDeprecation = true;
 
-let reporters = ['progress', 'coverage-istanbul'];
+let reporters = [
+  process.env.TRAVIS ? 'dots' : 'progress',
+  'coverage-istanbul'
+];
 if (process.env.COVERALLS_REPO_TOKEN) {
   reporters.push('coveralls');
 }
