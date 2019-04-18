@@ -1,8 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
 
-process.traceDeprecation = true;
-
 let reporters = [
   process.env.TRAVIS ? 'dots' : 'progress',
   'coverage-istanbul'
