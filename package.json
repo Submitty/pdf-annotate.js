@@ -1,6 +1,6 @@
 {
-  "name": "pdf-annotate.js",
-  "version": "19.04.0",
+  "name": "@submitty/pdf-annotate.js",
+  "version": "2.0.2",
   "description": "Annotation layer for pdf.js",
   "main": "index.js",
   "scripts": {
@@ -67,5 +67,13 @@
   "dependencies": {
     "create-stylesheet": "^0.3.0",
     "object-assign": "^4.1.1"
-  }
+  },
+  "files": [
+    "dist",
+    "src",
+    "index.js",
+    "LICENSE.md",
+    "README.md",
+    "webpack.config.js"
+  ]
 }

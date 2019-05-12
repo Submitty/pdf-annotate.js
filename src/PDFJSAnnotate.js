@@ -1,5 +1,6 @@
 import StoreAdapter from './adapter/StoreAdapter';
 import LocalStoreAdapter from './adapter/LocalStoreAdapter';
+import LocalUserStoreAdapter from './adapter/LocalUserStoreAdapter';
 import render from './render';
 import UI from './UI';
 import config from './config';
@@ -25,6 +26,12 @@ export default {
    * Implementation of StoreAdapter that stores annotation data to localStorage.
    */
   LocalStoreAdapter,
+
+  /**
+   * Implementation of StoreAdapter that stores annotation data to localStorage particular
+   * to a specific user
+   */
+  LocalUserStoreAdapter,
 
   /**
    * Abstract instance of StoreAdapter
