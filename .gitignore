@@ -11,3 +11,4 @@ shared/pdf.js
 shared/pdf.worker.js
 shared/pdf_viewer.css
 shared/pdf_viewer.js
+shared/cmaps/

@@ -39,7 +39,10 @@ document.getElementById('content-wrapper').addEventListener('scroll', (e) => {
 });
 
 function render() {
-  pdfjsLib.getDocument(RENDER_OPTIONS.documentId).then((pdf) => {
+  pdfjsLib.getDocument({
+    url: RENDER_OPTIONS.documentId,
+    cMapUrl: 'shared/cmaps/',
+    cMapPacked: true}).then((pdf) => {
     RENDER_OPTIONS.pdfDocument = pdf;
 
     let viewer = document.getElementById('viewer');
