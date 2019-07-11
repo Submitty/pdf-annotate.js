@@ -1,5 +1,5 @@
 {
     "globals": {
-        "pdfjsLib": "readeable"
+        "pdfjsLib": "readonly"
     }
 }
