@@ -12,10 +12,10 @@
   },
 
   "globals": {
-    "document": true,
-    "navigator": true,
-    "window": true,
-    "pdfjsViewer": "readeable"
+    "document": "writable",
+    "navigator": "writable",
+    "window": "writable",
+    "pdfjsViewer": "readonly"
   },
 
   "rules": {
