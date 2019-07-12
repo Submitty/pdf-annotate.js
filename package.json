@@ -55,7 +55,7 @@
     "karma-webpack": "^4.0.2",
     "lolex": "^3.1.0",
     "mocha": "^6.1.4",
-    "pdfjs-dist": "2.0.943",
+    "pdfjs-dist": "2.1.266",
     "sinon": "^7.3.2",
     "sinon-chai": "^3.3.0",
     "twitter-text": "^1.13.4",
