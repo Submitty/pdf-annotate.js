@@ -9,16 +9,17 @@ import {
 
 export const BORDER_COLOR = '#00BFFF';
 
-const userSelectStyleSheet = `
-<style type="text/css" data-pdf-annotate-user-select="true">
+const userSelectStyleSheet = document.createElement('style');
+userSelectStyleSheet.innerHTML = `
 body {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
-</style>
 `;
+
+userSelectStyleSheet.setAttribute('data-pdf-annotate-user-select', 'true');
 
 /**
  * Find the SVGElement that contains all the annotations for a page
