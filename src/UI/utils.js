@@ -1,4 +1,3 @@
-import createStyleSheet from 'create-stylesheet';
 import { getTranslation } from '../render/appendChild';
 import {
   applyTransform,
@@ -10,15 +9,16 @@ import {
 
 export const BORDER_COLOR = '#00BFFF';
 
-const userSelectStyleSheet = createStyleSheet({
-  body: {
-    '-webkit-user-select': 'none',
-    '-moz-user-select': 'none',
-    '-ms-user-select': 'none',
-    'user-select': 'none'
-  }
-});
-userSelectStyleSheet.setAttribute('data-pdf-annotate-user-select', 'true');
+const userSelectStyleSheet = `
+<style type="text/css" data-pdf-annotate-user-select="true">
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+</style>
+`;
 
 /**
  * Find the SVGElement that contains all the annotations for a page

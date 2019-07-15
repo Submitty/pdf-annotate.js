@@ -1,4 +1,3 @@
-import objectAssign from 'object-assign';
 import renderLine from './renderLine';
 import renderPath from './renderPath';
 import renderPoint from './renderPoint';
@@ -75,7 +74,7 @@ function transform(node, viewport) {
     });
 
     // Transform path but keep scale at 100% since it will be handled natively
-    transform(path, objectAssign({}, viewport, { scale: 1 }));
+    transform(path, Object.assign({}, viewport, { scale: 1 }));
 
     switch (viewport.rotation % 360) {
       case 90:
