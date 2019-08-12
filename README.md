@@ -7,6 +7,8 @@ Annotation layer for [PDF.js](https://github.com/mozilla/pdf.js).
 
 Combined fork of archived [instructure/pdf-annotate.js](https://github.com/instructure/pdf-annotate.js/) and deleted DynamicEnvironmentSystems/pdf-annotate.js. Under active development for usage within [Submitty](https://github.com/Submitty/Submitty).
 
+To report issues for pdf-annotate.js, please file them under the [Submitty/Submitty](https://github.com/Submitty/Submitty) repository.
+
 ## Objectives
 
 - Provide a low level annotation layer for [pdf.js](https://github.com/mozilla/pdf.js).
