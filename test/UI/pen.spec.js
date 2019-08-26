@@ -1,18 +1,18 @@
-import { equal } from 'assert';
+import { equal, deepStrictEqual } from 'assert';
 import PDFJSAnnotate from '../../src/PDFJSAnnotate';
 import { firePointerEvent } from '../fireEvent';
 import mockAddAnnotation from '../mockAddAnnotation';
 import mockGetAnnotations from '../mockGetAnnotations';
 import mockSVGContainer from '../mockSVGContainer';
-import { setPen, enablePen, disablePen } from '../../src/UI/pen';
+import { setPen, getPen, enablePen, disablePen } from '../../src/UI/pen';
 
 let svg;
 let addAnnotationSpy;
 let __addAnnotation = PDFJSAnnotate.__storeAdapter.addAnnotation;
 let __getAnnotations = PDFJSAnnotate.__storeAdapter.getAnnotations;
 
-function simulateCreateDrawingAnnotation(penSize, penColor) {
-  setPen(penSize, penColor);
+function simulateCreateDrawingAnnotation() {
+  setPen();
 
   firePointerEvent(svg, 'pointerdown', {
     clientX: 10,
@@ -89,5 +89,20 @@ describe('UI::pen', function() {
       equal(args[2].lines.length, 2);
       done();
     }, 0);
+  });
+
+  it('allow floating point pen size', () => {
+    setPen(0.1);
+    deepStrictEqual(getPen(), {size: 0.1, color: '000000'});
+  });
+
+  it('round floating point pen size to 2 decimal points', () => {
+    setPen(0.123456);
+    deepStrictEqual(getPen(), {size: 0.12, color: '000000'});
+  });
+
+  it('parseFloat run on penSize', () => {
+    setPen('0.12');
+    deepStrictEqual(getPen(), {size: 0.12, color: '000000'});
   });
 });

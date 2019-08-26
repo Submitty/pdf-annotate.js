@@ -125,12 +125,24 @@ function savePoint(x, y) {
 /**
  * Set the attributes of the pen.
  *
- * @param {Number} penSize The size of the lines drawn by the pen
+ * @param {Number} penSize The size of the lines drawn by the pen, rounded to 2 decimal places
  * @param {String} penColor The color of the lines drawn by the pen
  */
 export function setPen(penSize = 1, penColor = '000000') {
-  _penSize = parseInt(penSize, 10);
+  _penSize = Math.round(parseFloat(penSize) * 1e2) / 1e2;
   _penColor = penColor;
+}
+
+/**
+ * Return pen attributes of the pen
+ *
+ * @return {Object} Object with size and color
+ */
+export function getPen() {
+  return {
+    size: _penSize,
+    color: _penColor
+  };
 }
 
 /**
