@@ -1,18 +1,20 @@
 // Transform point by matrix
 //
 export function applyTransform(p, m) {
-  let xt = p[0] * m[0] + p[1] * m[2] + m[4];
-  let yt = p[0] * m[1] + p[1] * m[3] + m[5];
-  return [xt, yt];
+  return [
+    p[0] * m[0] + p[1] * m[2] + m[4],
+    p[0] * m[1] + p[1] * m[3] + m[5]
+  ];
 };
 
 // Transform point by matrix inverse
 //
 export function applyInverseTransform(p, m) {
   let d = m[0] * m[3] - m[1] * m[2];
-  let xt = (p[0] * m[3] - p[1] * m[2] + m[2] * m[5] - m[4] * m[3]) / d;
-  let yt = (-p[0] * m[1] + p[1] * m[0] + m[4] * m[1] - m[5] * m[0]) / d;
-  return [xt, yt];
+  return [
+    (p[0] * m[3] - p[1] * m[2] + m[2] * m[5] - m[4] * m[3]) / d,
+    (-p[0] * m[1] + p[1] * m[0] + m[4] * m[1] - m[5] * m[0]) / d
+  ];
 };
 
 // Concatenates two transformation matrices together and returns the result.
