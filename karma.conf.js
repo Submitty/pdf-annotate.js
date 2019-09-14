@@ -83,7 +83,7 @@ module.exports = function(config) {
       }
     },
     coverageIstanbulReporter: {
-      reports: [ 'html', 'lcov', 'text-summary' ],
+      reports: [ 'html', 'lcovonly', 'text-summary' ],
       dir: path.join(__dirname, 'coverage'),
       combineBrowserReports: true,
       fixWebpackSourcePaths: true
