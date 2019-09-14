@@ -1,7 +1,7 @@
 # pdf-annotate.js
 
 [![Build Status](https://travis-ci.com/Submitty/pdf-annotate.js.svg?branch=master)](https://travis-ci.com/Submitty/pdf-annotate.js)
-[![Coverage Status](https://coveralls.io/repos/github/Submitty/pdf-annotate.js/badge.svg?branch=master)](https://coveralls.io/github/Submitty/pdf-annotate.js?branch=master)
+[![codecov](https://codecov.io/gh/Submitty/pdf-annotate.js/branch/master/graph/badge.svg)](https://codecov.io/gh/Submitty/pdf-annotate.js)
 
 Annotation layer for [PDF.js](https://github.com/mozilla/pdf.js). 
 
