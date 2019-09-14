@@ -5,9 +5,6 @@ let reporters = [
   process.env.TRAVIS ? 'dots' : 'progress',
   'coverage-istanbul'
 ];
-if (process.env.COVERALLS_REPO_TOKEN) {
-  reporters.push('coveralls');
-}
 
 module.exports = function(config) {
   config.set({
