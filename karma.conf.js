@@ -5,9 +5,6 @@ let reporters = [
   process.env.TRAVIS ? 'dots' : 'progress',
   'coverage-istanbul'
 ];
-if (process.env.COVERALLS_REPO_TOKEN) {
-  reporters.push('coveralls');
-}
 
 module.exports = function(config) {
   config.set({
@@ -83,7 +80,7 @@ module.exports = function(config) {
       }
     },
     coverageIstanbulReporter: {
-      reports: [ 'html', 'lcov', 'text-summary' ],
+      reports: [ 'html', 'lcovonly', 'text-summary' ],
       dir: path.join(__dirname, 'coverage'),
       combineBrowserReports: true,
       fixWebpackSourcePaths: true
