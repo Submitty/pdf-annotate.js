@@ -20,10 +20,13 @@ let lines = [];
  * @param {PointerEvent} e The DOM event to be handled
  */
 function handleDocumentPointerdown(e) {
-  e.preventDefault();
   path = null;
   lines = [];
   _candraw = true;
+  if (!e.srcElement.classList.contains('annotationLayer')) {
+    return;
+  }
+  e.preventDefault();
 }
 
 /**
@@ -179,4 +182,3 @@ export function disablePen() {
   document.removeEventListener('keyup', handleDocumentKeyup);
   enableUserSelect();
 }
-
