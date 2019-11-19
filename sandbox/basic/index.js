@@ -35,7 +35,7 @@ scale.onchange = render;
 rotation.onchange = render;
 
 function render() {
-  let viewport = data.page.getViewport(scale.value, rotation.value);
+  let viewport = data.page.getViewport({scale: scale.value, rotation: rotation.value});
   let canvas = document.getElementById('canvas');
   let svg = document.getElementById('svg');
   let canvasContext = canvas.getContext('2d');

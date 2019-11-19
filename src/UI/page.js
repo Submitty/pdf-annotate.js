@@ -63,7 +63,7 @@ export function renderPage(pageNumber, renderOptions) {
     let canvas = page.querySelector('.canvasWrapper canvas');
     let canvasContext = canvas.getContext('2d', {alpha: false});
     let totalRotation = (rotate + pdfPage.rotate) % 360;
-    let viewport = pdfPage.getViewport(scale, totalRotation);
+    let viewport = pdfPage.getViewport({scale: scale, rotation: totalRotation});
     let transform = scalePage(pageNumber, viewport, canvasContext);
 
     // Render the page
