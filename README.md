@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.com/Submitty/pdf-annotate.js.svg?branch=master)](https://travis-ci.com/Submitty/pdf-annotate.js)
 [![codecov](https://codecov.io/gh/Submitty/pdf-annotate.js/branch/master/graph/badge.svg)](https://codecov.io/gh/Submitty/pdf-annotate.js)
 
-Annotation layer for [PDF.js](https://github.com/mozilla/pdf.js). 
+Annotation layer for [PDF.js](https://github.com/mozilla/pdf.js).
 
 Combined fork of archived [instructure/pdf-annotate.js](https://github.com/instructure/pdf-annotate.js/) and deleted DynamicEnvironmentSystems/pdf-annotate.js. Under active development for usage within [Submitty](https://github.com/Submitty/Submitty).
 
@@ -35,7 +35,7 @@ const RENDER_OPTIONS = {
 pdfjsLib.workerSrc = 'pdf.worker.js';
 PDFJSAnnotate.setStoreAdapter(MyStoreAdapter);
 
-pdfjsLib.getDocument(RENDER_OPTIONS.documentId).then((pdf) => {
+pdfjsLib.getDocument(RENDER_OPTIONS.documentId).promise.then((pdf) => {
   RENDER_OPTIONS.pdfDocument = pdf;
   VIEWER.appendChild(UI.createPage(1));
   UI.renderPage(1, RENDER_OPTIONS);
@@ -68,4 +68,3 @@ $ npm test
 # lint the code
 $ npm run lint
 ```
-
