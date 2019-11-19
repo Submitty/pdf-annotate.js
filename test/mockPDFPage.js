@@ -7,6 +7,9 @@ export default function mockPDFPage(width = 612, height = 792) {
     },
 
     render: function(renderOptions) {
+      return {
+        promise: Promise.resolve(true)
+      };
     },
 
     getTextContent: function() {
