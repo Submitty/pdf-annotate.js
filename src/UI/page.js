@@ -68,7 +68,7 @@ export function renderPage(pageNumber, renderOptions) {
 
     // Render the page
     return Promise.all([
-      pdfPage.render({ canvasContext, viewport, transform }),
+      pdfPage.render({ canvasContext, viewport, transform }).promise,
       PDFJSAnnotate.render(svg, viewport, annotations)
     ]).then(() => {
       // Text content is needed for a11y, but is also necessary for creating

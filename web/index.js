@@ -39,10 +39,13 @@ document.getElementById('content-wrapper').addEventListener('scroll', (e) => {
 });
 
 function render() {
-  pdfjsLib.getDocument({
+  const loadingTask = pdfjsLib.getDocument({
     url: RENDER_OPTIONS.documentId,
     cMapUrl: 'shared/cmaps/',
-    cMapPacked: true}).then((pdf) => {
+    cMapPacked: true
+  });
+
+  loadingTask.promise.then((pdf) => {
     RENDER_OPTIONS.pdfDocument = pdf;
 
     let viewer = document.getElementById('viewer');

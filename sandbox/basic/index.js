@@ -11,7 +11,9 @@ PDFJSAnnotate.StoreAdapter.getAnnotations = (documentId, pageNumber) => {
   });
 };
 
-pdfjsViewer.getDocument(DOCUMENT_ID).then((pdf) => {
+const loadingTask = pdfjsViewer.getDocument(DOCUMENT_ID);
+
+loadingTask.promise.then((pdf) => {
   Promise.all([
     pdf.getPage(1),
     PDFJSAnnotate.getAnnotations(1)
