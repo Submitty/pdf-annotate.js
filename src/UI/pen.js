@@ -23,9 +23,9 @@ function handleDocumentPointerdown(e) {
   path = null;
   lines = [];
   _candraw = true;
-  if (!e.srcElement.classList.contains('annotationLayer')) {
+  /* if (!e.srcElement.classList.contains('annotationLayer')) {
     return;
-  }
+  } */
   e.preventDefault();
 }
 
