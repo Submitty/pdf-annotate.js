@@ -15,7 +15,7 @@ install:
 
 script:
   - npm run lint
-  - npm test
+  - npm test -- --browsers ChromeHeadless
   - npm run build
 
 after_script:

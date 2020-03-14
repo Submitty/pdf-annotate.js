@@ -34,7 +34,10 @@ module.exports = function(config) {
 
     autoWatch: true,
 
-    browsers: ['FirefoxHeadless', 'ChromeHeadless'],
+    browsers: [
+      'FirefoxHeadless',
+      'ChromeHeadless'
+    ],
 
     singleRun: false,
 
