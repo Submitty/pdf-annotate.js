@@ -1,21 +1,20 @@
 const path = require('path');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 let fileName = 'pdf-annotate';
-let plugins = [];
+let optimization = {};
 
 if (process.env.MINIFY) {
   fileName += '.min';
-  plugins.push(
-    new UglifyJsPlugin({
-      sourceMap: true
-    })
-  );
+  optimization = {
+    minimize: true,
+    minimizer: [new TerserPlugin()]
+  };
 }
 
 module.exports = {
   devtool: 'source-map',
-  plugins: plugins,
+  optimization: optimization,
   entry: './index.js',
   mode: 'production',
   output: {
