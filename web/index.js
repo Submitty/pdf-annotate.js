@@ -1,6 +1,14 @@
-import twitter from 'twitter-text';
 import PDFJSAnnotate from '../';
 import initColorPicker from './shared/initColorPicker';
+
+function htmlEscape(text) {
+  return text
+    .replace('&', '&amp;')
+    .replace('>', '&gt;')
+    .replace('<', '&lt;')
+    .replace('"', '&quot;')
+    .replace("'", '&#39;');
+}
 
 const { UI } = PDFJSAnnotate;
 const documentId = 'example.pdf';
@@ -410,7 +418,7 @@ render();
   function insertComment(comment) {
     let child = document.createElement('div');
     child.className = 'comment-list-item';
-    child.innerHTML = twitter.autoLink(twitter.htmlEscape(comment.content));
+    child.innerHTML = htmlEscape(comment.content);
 
     commentList.appendChild(child);
   }
