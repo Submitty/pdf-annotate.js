@@ -11,7 +11,7 @@ addons:
   firefox: latest
 
 install:
-  - npm install
+  - npm ci
 
 script:
   - npm run lint
