@@ -2,14 +2,14 @@
 
 - Introduction
 - API
-  - [PDFJSAnnotate](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/api/PDFJSAnnotate.md)
-    - [StoreAdapter](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/api/StoreAdapter.md)
+  - [PDFJSAnnotate](https://github.com/Submitty/pdf-annotate.js/blob/master/docs/api/PDFJSAnnotate.md)
+    - [StoreAdapter](https://github.com/Submitty/pdf-annotate.js/blob/master/docs/api/StoreAdapter.md)
     - AbstractStoreAdapter
-    - [UI](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/api/UI.md)
+    - [UI](https://github.com/Submitty/pdf-annotate.js/blob/master/docs/api/UI.md)
 - Annotations
-  - [Area](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/annotations/Area.md)
-  - [Drawing](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/annotations/Drawing.md)
-  - [Highlight](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/annotations/Highlight.md)
-  - [Point](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/annotations/Point.md)
-  - [Strikeout](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/annotations/Strikeout.md)
-  - [Textbox](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/annotations/Textbox.md)
+  - [Area](https://github.com/Submitty/pdf-annotate.js/blob/master/docs/annotations/Area.md)
+  - [Drawing](https://github.com/Submitty/pdf-annotate.js/blob/master/docs/annotations/Drawing.md)
+  - [Highlight](https://github.com/Submitty/pdf-annotate.js/blob/master/docs/annotations/Highlight.md)
+  - [Point](https://github.com/Submitty/pdf-annotate.js/blob/master/docs/annotations/Point.md)
+  - [Strikeout](https://github.com/Submitty/pdf-annotate.js/blob/master/docs/annotations/Strikeout.md)
+  - [Textbox](https://github.com/Submitty/pdf-annotate.js/blob/master/docs/annotations/Textbox.md)
