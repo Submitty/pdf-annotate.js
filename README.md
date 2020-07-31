@@ -11,7 +11,7 @@ To report issues for pdf-annotate.js, please file them under the [Submitty/Submi
 
 ## Objectives
 
-- Provide a low level annotation layer for [pdf.js](https://github.com/mozilla/pdf.js).
+- Provide a low level annotation layer for [PDF.js](https://github.com/mozilla/pdf.js).
 - Optional high level UI for managing annotations.
 - Agnostic of backend, just supply your own `StoreAdapter` to fetch/store data.
 - Prescribe annotation format.
@@ -21,7 +21,6 @@ To report issues for pdf-annotate.js, please file them under the [Submitty/Submi
 ```js
 import pdfjsLib from 'pdfjs-dist/build/pdf';
 import PDFJSAnnotate from 'pdfjs-annotate';
-import MyStoreAdapter from './myStoreAdapter';
 
 const { UI } = PDFJSAnnotate;
 const VIEWER = document.getElementById('viewer');
@@ -33,7 +32,7 @@ const RENDER_OPTIONS = {
 };
 
 pdfjsLib.workerSrc = 'pdf.worker.js';
-PDFJSAnnotate.setStoreAdapter(MyStoreAdapter);
+PDFJSAnnotate.setStoreAdapter(PDFJSAnnotate.LocalStoreAdapter);
 
 pdfjsLib.getDocument(RENDER_OPTIONS.documentId).promise.then((pdf) => {
   RENDER_OPTIONS.pdfDocument = pdf;
@@ -42,7 +41,7 @@ pdfjsLib.getDocument(RENDER_OPTIONS.documentId).promise.then((pdf) => {
 });
 ```
 
-See more [examples](https://github.com/Submitty/pdf-annotate.js/tree/master/examples).
+See [/web](https://github.com/Submitty/pdf-annotate.js/tree/master/web) for an example web client for annotating PDFs.
 
 ## Documentation
 
