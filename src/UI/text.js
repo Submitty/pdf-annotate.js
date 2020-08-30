@@ -21,7 +21,7 @@ function handleDocumentMouseup(e) {
   if (input || !findSVGAtPoint(e.clientX, e.clientY)) {
     return;
   }
-  
+
   input = document.createElement('input');
   input.setAttribute('id', 'pdf-annotate-text-input');
   input.setAttribute('placeholder', 'Enter text');
