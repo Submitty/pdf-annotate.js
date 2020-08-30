@@ -8,8 +8,8 @@ const PAGE_TEMPLATE = `
     <div class="canvasWrapper">
       <canvas></canvas>
     </div>
-    <div class="` + config.textLayerName + `"></div>
     <svg class="` + config.annotationLayerName + `"></svg>
+    <div class="` + config.textLayerName + `"></div>
   </div>
 `;
 

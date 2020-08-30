@@ -21,9 +21,7 @@ function handleDocumentMouseup(e) {
   if (input || !findSVGAtPoint(e.clientX, e.clientY)) {
     return;
   }
-  if (!e.srcElement.classList.contains('annotationLayer')) {
-    return;
-  }
+  
   input = document.createElement('input');
   input.setAttribute('id', 'pdf-annotate-text-input');
   input.setAttribute('placeholder', 'Enter text');

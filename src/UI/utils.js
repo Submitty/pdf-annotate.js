@@ -66,24 +66,25 @@ export function findSVGAtPoint(x, y) {
 /**
  * Find an Element that represents an annotation at a given point.
  *
- * IMPORTANT: Requires the annotation layer to be the top most element so
- *            either use z-ordering or make it the leaf container.
- *
  * @param {Number} x The x coordinate of the point
  * @param {Number} y The y coordinate of the point
- * @return {Element} The annotation element or null if one can't be found
+ * @return {Element|null} The annotation element or null if one can't be found
  */
 export function findAnnotationAtPoint(x, y) {
-  let el = null;
-  let candidate = document.elementFromPoint(x, y);
-  while (!el && candidate && candidate !== document) {
-    let type = candidate.getAttribute('data-pdf-annotate-type');
-    if (type) {
-      el = candidate;
-    }
-    candidate = candidate.parentNode;
+  let svg = findSVGAtPoint(x, y);
+
+  if (!svg) {
+    return;
   }
-  return el;
+
+  let elements = svg.querySelectorAll('[data-pdf-annotate-type]');
+  for (let element of elements) {
+    if (pointIntersectsRect(x, y, element.getBoundingClientRect())) {
+      return element;
+    }
+  }
+
+  return null;
 }
 
 /**

@@ -64,9 +64,6 @@ function saveToStorage(x, y) {
  * @param {PointerEvent} e The DOM event to be handled
  */
 function handleDocumentPointermove(e) {
-  if (!e.srcElement.classList.contains('annotationLayer')) {
-    return;
-  }
   if (_candraw) {
     savePoint(e.clientX, e.clientY);
   }
