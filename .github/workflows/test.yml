@@ -1,6 +1,6 @@
 name: Test
 
-on: ['branches', 'pull_requests']
+on: ['push', 'pull_request']
 
 jobs:
   test:
