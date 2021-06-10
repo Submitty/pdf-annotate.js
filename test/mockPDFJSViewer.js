@@ -6,8 +6,11 @@ DefaultTextLayerFactory.prototype.createTextLayerBuilder = function() {
   };
 };
 
+function EventBus() {}
+
 export default function mockPDFJSViewer() {
   return {
-    DefaultTextLayerFactory
+    DefaultTextLayerFactory,
+    EventBus
   };
 };
