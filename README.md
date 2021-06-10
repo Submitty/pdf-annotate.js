@@ -31,7 +31,7 @@ const RENDER_OPTIONS = {
   rotate: 0
 };
 
-pdfjsLib.workerSrc = 'pdf.worker.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.js';
 PDFJSAnnotate.setStoreAdapter(PDFJSAnnotate.LocalStoreAdapter);
 
 pdfjsLib.getDocument(RENDER_OPTIONS.documentId).promise.then((pdf) => {

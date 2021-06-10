@@ -3,7 +3,7 @@ import annotations from './annotations';
 
 const DOCUMENT_ID = 'PDFJSAnnotate.pdf';
 
-pdfjsViewer.workerSrc = '../shared/pdf.worker.js';
+pdfjsViewer.GlobalWorkerOptions.workerSrc = '../shared/pdf.worker.js';
 
 PDFJSAnnotate.StoreAdapter.getAnnotations = (documentId, pageNumber) => {
   return new Promise((resolve, reject) => {

@@ -21,7 +21,7 @@ let RENDER_OPTIONS = {
 };
 
 PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.LocalStoreAdapter());
-pdfjsLib.workerSrc = './shared/pdf.worker.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = './shared/pdf.worker.js';
 
 // Render stuff
 let NUM_PAGES = 0;
