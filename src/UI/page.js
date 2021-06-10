@@ -53,6 +53,8 @@ export function renderPage(pageNumber, renderOptions) {
     rotate
   } = renderOptions;
 
+  const eventBus = new pdfjsViewer.EventBus();
+
   // Load the page and annotations
   return Promise.all([
     pdfDocument.getPage(pageNumber),
@@ -78,7 +80,13 @@ export function renderPage(pageNumber, renderOptions) {
           // Render text layer for a11y of text content
           let textLayer = page.querySelector(config.textClassQuery());
           let textLayerFactory = new pdfjsViewer.DefaultTextLayerFactory();
-          let textLayerBuilder = textLayerFactory.createTextLayerBuilder(textLayer, pageNumber - 1, viewport);
+          let textLayerBuilder = textLayerFactory.createTextLayerBuilder(
+            textLayer,
+            pageNumber - 1,
+            viewport,
+            false,
+            eventBus
+          );
           textLayerBuilder.setTextContent(textContent);
           textLayerBuilder.render();
 
