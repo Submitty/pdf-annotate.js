@@ -63,6 +63,9 @@
     "webpack-dev-server": "^3.7.2"
   },
   "dependencies": {},
+  "peerDependencies": {
+    "pdfjs-dist": "2.6.347"
+  },
   "files": [
     "dist",
     "src",
