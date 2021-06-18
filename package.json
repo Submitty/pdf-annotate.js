@@ -64,7 +64,7 @@
   },
   "dependencies": {},
   "peerDependencies": {
-    "pdfjs-dist": "2.6.347"
+    "pdfjs-dist": "^2.4.456"
   },
   "files": [
     "dist",
