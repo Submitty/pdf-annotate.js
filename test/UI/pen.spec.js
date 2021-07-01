@@ -1,4 +1,4 @@
-import { equal, deepStrictEqual } from 'assert';
+import { deepStrictEqual, strictEqual } from 'assert';
 import PDFJSAnnotate from '../../src/PDFJSAnnotate';
 import { firePointerEvent } from '../fireEvent';
 import mockAddAnnotation from '../mockAddAnnotation';
@@ -69,7 +69,7 @@ describe('UI::pen', function() {
     disablePen();
     simulateCreateDrawingAnnotation();
     setTimeout(function() {
-      equal(addAnnotationSpy.called, false);
+      strictEqual(addAnnotationSpy.called, false);
       done();
     }, 0);
   });
@@ -79,14 +79,49 @@ describe('UI::pen', function() {
     enablePen();
     simulateCreateDrawingAnnotation();
     setTimeout(function() {
-      equal(addAnnotationSpy.called, true);
-      let args = addAnnotationSpy.getCall(0).args;
-      equal(args[0], 'test-document-id');
-      equal(args[1], '1');
-      equal(args[2].type, 'drawing');
-      equal(args[2].width, 1);
-      equal(args[2].color, '000000');
-      equal(args[2].lines.length, 2);
+      strictEqual(addAnnotationSpy.called, true);
+      const args = addAnnotationSpy.getCall(0).args;
+      strictEqual(args[0], 'test-document-id');
+      strictEqual(args[1], 1);
+      strictEqual(args[2].type, 'drawing');
+      strictEqual(args[2].width, 1);
+      strictEqual(args[2].color, '000000');
+      strictEqual(args[2].lines.length, 2);
+      done();
+    }, 0);
+  });
+
+  it('should not create annotation if started outside annotation layer', (done) => {
+    disablePen();
+    enablePen();
+    setPen();
+
+    firePointerEvent(svg, 'pointerdown', {
+      clientX: 2000,
+      clientY: 10,
+      pointerType: 'mouse'
+    });
+
+    firePointerEvent(svg, 'pointermove', {
+      clientX: 15,
+      clientY: 15,
+      pointerType: 'mouse'
+    });
+
+    firePointerEvent(svg, 'pointermove', {
+      clientX: 30,
+      clientY: 30,
+      pointerType: 'mouse'
+    });
+
+    firePointerEvent(svg, 'pointerup', {
+      clientX: 30,
+      clientY: 30,
+      pointerType: 'mouse'
+    });
+
+    setTimeout(() => {
+      strictEqual(addAnnotationSpy.called, false);
       done();
     }, 0);
   });
