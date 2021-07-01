@@ -22,10 +22,10 @@ let lines = [];
 function handleDocumentPointerdown(e) {
   path = null;
   lines = [];
-  _candraw = true;
-  /* if (!e.srcElement.classList.contains('annotationLayer')) {
+  if (!findSVGAtPoint(e.clientX, e.clientY)) {
     return;
-  } */
+  }
+  _candraw = true;
   e.preventDefault();
 }
 
@@ -39,6 +39,9 @@ function handleDocumentPointerup(e) {
 }
 
 function saveToStorage(x, y) {
+  if (!_candraw) {
+    return;
+  }
   _candraw = false;
   let svg;
   if (lines.length > 1 && (svg = findSVGAtPoint(x, y))) {
@@ -64,12 +67,10 @@ function saveToStorage(x, y) {
  * @param {PointerEvent} e The DOM event to be handled
  */
 function handleDocumentPointermove(e) {
-  if (!e.srcElement.classList.contains('annotationLayer')) {
+  if (!findSVGAtPoint(e.clientX, e.clientY) || !_candraw) {
     return;
   }
-  if (_candraw) {
-    savePoint(e.clientX, e.clientY);
-  }
+  savePoint(e.clientX, e.clientY);
 }
 
 /**
