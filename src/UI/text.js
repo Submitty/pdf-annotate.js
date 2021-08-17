@@ -24,9 +24,9 @@ function handleDocumentMouseup(e) {
   if (!e.srcElement.classList.contains('annotationLayer')) {
     return;
   }
-  input = document.createElement('input');
+  input = document.createElement('textarea');
   input.setAttribute('id', 'pdf-annotate-text-input');
-  input.setAttribute('placeholder', 'Enter text');
+  input.setAttribute('placeholder', 'Enter text... SHIFT + ENTER for new line');
   input.style.border = `3px solid ${BORDER_COLOR}`;
   input.style.borderRadius = '3px';
   input.style.position = 'absolute';
@@ -57,7 +57,7 @@ function handleInputKeyup(e) {
   if (e.keyCode === 27) {
     closeInput();
   }
-  else if (e.keyCode === 13) {
+  else if (e.keyCode === 13 && !e.shiftKey) {
     saveText();
   }
 }
