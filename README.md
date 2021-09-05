@@ -1,4 +1,4 @@
-# pdf-annotate.js
+# @submitty/pdf-annotate.js
 
 [![Build Status](https://github.com/Submitty/pdf-annotate.js/workflows/Test/badge.svg?branch=master&event=push)](https://github.com/Submitty/pdf-annotate.js/actions?query=workflow%3ATest+event%3Apush+branch%3Amaster)
 [![npm version](https://img.shields.io/npm/v/@submitty/pdf-annotate.js)](https://npmjs.com/package/@submitty/pdf-annotate.js)
@@ -16,6 +16,12 @@ To report issues for pdf-annotate.js, please file them under the [Submitty/Submi
 - Optional high level UI for managing annotations.
 - Agnostic of backend, just supply your own `StoreAdapter` to fetch/store data.
 - Prescribe annotation format.
+
+## Installation
+
+```bash
+npm install @submitty/pdf-annotate.js
+```
 
 ## Example
 
