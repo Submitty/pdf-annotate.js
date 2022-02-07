@@ -1,10 +1,10 @@
 {
     "include": ["src/**/*.js", "index.js"],
     "compilerOptions": {
-      "allowJs": true,
-      "declaration": true,
-      "emitDeclarationOnly": true,
-      "declarationMap": true,
-      "outDir": "types"
+        "allowJs": true,
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "declarationMap": true,
+        "outDir": "types"
     }
-  }
+}
