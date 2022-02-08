@@ -39,7 +39,7 @@ const RENDER_OPTIONS = {
 };
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.js';
-PDFJSAnnotate.setStoreAdapter(PDFJSAnnotate.LocalStoreAdapter);
+PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.LocalStoreAdapter());
 
 pdfjsLib.getDocument(RENDER_OPTIONS.documentId).promise.then((pdf) => {
   RENDER_OPTIONS.pdfDocument = pdf;
