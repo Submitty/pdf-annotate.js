@@ -160,6 +160,9 @@ function saveRect(type, rects, color) {
     else if (type === 'strikeout') {
       color = 'FF0000';
     }
+    else if (type === 'strikeout1') {
+      color = 'FF0000';
+    }
   }
 
   // Initialize the annotation
@@ -169,7 +172,7 @@ function saveRect(type, rects, color) {
     rectangles: [...rects].map((r) => {
       let offset = 0;
 
-      if (type === 'strikeout') {
+     if (type === 'strikeout'||type === 'strikeout1') {
         offset = r.height / 2;
       }
 
