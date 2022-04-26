@@ -155,10 +155,12 @@ function saveRect(type, rects, color) {
 
   if (!color) {
     if (type === 'highlight') {
-      color = 'FFFF00';
+      color = localStorage.getItem("annotColor") ? localStorage.getItem("annotColor") : '#9fccff'; // '#FFFF00';;
     }
     else if (type === 'strikeout') {
-      color = 'FF0000';
+      color = '0066FF';
+    }else if (type === 'strikeout1') {
+      color = '0066FF';
     }
   }
 
@@ -169,8 +171,8 @@ function saveRect(type, rects, color) {
     rectangles: [...rects].map((r) => {
       let offset = 0;
 
-      if (type === 'strikeout') {
-        offset = r.height / 2;
+     if (type === 'strikeout'||type === 'strikeout1') {
+        offset = r.height;
       }
 
       return convertToSvgRect({

@@ -10,10 +10,18 @@ import normalizeColor from '../utils/normalizeColor';
  */
 export default function renderLine(a) {
   let group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  setAttributes(group, {
-    stroke: normalizeColor(a.color || '#f00'),
-    strokeWidth: 1
-  });
+  if(a.type == 'strikeout'){
+    setAttributes(group, {
+      stroke: normalizeColor(a.color || '#f00'),
+      strokeWidth: 1
+    });
+  }else{
+    setAttributes(group, {
+      stroke: normalizeColor(a.color || '#f00'),
+      strokeWidth: "1.35",
+      "stroke-dasharray":"1.35"
+    });
+  }
 
   a.rectangles.forEach((r) => {
     let line = document.createElementNS('http://www.w3.org/2000/svg', 'line');

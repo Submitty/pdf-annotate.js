@@ -16,6 +16,7 @@ export default function insertScreenReaderHint(annotation, num = 0) {
   switch (annotation.type) {
     case 'highlight':
     case 'strikeout':
+      case 'strikeout1':
       let rects = annotation.rectangles;
       let first = rects[0];
       let last = rects[rects.length - 1];
