@@ -125,6 +125,7 @@ export function appendChild(svg, annotation, viewport) {
       child = renderCircle(annotation);
       break;
     case 'strikeout':
+    case 'strikeout1':
       child = renderLine(annotation);
       break;
     case 'point':
