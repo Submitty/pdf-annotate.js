@@ -66,7 +66,6 @@ function handleInputKeyup(e) {
  * Save a text annotation from input
  */
 function saveText() {
-  console.log("check3");
   let value = (input.value) ? input.value.replace(/ +$/, '') : '';
   if (value.length > 0) {
     let clientX = parseInt(input.style.left, 10);

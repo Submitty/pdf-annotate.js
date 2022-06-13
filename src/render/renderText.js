@@ -13,7 +13,7 @@ function insertLineBreaks(textElement, textContent) {
   // can't use dy attribute here since we want empty lines to take up space as well,
   // so we will update y manually based on font size
   const x = textElement.getAttribute('x');
-  console.log("check2");
+  console.log('check2');
   let y = Number(textElement.getAttribute('y'));
   const size = Number(textElement.getAttribute('font-size'));
   for (const line of lines) {
@@ -38,7 +38,7 @@ export default function renderText(a) {
   // Text should be rendered at 0 degrees relative to
   // document rotation
   let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-  console.log("check1")
+  console.log('check1');
   setAttributes(text, {
     x: a.x,
     y: a.y,

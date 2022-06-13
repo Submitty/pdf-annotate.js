@@ -19,7 +19,6 @@ let keyCase = (key) => {
  * @param {Object} attributes The map of key/value pairs to use for attributes
  */
 export default function setAttributes(node, attributes) {
-  console.log("check5")
   Object.keys(attributes).forEach((key) => {
     node.setAttribute(keyCase(key), attributes[key]);
   });
