@@ -9,13 +9,13 @@ import normalizeColor from '../utils/normalizeColor';
  * @param {String} textContent String to render with line breaks
  */
 function insertLineBreaks(textElement, textContent) {
+  console.log(textContent);
   const lines = (textContent || '').split('\n');
   // can't use dy attribute here since we want empty lines to take up space as well,
   // so we will update y manually based on font size
   const x = textElement.getAttribute('x');
-  console.log(x);
   let y = Number(textElement.getAttribute('y'));
-  console.log(y);
+  // x y are NaN
   const size = Number(textElement.getAttribute('font-size'));
   for (const line of lines) {
     const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
@@ -39,6 +39,8 @@ export default function renderText(a) {
   // Text should be rendered at 0 degrees relative to
   // document rotation
   let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  console.log('renderText' + a.x);
+  console.log(a.y);
   setAttributes(text, {
     x: a.x,
     y: a.y,

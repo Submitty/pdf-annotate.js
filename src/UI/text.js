@@ -91,6 +91,11 @@ function saveText() {
       rotation: -viewport.rotation
     };
 
+    console.log('text' + pt[0]);
+    console.log('text' + pt[1]);
+    console.log('text' + clientX - rect.left);
+    console.log('text' + clientY - rect.top + height);
+
     PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
       .then((annotation) => {
         appendChild(svg, annotation);

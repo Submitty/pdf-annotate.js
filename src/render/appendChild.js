@@ -132,6 +132,8 @@ export function appendChild(svg, annotation, viewport) {
       break;
     case 'textbox':
       child = renderText(annotation);
+      console.log('AppendChild' + annotation.x);
+      console.log('AppendChild' + annotation.y);
       break;
     case 'drawing':
       child = renderPath(annotation);
