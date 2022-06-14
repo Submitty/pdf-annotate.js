@@ -170,6 +170,8 @@ export function convertToSvgPoint(pt, svg, viewport) {
   let offset = getTranslation(viewport);
   xform = translate(xform, offset.x, offset.y);
 
+  console.log("utils", pt);
+  console.log("utils", xform);
   return applyInverseTransform(pt, xform);
 }
 

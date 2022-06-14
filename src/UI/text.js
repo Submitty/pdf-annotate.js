@@ -93,8 +93,10 @@ function saveText() {
 
     console.log('text' + pt[0]);
     console.log('text' + pt[1]);
-    console.log('text' + clientX - rect.left);
-    console.log('text' + clientY - rect.top + height);
+    console.log(clientX);
+    console.log(clientY);
+    console.log(rect.left);
+    console.log(height);
 
     PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
       .then((annotation) => {

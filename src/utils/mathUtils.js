@@ -11,6 +11,7 @@ export function applyTransform(p, m) {
 //
 export function applyInverseTransform(p, m) {
   let d = m[0] * m[3] - m[1] * m[2];
+  console.log("mathutils", d);
   return [
     (p[0] * m[3] - p[1] * m[2] + m[2] * m[5] - m[4] * m[3]) / d,
     (-p[0] * m[1] + p[1] * m[0] + m[4] * m[1] - m[5] * m[0]) / d
