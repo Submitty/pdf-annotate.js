@@ -1,6 +1,6 @@
 {
   "name": "@submitty/pdf-annotate.js",
-  "version": "/usr/local/submitty/pdf-annotate.js",
+  "version": "2.4.0",
   "description": "Annotation layer for pdf.js",
   "main": "index.js",
   "types": "types",
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Submitty/pdf-annotate.js.git"
+    "url": "git+https://github.com/Submitty/pdf-annotate.js.git#fix_text_position"
   },
   "keywords": [
     "pdf",
