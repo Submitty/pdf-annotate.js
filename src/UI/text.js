@@ -91,8 +91,8 @@ function saveText() {
       rotation: -viewport.rotation
     };
 
-    console.log('text' + pt[0]);
-    console.log('text' + pt[1]);
+    console.log('text:' + pt[0]);
+    console.log('text:' + pt[1]);
     console.log(clientX);
     console.log(clientY);
     console.log(rect.left);

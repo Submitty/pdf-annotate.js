@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Submitty/pdf-annotate.js.git#fix_text_position"
+    "url": "git+https://github.com/Submitty/pdf-annotate.js.git"
   },
   "keywords": [
     "pdf",
