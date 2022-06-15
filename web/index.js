@@ -148,7 +148,7 @@ render();
     });
 
     setText(
-      localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/size`) || 10,
+      localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/size`) || 12,
       localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/color`) || '#000000'
     );
 
