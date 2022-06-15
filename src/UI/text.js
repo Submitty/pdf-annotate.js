@@ -37,6 +37,7 @@ function handleDocumentMouseup(e) {
   input.addEventListener('blur', handleInputBlur);
   input.addEventListener('keyup', handleInputKeyup);
 
+  console.log(`${e.clientX}px`, `${e.clientY}px`);
   document.body.appendChild(input);
   input.focus();
 }
@@ -90,10 +91,6 @@ function saveText() {
       y: pt[1],
       rotation: -viewport.rotation
     };
-
-    console.log(clientX, rect.left, clientY, rect.top, height);
-    console.log(pt[0]);
-    console.log(pt[1]);
 
     PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
       .then((annotation) => {
