@@ -10,7 +10,7 @@ import {
 let _enabled = false;
 let input;
 let _textSize = localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/size`) || 12;
-let _textColor localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/color`) || '#000000';
+let _textColor = localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/color`) || '#000000';
 
 /**
  * Handle document.mouseup event
