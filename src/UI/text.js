@@ -37,7 +37,6 @@ function handleDocumentMouseup(e) {
   input.addEventListener('blur', handleInputBlur);
   input.addEventListener('keyup', handleInputKeyup);
 
-  console.log(`${e.clientX}px`, `${e.clientY}px`);
   document.body.appendChild(input);
   input.focus();
 }
