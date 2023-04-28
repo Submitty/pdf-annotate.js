@@ -106,6 +106,7 @@ export function renderPage(pageNumber, renderOptions) {
     }).then(() => {
       // Indicate that the page was loaded
       page.setAttribute('data-loaded', 'true');
+      textLayer.className += ' annotated-pdf-text-layer';
 
       return [pdfPage, annotations];
     });
