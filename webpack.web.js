@@ -10,14 +10,18 @@ module.exports = {
     publicPath: '/__build__/'
   },
 
+  devServer: { static: { directory: path.resolve(__dirname, './web') } },
+
   module: {
     rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
-        options: {
-          presets: ['@babel/preset-env']
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env']
+          }
         }
       }
     ]

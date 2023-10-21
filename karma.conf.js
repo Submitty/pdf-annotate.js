@@ -8,7 +8,6 @@ let reporters = [
 
 module.exports = function(config) {
   config.set({
-
     basePath: '',
 
     frameworks: ['mocha', 'sinon-chai'],
@@ -30,8 +29,6 @@ module.exports = function(config) {
 
     colors: true,
 
-    logLevel: config.LOG_INFO,
-
     autoWatch: true,
 
     browsers: [
@@ -43,17 +40,24 @@ module.exports = function(config) {
 
     webpack: {
       mode: 'development',
-
-      cache: true,
       devtool: 'inline-source-map',
+      resolve: {
+        fallback: {
+          assert: require.resolve('assert'),
+          process: require.resolve('process/browser'),
+          'events': require.resolve('events/')
+        }
+      },
       module: {
         rules: [
           {
             test: /\.js$/,
             exclude: /node_modules/,
-            loader: 'babel-loader',
-            options: {
-              presets: ['@babel/preset-env']
+            use: {
+              loader: 'babel-loader',
+              options: {
+                presets: ['@babel/preset-env']
+              }
             }
           },
           {
@@ -65,11 +69,14 @@ module.exports = function(config) {
                 esModules: true
               }
             },
-            include: path.resolve('src/')
+            include: path.resolve('./src')
           }
         ]
       },
       plugins: [
+        new webpack.ProvidePlugin({
+          process: 'process/browser'
+        }),
         new webpack.DefinePlugin({
           'process.env.CI': JSON.stringify(process.env.CI),
           'process.env.TRAVIS': JSON.stringify(process.env.TRAVIS)

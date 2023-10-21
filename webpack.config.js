@@ -13,25 +13,36 @@ if (process.env.MINIFY) {
 }
 
 module.exports = {
+  stats: 'verbose',
   devtool: 'source-map',
-  optimization: optimization,
+  optimization,
   entry: './index.js',
   mode: 'production',
+  resolve: {
+    fallback: {
+      assert: require.resolve('assert'),
+      process: require.resolve('process/browser')
+    }
+  },
   output: {
     filename: fileName + '.js',
     path: path.join(__dirname, 'dist'),
-    library: 'PDFAnnotate',
-    libraryTarget: 'umd'
+    library: {
+      name: 'PDFAnnotate',
+      type: 'umd'
+    }
   },
   module: {
     rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
-        options: {
-          presets: ['@babel/preset-env'],
-          plugins: ['add-module-exports']
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env'],
+            plugins: ['add-module-exports']
+          }
         }
       }
     ]

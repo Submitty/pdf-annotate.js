@@ -4,4 +4,4 @@
 rm -rf web/shared/
 cp -rf shared web/
 
-./node_modules/.bin/webpack serve --inline --config ./webpack.web.js --content-base web/
+./node_modules/.bin/webpack serve --config ./webpack.web.js --open
