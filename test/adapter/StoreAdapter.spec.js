@@ -1,7 +1,11 @@
 import StoreAdapter from '../../src/adapter/StoreAdapter';
 import LocalStoreAdapter from '../../src/adapter/LocalStoreAdapter';
+import mockGetAnnotations from '../mockGetAnnotations';
+import PDFJSAnnotate from '../../src/PDFJSAnnotate';
 import { addEventListener, removeEventListener } from '../../src/UI/event';
 import { equal } from 'assert';
+
+let __getAnnotations = PDFJSAnnotate.__storeAdapter.getAnnotations;
 
 function testExpectedError(callback) {
   return function() {
@@ -68,6 +72,7 @@ describe('StoreAdapter', function() {
 
     beforeEach(function() {
       adapter = new LocalStoreAdapter();
+      PDFJSAnnotate.__storeAdapter.getAnnotations = mockGetAnnotations();
     });
 
     afterEach(function() {
@@ -78,12 +83,17 @@ describe('StoreAdapter', function() {
       removeEventListener('comment:delete', handleCommentDelete);
     });
 
+    after(function() {
+      PDFJSAnnotate.__storeAdapter.getAnnotations = __getAnnotations;
+    });
+
     it('should emit annotation:add', function(done) {
-      addEventListener('annotation:add', handleAnnotationAdd);
+      const fn = sinon.spy();
+      addEventListener('annotation:add', fn);
       adapter.addAnnotation(12345, 1, {type: 'foo'});
 
       setTimeout(() => {
-        equal(handleAnnotationAdd.called, true);
+        equal(fn.called, true);
         done();
       });
     });
