@@ -53,6 +53,7 @@ function sortByLinePoint(a, b) {
 const SORT_TYPES = {
   'highlight': sortByRectPoint,
   'strikeout': sortByRectPoint,
+  'strikeout1': sortByRectPoint,
   'drawing': sortByLinePoint,
   'textbox': sortByPoint,
   'point': sortByPoint,

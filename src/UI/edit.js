@@ -186,7 +186,7 @@ function handleDocumentMousedown(e) {
   let target = document.querySelector(`[data-pdf-annotate-id="${annotationId}"]`);
   let type = target.getAttribute('data-pdf-annotate-type');
 
-  if (type === 'highlight' || type === 'strikeout') { return; }
+  if (type === 'highlight' || type === 'strikeout'|| type === 'strikeout1') { return; }
 
   isDragging = true;
   dragOffsetX = e.clientX;
@@ -304,7 +304,7 @@ function handleDocumentMouseup(e) {
         }
       });
     }
-    else if (type === 'strikeout') {
+    else if (type === 'strikeout' || type === 'strikeout1') {
       return;
     //   let { deltaX, deltaY } = getDelta('x1', 'y1');
     //   [...target].forEach(target, (t, i) => {
