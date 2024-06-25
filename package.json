@@ -1,6 +1,6 @@
 {
   "name": "@submitty/pdf-annotate.js",
-  "version": "v24.06.00",
+  "version": "v24.06.01",
   "description": "Annotation layer for pdf.js",
   "main": "index.js",
   "types": "types",
@@ -66,7 +66,7 @@
     "webpack-dev-server": "^5.0.4"
   },
   "peerDependencies": {
-    "pdfjs-dist": "^2.4.456"
+    "pdfjs-dist": "^4.2.67"
   },
   "files": [
     "dist",
