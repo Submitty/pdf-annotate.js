@@ -1,6 +1,6 @@
 {
   "name": "@submitty/pdf-annotate.js",
-  "version": "v24.06.01",
+  "version": "24.06.02",
   "description": "Annotation layer for pdf.js",
   "main": "index.js",
   "types": "types",
