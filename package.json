@@ -1,6 +1,6 @@
 {
   "name": "@submitty/pdf-annotate.js",
-  "version": "24.6.5",
+  "version": "24.6.6",
   "description": "Annotation layer for pdf.js",
   "main": "index.js",
   "types": "types",
@@ -11,7 +11,6 @@
     "startindocker": "./scripts/web-docker",
     "build": "webpack && MINIFY=1 webpack",
     "codecov": "codecov",
-    "prepublishOnly": "npm run build && npm run types",
     "types": "tsc"
   },
   "repository": {

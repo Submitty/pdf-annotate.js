@@ -2,7 +2,6 @@ node_modules/
 coverage/
 sandbox/shared
 web/shared
-dist/
 web-dist/
 npm-debug.log
 .DS_Store
