@@ -19,7 +19,7 @@ To report issues for pdf-annotate.js, please file them under the [Submitty/Submi
 ## Installation
 
 ```bash
-npm install @submitty/pdf-annotate.js
+npm install Submitty/pdf-annotate.js
 ```
 
 ## Example
@@ -73,3 +73,15 @@ $ npm test
 # lint the code
 $ npm run lint
 ```
+
+## Building
+Commit your built files when contributing.
+If on Windows, change the `build` script in `package.json` to `webpack && SET MINIFY=1&webpack`.
+```bash
+# switch to node v14 or earlier
+$ nvm use 14
+
+# build the dist files
+$ npm run build
+```
+
