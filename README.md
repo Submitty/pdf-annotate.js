@@ -1,6 +1,6 @@
 # @submitty/pdf-annotate.js
 
-[![Build Status](https://github.com/Submitty/pdf-annotate.js/workflows/Test/badge.svg?branch=master&event=push)](https://github.com/Submitty/pdf-annotate.js/actions?query=workflow%3ATest+event%3Apush+branch%3Amaster)
+[![Test](https://github.com/Submitty/pdf-annotate.js/actions/workflows/test.yml/badge.svg?branch=main&event=push)](https://github.com/Submitty/pdf-annotate.js/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/Submitty/pdf-annotate.js/branch/master/graph/badge.svg)](https://codecov.io/gh/Submitty/pdf-annotate.js)
 
 Annotation layer for [PDF.js](https://github.com/mozilla/pdf.js).
