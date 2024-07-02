@@ -75,7 +75,7 @@ $ npm run lint
 ```
 
 ## Building
-Commit your built files when contributing.
+**Do not** commit your built files when contributing.
 If on Windows, change the `build` script in `package.json` to `webpack && SET MINIFY=1&webpack`.
 ```bash
 # switch to node v14 or earlier
