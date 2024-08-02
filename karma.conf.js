@@ -1,27 +1,20 @@
-const webpack = require('webpack');
-const path = require('path');
+const webpack = require("webpack");
+const path = require("path");
 
-let reporters = [
-  process.env.TRAVIS ? 'dots' : 'progress',
-  'coverage-istanbul'
-];
+let reporters = [process.env.TRAVIS ? "dots" : "progress", "coverage-istanbul"];
 
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
+    basePath: "",
 
-    basePath: '',
+    frameworks: ["mocha", "sinon-chai"],
 
-    frameworks: ['mocha', 'sinon-chai'],
+    files: ["test/**/*.spec.js"],
 
-    files: [
-      'test/**/*.spec.js'
-    ],
-
-    exclude: [
-    ],
+    exclude: [],
 
     preprocessors: {
-      'test/**/*.spec.js': ['webpack', 'sourcemap']
+      "test/**/*.spec.js": ["webpack", "sourcemap"],
     },
 
     reporters: reporters,
@@ -34,59 +27,47 @@ module.exports = function(config) {
 
     autoWatch: true,
 
-    browsers: [
-      'FirefoxHeadless',
-      'ChromeHeadless'
-    ],
+    browsers: ["FirefoxHeadless", "ChromeHeadless"],
 
     singleRun: false,
 
     webpack: {
-      mode: 'development',
+      mode: "development",
 
       cache: true,
-      devtool: 'inline-source-map',
+      devtool: "inline-source-map",
       module: {
         rules: [
           {
             test: /\.js$/,
             exclude: /node_modules/,
-            loader: 'babel-loader',
+            loader: "babel-loader",
             options: {
-              presets: ['@babel/preset-env']
-            }
-          },
-          {
-            test: /\.js$/,
-            enforce: 'post',
-            use: {
-              loader: 'istanbul-instrumenter-loader',
-              options: {
-                esModules: true
-              }
+              presets: ["@babel/preset-env"],
+              plugins: ["istanbul"],
             },
-            include: path.resolve('src/')
-          }
-        ]
+          },
+        ],
       },
       plugins: [
         new webpack.DefinePlugin({
-          'process.env.CI': JSON.stringify(process.env.CI),
-          'process.env.TRAVIS': JSON.stringify(process.env.TRAVIS)
-        })
-      ]
+          "process.env.CI": JSON.stringify(process.env.CI),
+          "process.env.TRAVIS": JSON.stringify(process.env.TRAVIS),
+        }),
+      ],
     },
 
     webpackServer: {
       stats: {
-        colors: true
-      }
+        colors: true,
+      },
     },
+
     coverageIstanbulReporter: {
-      reports: [ 'html', 'lcovonly', 'text-summary' ],
-      dir: path.join(__dirname, 'coverage'),
+      reports: ["html", "lcovonly", "text-summary"],
+      dir: path.join(__dirname, "coverage"),
       combineBrowserReports: true,
-      fixWebpackSourcePaths: true
-    }
+      fixWebpackSourcePaths: true,
+    },
   });
 };
