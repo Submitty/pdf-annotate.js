@@ -6,7 +6,7 @@ module.exports = {
 
   output: {
     filename: 'index.js',
-    path: path.join(__dirname, 'web', '__build__'),
+    path: path.resolve(__dirname, 'web', '__build__'),
     publicPath: '/__build__/'
   },
 
@@ -15,12 +15,26 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
-        options: {
-          presets: ['@babel/preset-env']
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env'],
+            plugins: [
+             
+             
+            ]
+          }
         }
       }
     ]
-  }
-};
+  },
 
+  resolve: {
+    extensions: ['.js']  
+  },
+
+  devtool: 'source-map',  
+
+  plugins: [
+  ]
+};
