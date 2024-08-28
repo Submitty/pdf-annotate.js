@@ -1,24 +1,17 @@
 const webpack = require('webpack');
 const path = require('path');
 
-let reporters = [
-  process.env.TRAVIS ? 'dots' : 'progress',
-  'coverage-istanbul'
-];
+let reporters = [process.env.TRAVIS ? 'dots' : 'progress', 'coverage-istanbul'];
 
 module.exports = function(config) {
   config.set({
-
     basePath: '',
 
     frameworks: ['mocha', 'sinon-chai'],
 
-    files: [
-      'test/**/*.spec.js'
-    ],
+    files: ['test/**/*.spec.js'],
 
-    exclude: [
-    ],
+    exclude: [],
 
     preprocessors: {
       'test/**/*.spec.js': ['webpack', 'sourcemap']
@@ -34,10 +27,7 @@ module.exports = function(config) {
 
     autoWatch: true,
 
-    browsers: [
-      'FirefoxHeadless',
-      'ChromeHeadless'
-    ],
+    browsers: ['FirefoxHeadless', 'ChromeHeadless'],
 
     singleRun: false,
 
@@ -53,19 +43,9 @@ module.exports = function(config) {
             exclude: /node_modules/,
             loader: 'babel-loader',
             options: {
-              presets: ['@babel/preset-env']
+              presets: ['@babel/preset-env'],
+              plugins: ['istanbul']
             }
-          },
-          {
-            test: /\.js$/,
-            enforce: 'post',
-            use: {
-              loader: 'istanbul-instrumenter-loader',
-              options: {
-                esModules: true
-              }
-            },
-            include: path.resolve('src/')
           }
         ]
       },
@@ -82,8 +62,9 @@ module.exports = function(config) {
         colors: true
       }
     },
+
     coverageIstanbulReporter: {
-      reports: [ 'html', 'lcovonly', 'text-summary' ],
+      reports: ['html', 'lcovonly', 'text-summary'],
       dir: path.join(__dirname, 'coverage'),
       combineBrowserReports: true,
       fixWebpackSourcePaths: true
