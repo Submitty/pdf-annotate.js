@@ -1,11 +1,6 @@
 import PDFJSAnnotate from '../PDFJSAnnotate';
 import { appendChild } from '../render/appendChild';
-import {
-  BORDER_COLOR,
-  findSVGAtPoint,
-  getMetadata,
-  scaleDown
-} from './utils';
+import { BORDER_COLOR, findSVGAtPoint, getMetadata, scaleDown } from './utils';
 
 let _enabled = false;
 let input;
@@ -13,7 +8,7 @@ let input;
 /**
  * Handle document.mouseup event
  *
- * @param {Event} The DOM event to be handled
+ * @param {Event} e The DOM event to be handled
  */
 function handleDocumentMouseup(e) {
   if (input || !findSVGAtPoint(e.clientX, e.clientY)) {
@@ -72,14 +67,18 @@ function savePoint() {
 
     let rect = svg.getBoundingClientRect();
     let { documentId, pageNumber } = getMetadata(svg);
-    let annotation = Object.assign({
-      type: 'point'
-    }, scaleDown(svg, {
-      x: clientX - rect.left,
-      y: clientY - rect.top
-    }));
+    let annotation = Object.assign(
+      {
+        type: 'point'
+      },
+      scaleDown(svg, {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      })
+    );
 
-    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
+    PDFJSAnnotate.getStoreAdapter()
+      .addAnnotation(documentId, pageNumber, annotation)
       .then((annotation) => {
         PDFJSAnnotate.getStoreAdapter().addComment(
           documentId,
@@ -108,7 +107,9 @@ function closeInput() {
  * Enable point annotation behavior
  */
 export function enablePoint() {
-  if (_enabled) { return; }
+  if (_enabled) {
+    return;
+  }
 
   _enabled = true;
   document.addEventListener('mouseup', handleDocumentMouseup);
@@ -118,9 +119,10 @@ export function enablePoint() {
  * Disable point annotation behavior
  */
 export function disablePoint() {
-  if (!_enabled) { return; }
+  if (!_enabled) {
+    return;
+  }
 
   _enabled = false;
   document.removeEventListener('mouseup', handleDocumentMouseup);
 }
-

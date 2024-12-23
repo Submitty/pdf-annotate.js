@@ -2,9 +2,9 @@ import PDFJSAnnotate from '../PDFJSAnnotate';
 import { appendChild } from '../render/appendChild';
 import {
   BORDER_COLOR,
+  convertToSvgPoint,
   findSVGAtPoint,
-  getMetadata,
-  convertToSvgPoint
+  getMetadata
 } from './utils';
 
 let _enabled = false;
@@ -29,7 +29,7 @@ function handleDocumentMouseup(e) {
   input.setAttribute('placeholder', 'Enter text... SHIFT + ENTER for new line');
   input.style.border = `3px solid ${BORDER_COLOR}`;
   input.style.borderRadius = '3px';
-  input.style.position = 'fixed';
+  input.style.position = 'absolute';
   input.style.top = `${e.clientY}px`;
   input.style.left = `${e.clientX}px`;
   input.style.fontSize = `${_textSize}px`;
@@ -66,7 +66,7 @@ function handleInputKeyup(e) {
  * Save a text annotation from input
  */
 function saveText() {
-  let value = (input.value) ? input.value.replace(/ +$/, '') : '';
+  let value = input.value ? input.value.replace(/ +$/, '') : '';
   if (value.length > 0) {
     let clientX = parseInt(input.style.left, 10);
     let clientY = parseInt(input.style.top, 10);
@@ -78,9 +78,11 @@ function saveText() {
     let { documentId, pageNumber, viewport } = getMetadata(svg);
     let scale = 1 / viewport.scale;
     let rect = svg.getBoundingClientRect();
-    let pt = convertToSvgPoint([
-      clientX - rect.left,
-      clientY - rect.top + height], svg, viewport);
+    let pt = convertToSvgPoint(
+      [clientX - rect.left, clientY - rect.top + height],
+      svg,
+      viewport
+    );
     let annotation = {
       type: 'textbox',
       size: _textSize * scale,
@@ -91,7 +93,8 @@ function saveText() {
       rotation: -viewport.rotation
     };
 
-    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
+    PDFJSAnnotate.getStoreAdapter()
+      .addAnnotation(documentId, pageNumber, annotation)
       .then((annotation) => {
         appendChild(svg, annotation);
       });
@@ -139,9 +142,10 @@ export function enableText() {
  * Disable text behavior
  */
 export function disableText() {
-  if (!_enabled) { return; }
+  if (!_enabled) {
+    return;
+  }
 
   _enabled = false;
   document.removeEventListener('mouseup', handleDocumentMouseup);
 }
-

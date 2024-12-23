@@ -1,10 +1,6 @@
 import PDFJSAnnotate from '../PDFJSAnnotate';
 import { appendChild } from '../render/appendChild';
-import {
-  findSVGAtPoint,
-  getMetadata,
-  convertToSvgPoint
-} from './utils';
+import { convertToSvgPoint, findSVGAtPoint, getMetadata } from './utils';
 
 let _enabled = false;
 let _type;
@@ -33,24 +29,30 @@ function handleDocumentMouseup(e) {
     return;
   }
   let rect = svg.getBoundingClientRect();
-  saveCircle(svg, _type, {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top
-  }, _circleRadius, _circleColor);
+  saveCircle(
+    svg,
+    _type,
+    {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    },
+    _circleRadius,
+    _circleColor
+  );
 }
 
 /**
  * Save a circle annotation
  *
- * @param {SVGElement} svg
+ * @param {SVGElement} svg The annotation layer
  * @param {String} type The type of circle (circle, emptycircle, fillcircle)
  * @param {Object} pt The point to use for annotation
- * @param {float} radius
+ * @param {float} radius The radius of circle
  * @param {String} color The color of the rects
  */
 function saveCircle(svg, type, pt, radius, color) {
   // Initialize the annotation
-  let svg_pt = convertToSvgPoint([ pt.x, pt.y ], svg);
+  let svg_pt = convertToSvgPoint([pt.x, pt.y], svg);
   let annotation = {
     type,
     color,
@@ -62,7 +64,8 @@ function saveCircle(svg, type, pt, radius, color) {
   let { documentId, pageNumber } = getMetadata(svg);
 
   // Add the annotation
-  PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
+  PDFJSAnnotate.getStoreAdapter()
+    .addAnnotation(documentId, pageNumber, annotation)
     .then((annotation) => {
       appendChild(svg, annotation);
     });
@@ -70,11 +73,15 @@ function saveCircle(svg, type, pt, radius, color) {
 
 /**
  * Enable circle behavior
+ *
+ * @param {String} type The selected tool type
  */
 export function enableCircle(type) {
   _type = type;
 
-  if (_enabled) { return; }
+  if (_enabled) {
+    return;
+  }
 
   _enabled = true;
   document.addEventListener('mouseup', handleDocumentMouseup);
@@ -84,7 +91,9 @@ export function enableCircle(type) {
  * Disable circle behavior
  */
 export function disableCircle() {
-  if (!_enabled) { return; }
+  if (!_enabled) {
+    return;
+  }
 
   _enabled = false;
   document.removeEventListener('mouseup', handleDocumentMouseup);
