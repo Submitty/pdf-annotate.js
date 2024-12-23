@@ -1,10 +1,10 @@
 import { getTranslation } from '../render/appendChild';
 import {
-  applyTransform,
   applyInverseTransform,
-  translate,
+  applyTransform,
   rotate,
-  scale
+  scale,
+  translate
 } from '../utils/mathUtils';
 
 export const BORDER_COLOR = '#00BFFF';
@@ -30,10 +30,11 @@ userSelectStyleSheet.setAttribute('data-pdf-annotate-user-select', 'true');
 export function findSVGContainer(node) {
   let parentNode = node;
 
-  while ((parentNode = parentNode.parentNode) &&
-          parentNode !== document) {
-    if (parentNode.nodeName.toUpperCase() === 'SVG' &&
-        parentNode.getAttribute('data-pdf-annotate-container') === 'true') {
+  while ((parentNode = parentNode.parentNode) && parentNode !== document) {
+    if (
+      parentNode.nodeName.toUpperCase() === 'SVG' &&
+      parentNode.getAttribute('data-pdf-annotate-container') === 'true'
+    ) {
       return parentNode;
     }
   }
@@ -49,7 +50,9 @@ export function findSVGContainer(node) {
  * @return {SVGElement} The container SVG or null if one can't be found
  */
 export function findSVGAtPoint(x, y) {
-  let elements = document.querySelectorAll('svg[data-pdf-annotate-container="true"]');
+  let elements = document.querySelectorAll(
+    'svg[data-pdf-annotate-container="true"]'
+  );
 
   for (let i = 0, l = elements.length; i < l; i++) {
     let el = elements[i];
@@ -71,7 +74,7 @@ export function findSVGAtPoint(x, y) {
  *
  * @param {Number} x The x coordinate of the point
  * @param {Number} y The y coordinate of the point
- * @return {Element} The annotation element or null if one can't be found
+ * @return {Element|null} The annotation element or null if one can't be found
  */
 export function findAnnotationAtPoint(x, y) {
   let el = null;
@@ -163,7 +166,7 @@ export function convertToSvgRect(rect, svg, viewport) {
 export function convertToSvgPoint(pt, svg, viewport) {
   viewport = viewport || getMetadata(svg).viewport;
 
-  let xform = [ 1, 0, 0, 1, 0, 0 ];
+  let xform = [1, 0, 0, 1, 0, 0];
   xform = scale(xform, viewport.scale, viewport.scale);
   xform = rotate(xform, viewport.rotation);
 
@@ -176,7 +179,7 @@ export function convertToSvgPoint(pt, svg, viewport) {
 export function convertToScreenPoint(pt, svg, viewport) {
   viewport = viewport || getMetadata(svg).viewport;
 
-  let xform = [ 1, 0, 0, 1, 0, 0 ];
+  let xform = [1, 0, 0, 1, 0, 0];
   xform = scale(xform, viewport.scale, viewport.scale);
   xform = rotate(xform, viewport.rotation);
 
@@ -215,8 +218,7 @@ export function getScroll(el) {
   let scrollLeft = 0;
   let parentNode = el;
 
-  while ((parentNode = parentNode.parentNode) &&
-          parentNode !== document) {
+  while ((parentNode = parentNode.parentNode) && parentNode !== document) {
     scrollTop += parentNode.scrollTop;
     scrollLeft += parentNode.scrollLeft;
   }
@@ -233,8 +235,7 @@ export function getScroll(el) {
 export function getOffset(el) {
   let parentNode = el;
 
-  while ((parentNode = parentNode.parentNode) &&
-          parentNode !== document) {
+  while ((parentNode = parentNode.parentNode) && parentNode !== document) {
     if (parentNode.nodeName.toUpperCase() === 'SVG') {
       break;
     }
@@ -267,6 +268,7 @@ export function enableUserSelect() {
  * Get the metadata for a SVG container
  *
  * @param {SVGElement} svg The SVG container to get metadata for
+ * @returns {Object} Metadata (Document ID, Page num & viewport info)
  */
 export function getMetadata(svg) {
   return {
