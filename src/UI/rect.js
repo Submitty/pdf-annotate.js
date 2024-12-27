@@ -3,11 +3,11 @@ import config from '../config';
 import { appendChild } from '../render/appendChild';
 import {
   BORDER_COLOR,
+  convertToSvgRect,
   disableUserSelect,
   enableUserSelect,
   findSVGAtPoint,
-  getMetadata,
-  convertToSvgRect
+  getMetadata
 } from './utils';
 
 let _enabled = false;
@@ -27,9 +27,7 @@ function getSelectionRects() {
     let range = selection.getRangeAt(0);
     let rects = range.getClientRects();
 
-    if (rects.length > 0 &&
-        rects[0].width > 0 &&
-        rects[0].height > 0) {
+    if (rects.length > 0 && rects[0].width > 0 && rects[0].height > 0) {
       return rects;
     }
   }
@@ -91,24 +89,29 @@ function handleDocumentMousemove(e) {
 function handleDocumentMouseup(e) {
   let rects;
   if (_type !== 'area' && (rects = getSelectionRects())) {
-    saveRect(_type, [...rects].map((r) => {
-      return {
-        top: r.top,
-        left: r.left,
-        width: r.width,
-        height: r.height
-      };
-    }));
+    saveRect(
+      _type,
+      [...rects].map((r) => {
+        return {
+          top: r.top,
+          left: r.left,
+          width: r.width,
+          height: r.height
+        };
+      })
+    );
   }
   else if (_type === 'area' && overlay) {
     let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
     let rect = svg.getBoundingClientRect();
-    saveRect(_type, [{
-      top: parseInt(overlay.style.top, 10) + rect.top,
-      left: parseInt(overlay.style.left, 10) + rect.left,
-      width: parseInt(overlay.style.width, 10),
-      height: parseInt(overlay.style.height, 10)
-    }]);
+    saveRect(_type, [
+      {
+        top: parseInt(overlay.style.top, 10) + rect.top,
+        left: parseInt(overlay.style.left, 10) + rect.left,
+        width: parseInt(overlay.style.width, 10),
+        height: parseInt(overlay.style.height, 10)
+      }
+    ]);
 
     overlay.parentNode.removeChild(overlay);
     overlay = null;
@@ -166,20 +169,25 @@ function saveRect(type, rects, color) {
   annotation = {
     type,
     color,
-    rectangles: [...rects].map((r) => {
-      let offset = 0;
+    rectangles: [...rects]
+      .map((r) => {
+        let offset = 0;
 
-      if (type === 'strikeout') {
-        offset = r.height / 2;
-      }
+        if (type === 'strikeout') {
+          offset = r.height / 2;
+        }
 
-      return convertToSvgRect({
-        y: (r.top + offset) - boundingRect.top,
-        x: r.left - boundingRect.left,
-        width: r.width,
-        height: r.height
-      }, svg);
-    }).filter((r) => r.width > 0 && r.height > 0 && r.x > -1 && r.y > -1)
+        return convertToSvgRect(
+          {
+            y: r.top + offset - boundingRect.top,
+            x: r.left - boundingRect.left,
+            width: r.width,
+            height: r.height
+          },
+          svg
+        );
+      })
+      .filter((r) => r.width > 0 && r.height > 0 && r.x > -1 && r.y > -1)
   };
 
   // Short circuit if no rectangles exist
@@ -200,7 +208,8 @@ function saveRect(type, rects, color) {
   let { documentId, pageNumber } = getMetadata(svg);
 
   // Add the annotation
-  PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
+  PDFJSAnnotate.getStoreAdapter()
+    .addAnnotation(documentId, pageNumber, annotation)
     .then((annotation) => {
       appendChild(svg, annotation);
     });
@@ -208,11 +217,15 @@ function saveRect(type, rects, color) {
 
 /**
  * Enable rect behavior
+ *
+ * @param {String} type The selected tool type
  */
 export function enableRect(type) {
   _type = type;
 
-  if (_enabled) { return; }
+  if (_enabled) {
+    return;
+  }
 
   _enabled = true;
   document.addEventListener('mouseup', handleDocumentMouseup);
@@ -224,11 +237,12 @@ export function enableRect(type) {
  * Disable rect behavior
  */
 export function disableRect() {
-  if (!_enabled) { return; }
+  if (!_enabled) {
+    return;
+  }
 
   _enabled = false;
   document.removeEventListener('mouseup', handleDocumentMouseup);
   document.removeEventListener('mousedown', handleDocumentMousedown);
   document.removeEventListener('keyup', handleDocumentKeyup);
 }
-

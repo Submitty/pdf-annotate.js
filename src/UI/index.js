@@ -15,7 +15,7 @@ import {
   removeAllEventListener,
   removeEventListener
 } from './event';
-import { createPage, renderPage } from './page';
+import { createPage, renderPage, rerenderAnnotations } from './page';
 import { disablePen, enablePen, setPen } from './pen';
 import { disablePoint, enablePoint } from './point';
 import { disableRect, enableRect } from './rect';
@@ -61,5 +61,6 @@ export default {
   setText,
 
   createPage,
-  renderPage
+  renderPage,
+  rerenderAnnotations
 };
