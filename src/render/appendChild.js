@@ -1,10 +1,11 @@
+import renderArrow from './renderArrow';
+import renderCircle from './renderCircle';
+import renderImage from './renderImage';
 import renderLine from './renderLine';
 import renderPath from './renderPath';
 import renderPoint from './renderPoint';
 import renderRect from './renderRect';
 import renderText from './renderText';
-import renderCircle from './renderCircle';
-import renderArrow from './renderArrow';
 
 const isFirefox = /firefox/i.test(navigator.userAgent);
 
@@ -13,7 +14,7 @@ const isFirefox = /firefox/i.test(navigator.userAgent);
  * based on the rotation of the viewport.
  *
  * @param {Object} viewport The viewport data from the page
- * @return {Object}
+ * @return {Object} The coordinate after rotation (translation)
  */
 export function getTranslation(viewport) {
   let x;
@@ -47,18 +48,27 @@ export function getTranslation(viewport) {
  *
  * @param {Node} node The node to be transformed
  * @param {Object} viewport The page's viewport data
- * @return {Node}
+ * @return {Node} The node after transformation
  */
 function transform(node, viewport) {
   let trans = getTranslation(viewport);
 
   // Let SVG natively transform the element
-  node.setAttribute('transform', `scale(${viewport.scale}) rotate(${viewport.rotation}) translate(${trans.x}, ${trans.y})`);
+  node.setAttribute(
+    'transform',
+    `scale(${viewport.scale}) rotate(${viewport.rotation}) translate(${trans.x}, ${trans.y})`
+  );
 
   // Manually adjust x/y for nested SVG nodes
   if (!isFirefox && node.nodeName.toLowerCase() === 'svg') {
-    node.setAttribute('x', parseInt(node.getAttribute('x'), 10) * viewport.scale);
-    node.setAttribute('y', parseInt(node.getAttribute('y'), 10) * viewport.scale);
+    node.setAttribute(
+      'x',
+      parseInt(node.getAttribute('x'), 10) * viewport.scale
+    );
+    node.setAttribute(
+      'y',
+      parseInt(node.getAttribute('y'), 10) * viewport.scale
+    );
 
     let x = parseInt(node.getAttribute('x', 10));
     let y = parseInt(node.getAttribute('y', 10));
@@ -69,8 +79,14 @@ function transform(node, viewport) {
 
     // Scale width/height
     [node, svg, path, node.querySelector('rect')].forEach((n) => {
-      n.setAttribute('width', parseInt(n.getAttribute('width'), 10) * viewport.scale);
-      n.setAttribute('height', parseInt(n.getAttribute('height'), 10) * viewport.scale);
+      n.setAttribute(
+        'width',
+        parseInt(n.getAttribute('width'), 10) * viewport.scale
+      );
+      n.setAttribute(
+        'height',
+        parseInt(n.getAttribute('height'), 10) * viewport.scale
+      );
     });
 
     // Transform path but keep scale at 100% since it will be handled natively
@@ -119,6 +135,9 @@ export function appendChild(svg, annotation, viewport) {
     case 'highlight':
       child = renderRect(annotation);
       break;
+    case 'image':
+      child = renderImage(annotation);
+      break;
     case 'circle':
     case 'fillcircle':
     case 'emptycircle':
@@ -149,12 +168,31 @@ export function appendChild(svg, annotation, viewport) {
     child.setAttribute('aria-hidden', true);
 
     // Dynamically set any other attributes associated with annotation that is not related to drawing it
-    Object.keys(annotation).filter((key) => {
-      return ['color', 'x', 'y', 'cx', 'cy', 'color', 'documentId', 'lines', 'page',
-        'width', 'class', 'content', 'size', 'rotation', 'r'].indexOf(key) === -1;
-    }).forEach((key) => {
-      child.setAttribute(`data-pdf-annotate-${key}`, annotation[key]);
-    });
+    Object.keys(annotation)
+      .filter((key) => {
+        return (
+          [
+            'color',
+            'x',
+            'y',
+            'cx',
+            'cy',
+            'color',
+            'documentId',
+            'lines',
+            'page',
+            'width',
+            'class',
+            'content',
+            'size',
+            'rotation',
+            'r'
+          ].indexOf(key) === -1
+        );
+      })
+      .forEach((key) => {
+        child.setAttribute(`data-pdf-annotate-${key}`, annotation[key]);
+      });
 
     svg.appendChild(transform(child, viewport));
   }
