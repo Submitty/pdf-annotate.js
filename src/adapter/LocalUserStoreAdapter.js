@@ -27,7 +27,7 @@ export default class LocalUserStoreAdapter extends StoreAdapter {
     this.getAnnotation = (documentId, annotationId) => {
       return Promise.resolve(
         getAnnotations(documentId, this._userId)[
-          findAnnotation(documentId, this._userId, annotationId)
+        findAnnotation(documentId, this._userId, annotationId)
         ]
       );
     };
@@ -219,27 +219,28 @@ export default class LocalUserStoreAdapter extends StoreAdapter {
 
     this.historyStatus = (documentId) => {
       // TODO: needs test!
-      return new Promise((resolve, reject) => {
-        let undo = false;
-        let redo = false;
-        let clear = false;
+      // return new Promise((resolve, reject) => {
+      let undo = false;
+      let redo = false;
+      let clear = false;
 
-        let idx = null;
-        if (this.history[documentId][this._userId]) {
-          idx = this.history[documentId][this._userId]['idx'];
+      let idx = null;
+      if (this.history[documentId][this._userId]) {
+        idx = this.history[documentId][this._userId]['idx'];
+      }
+      if (!this.history[documentId][this._userId]) {
+        return ([undo, redo, clear]);
+      } else {
+        clear = true;
+        if (this.history[documentId][this._userId]['idx'] !== 0) {
+          undo = true;
         }
-        if (!this.history[documentId][this._userId]) {
-        } else {
-          clear = true;
-          if (this.history[documentId][this._userId]['idx'] !== 0) {
-            undo = true;
-          }
-          if (this.history[documentId][this._userId]['record'].length > idx) {
-            redo = true;
-          }
+        if (this.history[documentId][this._userId]['record'].length > idx) {
+          redo = true;
         }
-        resolve([undo, redo, clear]);
-      });
+      }
+      return ([undo, redo, clear]);
+      // });
     };
   }
 

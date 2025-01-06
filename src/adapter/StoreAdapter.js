@@ -300,7 +300,7 @@ export default class StoreAdapter {
    * Return undo, redo and clear status.
    *
    * @param {String} documentId The ID for the document the annotations belong to
-   * @return {Promise} Promise that returns with a list of 3 booleans
+   * @return {boolean[]} a list of 3 booleans
    */
   historyStatus(documentId) {
     abstractFunction('historyStatus');
