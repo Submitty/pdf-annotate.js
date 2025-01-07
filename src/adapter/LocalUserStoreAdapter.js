@@ -225,7 +225,10 @@ export default class LocalUserStoreAdapter extends StoreAdapter {
       let clear = false;
 
       let idx = null;
-      if (this.history[documentId][this._userId]) {
+      if (!this.history[documentId]) {
+        return ([undo, redo, clear]);
+      }
+      if (this.history?.[documentId]?.[this._userId]) {
         idx = this.history[documentId][this._userId]['idx'];
       }
       if (!this.history[documentId][this._userId]) {
