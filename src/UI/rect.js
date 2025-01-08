@@ -8,7 +8,7 @@ import {
   enableUserSelect,
   findSVGAtPoint,
   getMetadata,
-  pointIntersectsRect
+  pointIntersectsAnnotation
 } from './utils';
 
 let _enabled = false;
@@ -37,26 +37,7 @@ function getSelectionRects() {
   return null;
 }
 
-/**
- * Handle document.mousedown event
- *
- * @param {Event} e The DOM event to handle
- * @param {{RectOptions}} options The selected tool type
- */
-function handleDocumentMousedown(e, options = {}) {
-  let svg;
-  if (_type !== 'area' || !(svg = findSVGAtPoint(e.clientX, e.clientY))) {
-    return;
-  }
-
-  if (options.exclusive) {
-    for (const annotation of options.annotations) {
-      if (pointIntersectsRect(e.clientX, e.clientY, annotation)) {
-        return;
-      }
-    }
-  }
-
+function handleMouseDownAction(e, svg, options) {
   let rect = svg.getBoundingClientRect();
   originY = e.clientY;
   originX = e.clientX;
@@ -76,12 +57,48 @@ function handleDocumentMousedown(e, options = {}) {
 }
 
 /**
+ * Handle document.mousedown event
+ *
+ * @param {Event} e The DOM event to handle
+ * @param {{RectOptions}} options The selected tool type
+ */
+function handleDocumentMousedown(e, options = {}) {
+  let svg;
+  if (_type !== 'area' || !(svg = findSVGAtPoint(e.clientX, e.clientY))) {
+    return;
+  }
+
+  if (options.exclusive) {
+    PDFJSAnnotate.getStoreAdapter()
+      .getAnnotations(options.documentId, options.pageNumber)
+      .then((data) => {
+        options.annotations = data.annotations;
+        for (const annotation of options.annotations) {
+          if (
+            pointIntersectsAnnotation(e.clientX, e.clientY, annotation, svg)
+          ) {
+            console.log(
+              '>>>>>>>>>>>>>>>>>>>>>>>pointIntersectsAnnotationRect<<<<<<'
+            );
+            return;
+          }
+        }
+        handleMouseDownAction(e, svg, options);
+      });
+    return;
+  }
+
+  handleMouseDownAction(e, svg, options);
+}
+
+/**
  * Handle document.mousemove event
  *
  * @param {Event} e The DOM event to handle
  * @param {{RectOptions}} options The selected tool type
  */
 function handleDocumentMousemove(e, options) {
+  if (!overlay) return;
   let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
   let rect = svg.getBoundingClientRect();
 
@@ -89,7 +106,7 @@ function handleDocumentMousemove(e, options) {
     let no_intersection = true;
     if (options.exclusive) {
       for (const annotation of options.annotations) {
-        if (pointIntersectsRect(e.clientX, originY, annotation)) {
+        if (pointIntersectsAnnotation(e.clientX, originY, annotation, svg)) {
           no_intersection = false;
         }
       }
@@ -101,7 +118,7 @@ function handleDocumentMousemove(e, options) {
     let no_intersection = true;
     if (options.exclusive) {
       for (const annotation of options.annotations) {
-        if (pointIntersectsRect(originX, e.clientY, annotation)) {
+        if (pointIntersectsAnnotation(originX, e.clientY, annotation, svg)) {
           no_intersection = false;
         }
       }
@@ -264,25 +281,10 @@ function saveRect(type, rects, color) {
  * @param {String} type The selected tool type
  * @param {{RectOptions}} options The selected tool type
  */
-export function enableRect(type, options) {
+export function enableRect(type, options = {}) {
   _type = type;
 
   if (_enabled) {
-    return;
-  }
-
-  if (options.exclusive) {
-    PDFJSAnnotate.getStoreAdapter()
-      .getAnnotations(options.documentId, options.pageNumber)
-      .then((data) => {
-        options.annotations = data;
-        _enabled = true;
-        document.addEventListener('mouseup', handleDocumentMouseup);
-        document.addEventListener('mousedown', (e) =>
-          handleDocumentMousedown(e, options)
-        );
-        document.addEventListener('keyup', handleDocumentKeyup);
-      });
     return;
   }
 
