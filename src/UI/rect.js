@@ -38,6 +38,7 @@ function getSelectionRects() {
   return null;
 }
 
+let handleDocumentMouseMoveWrapper;
 function handleMouseDownAction(e, svg, options) {
   let rect = svg.getBoundingClientRect();
   originY = e.clientY;
@@ -50,10 +51,9 @@ function handleMouseDownAction(e, svg, options) {
   overlay.style.border = `3px solid ${BORDER_COLOR}`;
   overlay.style.borderRadius = '3px';
   svg.parentNode.appendChild(overlay);
+  handleDocumentMouseMoveWrapper = (e) => handleDocumentMousemove(e, options);
+  document.addEventListener('mousemove', handleDocumentMouseMoveWrapper);
 
-  document.addEventListener('mousemove', (e) =>
-    handleDocumentMousemove(e, options)
-  );
   disableUserSelect();
 }
 
@@ -170,7 +170,9 @@ function handleDocumentMouseup(e, options) {
     overlay.parentNode.removeChild(overlay);
     overlay = null;
 
-    document.removeEventListener('mousemove', handleDocumentMousemove);
+    if (handleDocumentMouseMoveWrapper) {
+      document.removeEventListener('mousemove', handleDocumentMouseMoveWrapper);
+    }
     enableUserSelect();
   }
 }
