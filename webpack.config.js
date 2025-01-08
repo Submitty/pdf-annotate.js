@@ -31,7 +31,11 @@ module.exports = {
         loader: 'babel-loader',
         options: {
           presets: ['@babel/preset-env'],
-          plugins: ['add-module-exports']
+          plugins: [
+            'add-module-exports',
+            '@babel/plugin-proposal-optional-chaining', // Ensure optional chaining plugin is included
+            '@babel/plugin-proposal-nullish-coalescing-operator' // Optional if you need nullish coalescing support as well
+          ]
         }
       }
     ]
