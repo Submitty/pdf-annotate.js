@@ -7,7 +7,8 @@ import {
   disableUserSelect,
   enableUserSelect,
   findSVGAtPoint,
-  getMetadata
+  getMetadata,
+  pointIntersectsRect
 } from './utils';
 
 let _enabled = false;
@@ -40,11 +41,20 @@ function getSelectionRects() {
  * Handle document.mousedown event
  *
  * @param {Event} e The DOM event to handle
+ * @param {{RectOptions}} options The selected tool type
  */
-function handleDocumentMousedown(e) {
+function handleDocumentMousedown(e, options = {}) {
   let svg;
   if (_type !== 'area' || !(svg = findSVGAtPoint(e.clientX, e.clientY))) {
     return;
+  }
+
+  if (options.exclusive) {
+    for (const annotation of options.annotations) {
+      if (pointIntersectsRect(e.clientX, e.clientY, annotation)) {
+        return;
+      }
+    }
   }
 
   let rect = svg.getBoundingClientRect();
@@ -59,7 +69,9 @@ function handleDocumentMousedown(e) {
   overlay.style.borderRadius = '3px';
   svg.parentNode.appendChild(overlay);
 
-  document.addEventListener('mousemove', handleDocumentMousemove);
+  document.addEventListener('mousemove', (e) =>
+    handleDocumentMousemove(e, options)
+  );
   disableUserSelect();
 }
 
@@ -67,17 +79,34 @@ function handleDocumentMousedown(e) {
  * Handle document.mousemove event
  *
  * @param {Event} e The DOM event to handle
+ * @param {{RectOptions}} options The selected tool type
  */
-function handleDocumentMousemove(e) {
+function handleDocumentMousemove(e, options) {
   let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
   let rect = svg.getBoundingClientRect();
 
   if (originX + (e.clientX - originX) < rect.right) {
-    overlay.style.width = `${e.clientX - originX}px`;
+    let no_intersection = true;
+    if (options.exclusive) {
+      for (const annotation of options.annotations) {
+        if (pointIntersectsRect(e.clientX, originY, annotation)) {
+          no_intersection = false;
+        }
+      }
+    }
+    if (no_intersection) overlay.style.width = `${e.clientX - originX}px`;
   }
 
   if (originY + (e.clientY - originY) < rect.bottom) {
-    overlay.style.height = `${e.clientY - originY}px`;
+    let no_intersection = true;
+    if (options.exclusive) {
+      for (const annotation of options.annotations) {
+        if (pointIntersectsRect(originX, e.clientY, annotation)) {
+          no_intersection = false;
+        }
+      }
+    }
+    if (no_intersection) overlay.style.height = `${e.clientY - originY}px`;
   }
 }
 
@@ -216,21 +245,55 @@ function saveRect(type, rects, color) {
 }
 
 /**
+ * Rect Options Type
+ * @typedef {
+ * | {
+ *  exclusive?: false;
+ * }
+ * | {
+ *  exclusive: true;
+ *  documentId: string;
+ *  pageNumber: number;
+ * }
+ * } RectOptions
+ */
+
+/**
  * Enable rect behavior
  *
  * @param {String} type The selected tool type
+ * @param {{RectOptions}} options The selected tool type
  */
-export function enableRect(type) {
+export function enableRect(type, options) {
   _type = type;
 
   if (_enabled) {
     return;
   }
 
+  if (options.exclusive) {
+    PDFJSAnnotate.getStoreAdapter()
+      .getAnnotations(options.documentId, options.pageNumber)
+      .then((data) => {
+        options.annotations = data;
+        _enabled = true;
+        document.addEventListener('mouseup', handleDocumentMouseup);
+        document.addEventListener('mousedown', (e) =>
+          handleDocumentMousedown(e, options)
+        );
+        document.addEventListener('keyup', handleDocumentKeyup);
+      });
+    return;
+  }
+
   _enabled = true;
-  document.addEventListener('mouseup', handleDocumentMouseup);
-  document.addEventListener('mousedown', handleDocumentMousedown);
-  document.addEventListener('keyup', handleDocumentKeyup);
+  document.addEventListener('mouseup', (e) =>
+    handleDocumentMouseup(e, options)
+  );
+  document.addEventListener('mousedown', (e) =>
+    handleDocumentMousedown(e, options)
+  );
+  document.addEventListener('keyup', (e) => handleDocumentKeyup(e, options));
 }
 
 /**
