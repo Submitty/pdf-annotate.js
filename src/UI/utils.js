@@ -91,13 +91,36 @@ export function findAnnotationAtPoint(x, y) {
 
 export function pointIntersectsAnnotation(x, y, annotation, svg) {
   let target = svg.querySelector(`[data-pdf-annotate-id="${annotation.uuid}"]`);
+  if (!target) return;
   let rect = getOffsetAnnotationRect(target);
-  console.log(`x: ${x}, y: ${y}`);
-  console.log('rect>>>>: ', rect);
-  console.log(
-    `y>=rect.top:${y >= rect.top};\ny <= rect.bottom: ${y <= rect.bottom};\nx >= rect.left: ${x >= rect.left};\nx <= rect.right: ${x <= rect.right}`
+  let offset = getOffset(target);
+  return pointIntersectsRect(x - offset.offsetLeft, y - offset.offsetTop, rect);
+}
+
+export function rectCrossesRect(x1, y1, x2, y2, rect) {
+  let x3 = rect.left;
+  let y3 = rect.top;
+  let x4 = rect.right;
+  let y4 = rect.bottom;
+
+  let xOverlap = Math.max(0, Math.min(x2, x4) - Math.max(x1, x3));
+  let yOverlap = Math.max(0, Math.min(y2, y4) - Math.max(y1, y3));
+
+  return xOverlap * yOverlap > 0;
+}
+
+export function rectCrossesAnnotation(x1, y1, x2, y2, annotation, svg) {
+  let target = svg.querySelector(`[data-pdf-annotate-id="${annotation.uuid}"]`);
+  if (!target) return;
+  let rect = getOffsetAnnotationRect(target);
+  let offset = getOffset(target);
+  return rectCrossesRect(
+    x1 - offset.offsetLeft,
+    y1 - offset.offsetTop,
+    x2 - offset.offsetLeft,
+    y2 - offset.offsetTop,
+    rect
   );
-  return pointIntersectsRect(x, y, rect);
 }
 
 /**
