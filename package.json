@@ -10,7 +10,7 @@
     "start": "./scripts/web",
     "lint": "./node_modules/.bin/eslint .",
     "startindocker": "./scripts/web-docker",
-    "build": "webpack && MINIFY=1 webpack",
+    "build": "webpack build --config ./webpack.web-build.js",
     "codecov": "codecov",
     "types": "tsc"
   },
