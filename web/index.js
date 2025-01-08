@@ -385,7 +385,8 @@ render();
         UI.enableRect(type, {
           exclusive: true,
           documentId: RENDER_OPTIONS.documentId,
-          pageNumber: 1
+          pageNumber: 1,
+          annotation_type: 'signature'
         });
         break;
       case 'circle':

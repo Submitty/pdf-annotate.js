@@ -133,7 +133,7 @@ function handleDocumentMousemove(e, options) {
  *
  * @param {Event} e The DOM event to handle
  */
-function handleDocumentMouseup(e) {
+function handleDocumentMouseup(e, options) {
   let rects;
   if (_type !== 'area' && (rects = getSelectionRects())) {
     saveRect(
@@ -145,20 +145,27 @@ function handleDocumentMouseup(e) {
           width: r.width,
           height: r.height
         };
-      })
+      }),
+      undefined,
+      options.annotation_type
     );
   }
   else if (_type === 'area' && overlay) {
     let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
     let rect = svg.getBoundingClientRect();
-    saveRect(_type, [
-      {
-        top: parseInt(overlay.style.top, 10) + rect.top,
-        left: parseInt(overlay.style.left, 10) + rect.left,
-        width: parseInt(overlay.style.width, 10),
-        height: parseInt(overlay.style.height, 10)
-      }
-    ]);
+    saveRect(
+      _type,
+      [
+        {
+          top: parseInt(overlay.style.top, 10) + rect.top,
+          left: parseInt(overlay.style.left, 10) + rect.left,
+          width: parseInt(overlay.style.width, 10),
+          height: parseInt(overlay.style.height, 10)
+        }
+      ],
+      undefined,
+      options.annotation_type
+    );
 
     overlay.parentNode.removeChild(overlay);
     overlay = null;
@@ -193,7 +200,7 @@ function handleDocumentKeyup(e) {
  * @param {Array} rects The rects to use for annotation
  * @param {String} color The color of the rects
  */
-function saveRect(type, rects, color) {
+function saveRect(type, rects, color, annotation_type) {
   let svg = findSVGAtPoint(rects[0].left, rects[0].top);
   let annotation;
 
@@ -242,6 +249,7 @@ function saveRect(type, rects, color) {
     return;
   }
 
+  annotation.annotation_type = annotation_type;
   // Special treatment for area as it only supports a single rect
   if (type === 'area') {
     let rect = annotation.rectangles[0];
