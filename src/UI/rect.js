@@ -280,6 +280,9 @@ function saveRect(type, rects, color, annotation_type) {
  * }} RectOptions
  */
 
+let handleDocumentMouseupWrapper;
+let handleDocumentMousedownWrapper;
+let handleDocumentKeyupWrapper;
 /**
  * Enable rect behavior
  *
@@ -292,14 +295,14 @@ export function enableRect(type, options = {}) {
     return;
   }
 
+  handleDocumentMouseupWrapper = (e) => handleDocumentMouseup(e, options);
+  handleDocumentMousedownWrapper = (e) => handleDocumentMousedown(e, options);
+  handleDocumentKeyupWrapper = (e) => handleDocumentKeyup(e, options);
+
   _enabled = true;
-  document.addEventListener('mouseup', (e) =>
-    handleDocumentMouseup(e, options)
-  );
-  document.addEventListener('mousedown', (e) =>
-    handleDocumentMousedown(e, options)
-  );
-  document.addEventListener('keyup', (e) => handleDocumentKeyup(e, options));
+  document.addEventListener('mouseup', handleDocumentMouseupWrapper);
+  document.addEventListener('mousedown', handleDocumentMousedownWrapper);
+  document.addEventListener('keyup', handleDocumentKeyupWrapper);
 }
 
 /**
@@ -311,7 +314,13 @@ export function disableRect() {
   }
 
   _enabled = false;
-  document.removeEventListener('mouseup', handleDocumentMouseup);
-  document.removeEventListener('mousedown', handleDocumentMousedown);
-  document.removeEventListener('keyup', handleDocumentKeyup);
+  if (handleDocumentMouseupWrapper) {
+    document.removeEventListener('mouseup', handleDocumentMouseupWrapper);
+  }
+  if (handleDocumentMousedownWrapper) {
+    document.removeEventListener('mousedown', handleDocumentMousedownWrapper);
+  }
+  if (handleDocumentKeyupWrapper) {
+    document.removeEventListener('keyup', handleDocumentKeyupWrapper);
+  }
 }
