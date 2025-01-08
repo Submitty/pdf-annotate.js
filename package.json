@@ -5,6 +5,7 @@
   "main": "index.js",
   "types": "types",
   "scripts": {
+    "run": "webpack serve --config ./webpack.web.js --static web/",
     "test": "karma start --single-run",
     "start": "./scripts/web",
     "lint": "./node_modules/.bin/eslint .",
@@ -38,6 +39,8 @@
   "homepage": "https://github.com/Submitty/pdf-annotate.js#readme",
   "devDependencies": {
     "@babel/core": "^7.4.5",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.18.6",
+    "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@babel/preset-env": "^7.4.5",
     "babel-loader": "^8.0.6",
     "babel-plugin-add-module-exports": "^1.0.2",
@@ -55,7 +58,7 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^4.0.2",
     "mocha": "^10.4.0",
-    "pdfjs-dist": "4.3.136",
+    "pdfjs-dist": "^4.9.155",
     "sinon": "^18.0.0",
     "sinon-chai": "^3.3.0",
     "terser-webpack-plugin": "^4.2.3",
