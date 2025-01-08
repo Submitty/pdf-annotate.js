@@ -8,7 +8,8 @@ import {
   enableUserSelect,
   findSVGAtPoint,
   getMetadata,
-  pointIntersectsAnnotation
+  pointIntersectsAnnotation,
+  rectCrossesAnnotation
 } from './utils';
 
 let _enabled = false;
@@ -77,9 +78,6 @@ function handleDocumentMousedown(e, options = {}) {
           if (
             pointIntersectsAnnotation(e.clientX, e.clientY, annotation, svg)
           ) {
-            console.log(
-              '>>>>>>>>>>>>>>>>>>>>>>>pointIntersectsAnnotationRect<<<<<<'
-            );
             return;
           }
         }
@@ -101,29 +99,32 @@ function handleDocumentMousemove(e, options) {
   if (!overlay) return;
   let svg = overlay.parentNode.querySelector(config.annotationSvgQuery());
   let rect = svg.getBoundingClientRect();
-
-  if (originX + (e.clientX - originX) < rect.right) {
-    let no_intersection = true;
-    if (options.exclusive) {
-      for (const annotation of options.annotations) {
-        if (pointIntersectsAnnotation(e.clientX, originY, annotation, svg)) {
-          no_intersection = false;
-        }
+  let no_intersection = true;
+  if (options.exclusive) {
+    for (const annotation of options.annotations) {
+      if (
+        pointIntersectsAnnotation(e.clientX, e.clientY, annotation, svg) ||
+        rectCrossesAnnotation(
+          originX,
+          originY,
+          e.clientX,
+          e.clientY,
+          annotation,
+          svg
+        )
+      ) {
+        no_intersection = false;
       }
     }
+  }
+  if (originX + (e.clientX - originX) < rect.right) {
     if (no_intersection) overlay.style.width = `${e.clientX - originX}px`;
   }
 
   if (originY + (e.clientY - originY) < rect.bottom) {
-    let no_intersection = true;
-    if (options.exclusive) {
-      for (const annotation of options.annotations) {
-        if (pointIntersectsAnnotation(originX, e.clientY, annotation, svg)) {
-          no_intersection = false;
-        }
-      }
+    if (no_intersection) {
+      overlay.style.height = `${e.clientY - originY}px`;
     }
-    if (no_intersection) overlay.style.height = `${e.clientY - originY}px`;
   }
 }
 
