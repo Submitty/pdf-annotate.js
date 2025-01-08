@@ -264,27 +264,22 @@ function saveRect(type, rects, color) {
 
 /**
  * Rect Options Type
- * @typedef {
- * | {
- *  exclusive?: false;
- * }
- * | {
- *  exclusive: true;
- *  documentId: string;
- *  pageNumber: number;
- * }
- * } RectOptions
+ * @typedef {{
+ *  exclusive: boolean;
+ *  documentId?: string;
+ *  pageNumber?: number;
+ *  annotation_type?: string;
+ * }} RectOptions
  */
 
 /**
  * Enable rect behavior
  *
  * @param {String} type The selected tool type
- * @param {{RectOptions}} options The selected tool type
+ * @param {RectOptions} options The selected tool type
  */
 export function enableRect(type, options = {}) {
   _type = type;
-
   if (_enabled) {
     return;
   }
