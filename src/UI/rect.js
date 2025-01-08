@@ -190,7 +190,12 @@ function handleDocumentKeyup(e) {
     if (overlay && overlay.parentNode) {
       overlay.parentNode.removeChild(overlay);
       overlay = null;
-      document.removeEventListener('mousemove', handleDocumentMousemove);
+      if (handleDocumentMouseMoveWrapper) {
+        document.removeEventListener(
+          'mousemove',
+          handleDocumentMouseMoveWrapper
+        );
+      }
     }
   }
 }
