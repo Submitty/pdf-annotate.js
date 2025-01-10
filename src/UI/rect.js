@@ -33,7 +33,7 @@ function getSelectionRects() {
       return rects;
     }
   }
-  catch (e) {}
+  catch (e) { }
 
   return null;
 }
@@ -147,7 +147,7 @@ function handleDocumentMouseup(e, options) {
         };
       }),
       undefined,
-      options.annotation_type
+      options
     );
   }
   else if (_type === 'area' && overlay) {
@@ -164,7 +164,7 @@ function handleDocumentMouseup(e, options) {
         }
       ],
       undefined,
-      options.annotation_type
+      options
     );
 
     overlay.parentNode.removeChild(overlay);
@@ -207,7 +207,7 @@ function handleDocumentKeyup(e) {
  * @param {Array} rects The rects to use for annotation
  * @param {String} color The color of the rects
  */
-function saveRect(type, rects, color, annotation_type) {
+function saveRect(type, rects, color, options) {
   let svg = findSVGAtPoint(rects[0].left, rects[0].top);
   let annotation;
 
@@ -256,7 +256,7 @@ function saveRect(type, rects, color, annotation_type) {
     return;
   }
 
-  annotation.annotation_type = annotation_type;
+  annotation.annotation_type = options.annotation_type;
   // Special treatment for area as it only supports a single rect
   if (type === 'area') {
     let rect = annotation.rectangles[0];
@@ -274,6 +274,9 @@ function saveRect(type, rects, color, annotation_type) {
     .addAnnotation(documentId, pageNumber, annotation)
     .then((annotation) => {
       appendChild(svg, annotation);
+      if (options.afterSave) {
+        options.afterSave(annotation);
+      }
     });
 }
 
@@ -303,12 +306,7 @@ export function enableRect(type, options = {}) {
     return;
   }
 
-  handleDocumentMouseupWrapper = (e) => {
-    handleDocumentMouseup(e, options);
-    if (options.afterSave) {
-      options.afterSave();
-    }
-  };
+  handleDocumentMouseupWrapper = (e) => handleDocumentMouseup(e, options);
   handleDocumentMousedownWrapper = (e) => handleDocumentMousedown(e, options);
   handleDocumentKeyupWrapper = (e) => handleDocumentKeyup(e, options);
 
