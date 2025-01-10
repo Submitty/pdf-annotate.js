@@ -284,6 +284,7 @@ function saveRect(type, rects, color, annotation_type) {
  *  documentId?: string;
  *  pageNumber?: number;
  *  annotation_type?: string;
+ *  afterSave?: Function;
  * }} RectOptions
  */
 
@@ -302,7 +303,12 @@ export function enableRect(type, options = {}) {
     return;
   }
 
-  handleDocumentMouseupWrapper = (e) => handleDocumentMouseup(e, options);
+  handleDocumentMouseupWrapper = (e) => {
+    handleDocumentMouseup(e, options);
+    if (options.afterSave) {
+      options.afterSave();
+    }
+  };
   handleDocumentMousedownWrapper = (e) => handleDocumentMousedown(e, options);
   handleDocumentKeyupWrapper = (e) => handleDocumentKeyup(e, options);
 
