@@ -1,21 +1,38 @@
-import { addEventListener, removeEventListener, fireEvent } from './event';
-import { disableEdit, enableEdit } from './edit';
-import { disablePen, enablePen, setPen } from './pen';
 import { disableArrow, enableArrow, setArrow } from './arrow';
+import { addCircle, disableCircle, enableCircle, setCircle } from './circle';
+import {
+  createEditOverlay,
+  destroyEditOverlay,
+  disableEdit,
+  enableEdit
+} from './edit';
 import { disableEraser, enableEraser } from './eraser';
+import {
+  addEventListener,
+  disableUI,
+  enableUI,
+  fireEvent,
+  removeAllEventListener,
+  removeEventListener
+} from './event';
+import { createPage, renderPage, rerenderAnnotations } from './page';
+import { disablePen, enablePen, setPen } from './pen';
 import { disablePoint, enablePoint } from './point';
 import { disableRect, enableRect } from './rect';
-import { disableCircle, enableCircle, setCircle, addCircle } from './circle';
 import { disableText, enableText, setText } from './text';
-import { createPage, renderPage } from './page';
 
 export default {
   addEventListener,
   removeEventListener,
   fireEvent,
+  removeAllEventListener,
+  enableUI,
+  disableUI,
 
   disableEdit,
   enableEdit,
+  createEditOverlay,
+  destroyEditOverlay,
 
   disablePen,
   enablePen,
@@ -44,5 +61,6 @@ export default {
   setText,
 
   createPage,
-  renderPage
+  renderPage,
+  rerenderAnnotations
 };

@@ -29,7 +29,9 @@ let renderedPages = [];
 let okToRender = false;
 document.getElementById('content-wrapper').addEventListener('scroll', (e) => {
   let visiblePageNum = Math.round(e.target.scrollTop / PAGE_HEIGHT) + 1;
-  let visiblePage = document.querySelector(`.page[data-page-number="${visiblePageNum}"][data-loaded="false"]`);
+  let visiblePage = document.querySelector(
+    `.page[data-page-number="${visiblePageNum}"][data-loaded="false"]`
+  );
 
   if (renderedPages.indexOf(visiblePageNum) === -1) {
     okToRender = true;
@@ -65,7 +67,10 @@ function render() {
     }
 
     UI.renderPage(1, RENDER_OPTIONS).then(([pdfPage, annotations]) => {
-      let viewport = pdfPage.getViewport({scale: RENDER_OPTIONS.scale, rotation: RENDER_OPTIONS.rotate});
+      let viewport = pdfPage.getViewport({
+        scale: RENDER_OPTIONS.scale,
+        rotation: RENDER_OPTIONS.rotate
+      });
       PAGE_HEIGHT = viewport.height;
     });
   });
@@ -74,7 +79,9 @@ render();
 
 // Hotspot color stuff
 (function() {
-  let hotspotColor = localStorage.getItem(`${RENDER_OPTIONS.documentId}/hotspot/color`) || 'darkgoldenrod';
+  let hotspotColor =
+    localStorage.getItem(`${RENDER_OPTIONS.documentId}/hotspot/color`) ||
+    'darkgoldenrod';
   let currentTarget;
 
   function handleAnnotationClick(target) {
@@ -101,36 +108,46 @@ render();
     }
   }
 
-  initColorPicker(document.querySelector('.hotspot-color'), hotspotColor, function(value) {
-    if (value === hotspotColor) {
-      return; // nothing to do
+  initColorPicker(
+    document.querySelector('.hotspot-color'),
+    hotspotColor,
+    function(value) {
+      if (value === hotspotColor) {
+        return; // nothing to do
+      }
+      localStorage.setItem(`${RENDER_OPTIONS.documentId}/hotspot/color`, value);
+      hotspotColor = value;
+
+      UI.setArrow(10, hotspotColor);
+      UI.setCircle(10, hotspotColor);
+
+      if (!currentTarget) {
+        return; // nothing to do
+      }
+
+      let type = currentTarget.getAttribute('data-pdf-annotate-type');
+      let annotationId = currentTarget.getAttribute('data-pdf-annotate-id');
+      if (['fillcircle', 'arrow'].indexOf(type) === -1) {
+        return; // nothing to do
+      }
+
+      // update target
+      currentTarget.setAttribute('stroke', hotspotColor);
+      currentTarget.setAttribute('fill', hotspotColor);
+
+      // update annotation
+      PDFJSAnnotate.getStoreAdapter()
+        .getAnnotation(documentId, annotationId)
+        .then((annotation) => {
+          annotation.color = hotspotColor;
+          PDFJSAnnotate.getStoreAdapter().editAnnotation(
+            documentId,
+            annotationId,
+            annotation
+          );
+        });
     }
-    localStorage.setItem(`${RENDER_OPTIONS.documentId}/hotspot/color`, value);
-    hotspotColor = value;
-
-    UI.setArrow(10, hotspotColor);
-    UI.setCircle(10, hotspotColor);
-
-    if (!currentTarget) {
-      return; // nothing to do
-    }
-
-    let type = currentTarget.getAttribute('data-pdf-annotate-type');
-    let annotationId = currentTarget.getAttribute('data-pdf-annotate-id');
-    if (['fillcircle', 'arrow'].indexOf(type) === -1) {
-      return; // nothing to do
-    }
-
-    // update target
-    currentTarget.setAttribute('stroke', hotspotColor);
-    currentTarget.setAttribute('fill', hotspotColor);
-
-    // update annotation
-    PDFJSAnnotate.getStoreAdapter().getAnnotation(documentId, annotationId).then((annotation) => {
-      annotation.color = hotspotColor;
-      PDFJSAnnotate.getStoreAdapter().editAnnotation(documentId, annotationId, annotation);
-    });
-  });
+  );
 
   UI.addEventListener('annotation:click', handleAnnotationClick);
   UI.addEventListener('annotation:blur', handleAnnotationBlur);
@@ -149,12 +166,17 @@ render();
 
     setText(
       localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/size`) || 12,
-      localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/color`) || '#000000'
+      localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/color`) ||
+        '#000000'
     );
 
-    initColorPicker(document.querySelector('.text-color'), textColor, function(value) {
-      setText(textSize, value);
-    });
+    initColorPicker(
+      document.querySelector('.text-color'),
+      textColor,
+      function(value) {
+        setText(textSize, value);
+      }
+    );
   }
 
   function setText(size, color) {
@@ -170,15 +192,22 @@ render();
     if (textColor !== color) {
       modified = true;
       textColor = color;
-      localStorage.setItem(`${RENDER_OPTIONS.documentId}/text/color`, textColor);
+      localStorage.setItem(
+        `${RENDER_OPTIONS.documentId}/text/color`,
+        textColor
+      );
 
-      let selected = document.querySelector('.toolbar .text-color.color-selected');
+      let selected = document.querySelector(
+        '.toolbar .text-color.color-selected'
+      );
       if (selected) {
         selected.classList.remove('color-selected');
         selected.removeAttribute('aria-selected');
       }
 
-      selected = document.querySelector(`.toolbar .text-color[data-color="${color}"]`);
+      selected = document.querySelector(
+        `.toolbar .text-color[data-color="${color}"]`
+      );
       if (selected) {
         selected.classList.add('color-selected');
         selected.setAttribute('aria-selected', true);
@@ -194,7 +223,9 @@ render();
     setText(e.target.value, textColor);
   }
 
-  document.querySelector('.toolbar .text-size').addEventListener('change', handleTextSizeChange);
+  document
+    .querySelector('.toolbar .text-size')
+    .addEventListener('change', handleTextSizeChange);
 
   initText();
 })();
@@ -212,12 +243,17 @@ render();
 
     setPen(
       localStorage.getItem(`${RENDER_OPTIONS.documentId}/pen/size`) || 1,
-      localStorage.getItem(`${RENDER_OPTIONS.documentId}/pen/color`) || '#000000'
+      localStorage.getItem(`${RENDER_OPTIONS.documentId}/pen/color`) ||
+        '#000000'
     );
 
-    initColorPicker(document.querySelector('.pen-color'), penColor, function(value) {
-      setPen(penSize, value);
-    });
+    initColorPicker(
+      document.querySelector('.pen-color'),
+      penColor,
+      function(value) {
+        setPen(penSize, value);
+      }
+    );
   }
 
   function setPen(size, color) {
@@ -235,13 +271,17 @@ render();
       penColor = color;
       localStorage.setItem(`${RENDER_OPTIONS.documentId}/pen/color`, penColor);
 
-      let selected = document.querySelector('.toolbar .pen-color.color-selected');
+      let selected = document.querySelector(
+        '.toolbar .pen-color.color-selected'
+      );
       if (selected) {
         selected.classList.remove('color-selected');
         selected.removeAttribute('aria-selected');
       }
 
-      selected = document.querySelector(`.toolbar .pen-color[data-color="${color}"]`);
+      selected = document.querySelector(
+        `.toolbar .pen-color[data-color="${color}"]`
+      );
       if (selected) {
         selected.classList.add('color-selected');
         selected.setAttribute('aria-selected', true);
@@ -257,16 +297,22 @@ render();
     setPen(e.target.value, penColor);
   }
 
-  document.querySelector('.toolbar .pen-size').addEventListener('change', handlePenSizeChange);
+  document
+    .querySelector('.toolbar .pen-size')
+    .addEventListener('change', handlePenSizeChange);
 
   initPen();
 })();
 
 // Toolbar buttons
 (function() {
-  let tooltype = localStorage.getItem(`${RENDER_OPTIONS.documentId}/tooltype`) || 'cursor';
+  let tooltype =
+    localStorage.getItem(`${RENDER_OPTIONS.documentId}/tooltype`) || 'cursor';
   if (tooltype) {
-    setActiveToolbarItem(tooltype, document.querySelector(`.toolbar button[data-tooltype=${tooltype}]`));
+    setActiveToolbarItem(
+      tooltype,
+      document.querySelector(`.toolbar button[data-tooltype=${tooltype}]`)
+    );
   }
 
   function setActiveToolbarItem(type, button) {
@@ -336,7 +382,12 @@ render();
       case 'area':
       case 'highlight':
       case 'strikeout':
-        UI.enableRect(type);
+        UI.enableRect(type, {
+          exclusive: true,
+          documentId: RENDER_OPTIONS.documentId,
+          pageNumber: 1,
+          annotation_type: 'signature'
+        });
         break;
       case 'circle':
       case 'emptycircle':
@@ -352,7 +403,9 @@ render();
     }
   }
 
-  document.querySelector('.toolbar').addEventListener('click', handleToolbarClick);
+  document
+    .querySelector('.toolbar')
+    .addEventListener('click', handleToolbarClick);
 })();
 
 // Scale/rotate
@@ -365,8 +418,14 @@ render();
       RENDER_OPTIONS.scale = scale;
       RENDER_OPTIONS.rotate = rotate;
 
-      localStorage.setItem(`${RENDER_OPTIONS.documentId}/scale`, RENDER_OPTIONS.scale);
-      localStorage.setItem(`${RENDER_OPTIONS.documentId}/rotate`, RENDER_OPTIONS.rotate % 360);
+      localStorage.setItem(
+        `${RENDER_OPTIONS.documentId}/scale`,
+        RENDER_OPTIONS.scale
+      );
+      localStorage.setItem(
+        `${RENDER_OPTIONS.documentId}/rotate`,
+        RENDER_OPTIONS.rotate % 360
+      );
 
       render();
     }
@@ -385,9 +444,15 @@ render();
   }
 
   document.querySelector('.toolbar select.scale').value = RENDER_OPTIONS.scale;
-  document.querySelector('.toolbar select.scale').addEventListener('change', handleScaleChange);
-  document.querySelector('.toolbar .rotate-ccw').addEventListener('click', handleRotateCCWClick);
-  document.querySelector('.toolbar .rotate-cw').addEventListener('click', handleRotateCWClick);
+  document
+    .querySelector('.toolbar select.scale')
+    .addEventListener('change', handleScaleChange);
+  document
+    .querySelector('.toolbar .rotate-ccw')
+    .addEventListener('click', handleRotateCCWClick);
+  document
+    .querySelector('.toolbar .rotate-cw')
+    .addEventListener('click', handleRotateCWClick);
 })();
 
 // Clear toolbar button
@@ -395,7 +460,9 @@ render();
   function handleClearClick(e) {
     if (confirm('Are you sure you want to clear annotations?')) {
       for (let i = 0; i < NUM_PAGES; i++) {
-        document.querySelector(`div#pageContainer${i + 1} svg.annotationLayer`).innerHTML = '';
+        document.querySelector(
+          `div#pageContainer${i + 1} svg.annotationLayer`
+        ).innerHTML = '';
       }
 
       localStorage.removeItem(`${RENDER_OPTIONS.documentId}/annotations`);
@@ -406,8 +473,12 @@ render();
 
 // Comment stuff
 (function(window, document) {
-  let commentList = document.querySelector('#comment-wrapper .comment-list-container');
-  let commentForm = document.querySelector('#comment-wrapper .comment-list-form');
+  let commentList = document.querySelector(
+    '#comment-wrapper .comment-list-container'
+  );
+  let commentForm = document.querySelector(
+    '#comment-wrapper .comment-list-form'
+  );
   let commentText = commentForm.querySelector('input[type="text"]');
 
   function supportsComments(target) {
@@ -425,27 +496,32 @@ render();
 
   function handleAnnotationClick(target) {
     if (supportsComments(target)) {
-      let documentId = target.parentNode.getAttribute('data-pdf-annotate-document');
+      let documentId = target.parentNode.getAttribute(
+        'data-pdf-annotate-document'
+      );
       let annotationId = target.getAttribute('data-pdf-annotate-id');
 
-      PDFJSAnnotate.getStoreAdapter().getComments(documentId, annotationId).then((comments) => {
-        commentList.innerHTML = '';
-        commentForm.style.display = '';
-        commentText.focus();
+      PDFJSAnnotate.getStoreAdapter()
+        .getComments(documentId, annotationId)
+        .then((comments) => {
+          commentList.innerHTML = '';
+          commentForm.style.display = '';
+          commentText.focus();
 
-        commentForm.onsubmit = function() {
-          PDFJSAnnotate.getStoreAdapter().addComment(documentId, annotationId, commentText.value.trim())
-            .then(insertComment)
-            .then(() => {
-              commentText.value = '';
-              commentText.focus();
-            });
+          commentForm.onsubmit = function() {
+            PDFJSAnnotate.getStoreAdapter()
+              .addComment(documentId, annotationId, commentText.value.trim())
+              .then(insertComment)
+              .then(() => {
+                commentText.value = '';
+                commentText.focus();
+              });
 
-          return false;
-        };
+            return false;
+          };
 
-        comments.forEach(insertComment);
-      });
+          comments.forEach(insertComment);
+        });
     }
   }
 
@@ -455,7 +531,7 @@ render();
       commentForm.style.display = 'none';
       commentForm.onsubmit = null;
 
-      insertComment({content: 'No comments'});
+      insertComment({ content: 'No comments' });
     }
   }
 

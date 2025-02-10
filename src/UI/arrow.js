@@ -1,14 +1,14 @@
 import PDFJSAnnotate from '../PDFJSAnnotate';
 import { appendChild } from '../render/appendChild';
 import {
+  convertToScreenPoint,
+  convertToSvgPoint,
   disableUserSelect,
   enableUserSelect,
+  findAnnotationAtPoint,
   findSVGAtPoint,
   findSVGContainer,
-  getMetadata,
-  convertToSvgPoint,
-  convertToScreenPoint,
-  findAnnotationAtPoint
+  getMetadata
 } from './utils';
 
 let _enabled = false;
@@ -21,6 +21,8 @@ let originX;
 
 /**
  * Handle document.mousedown event
+ *
+ * @param {Event} e The DOM event to be handled
  */
 function handleDocumentMousedown(e) {
   let target = findAnnotationAtPoint(e.clientX, e.clientY);
@@ -37,25 +39,24 @@ function handleDocumentMousedown(e) {
   let { documentId } = getMetadata(svg);
   let annotationId = target.getAttribute('data-pdf-annotate-id');
 
-  PDFJSAnnotate.getStoreAdapter().getAnnotation(documentId, annotationId).then((annotation) => {
-    if (annotation) {
-      path = null;
-      lines = [];
+  PDFJSAnnotate.getStoreAdapter()
+    .getAnnotation(documentId, annotationId)
+    .then((annotation) => {
+      if (annotation) {
+        path = null;
+        lines = [];
 
-      let point = convertToScreenPoint([
-        annotation.cx,
-        annotation.cy
-      ], svg);
+        let point = convertToScreenPoint([annotation.cx, annotation.cy], svg);
 
-      let rect = svg.getBoundingClientRect();
+        let rect = svg.getBoundingClientRect();
 
-      originX = point[0] + rect.left;
-      originY = point[1] + rect.top;
+        originX = point[0] + rect.left;
+        originY = point[1] + rect.top;
 
-      document.addEventListener('mousemove', handleDocumentMousemove);
-      document.addEventListener('mouseup', handleDocumentMouseup);
-    }
-  });
+        document.addEventListener('mousemove', handleDocumentMousemove);
+        document.addEventListener('mouseup', handleDocumentMouseup);
+      }
+    });
 }
 
 /**
@@ -68,18 +69,20 @@ function handleDocumentMouseup(e) {
   if (lines.length > 1 && (svg = findSVGAtPoint(e.clientX, e.clientY))) {
     let { documentId, pageNumber } = getMetadata(svg);
 
-    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, {
-      type: 'arrow',
-      width: _penSize,
-      color: _penColor,
-      lines
-    }).then((annotation) => {
-      if (path) {
-        svg.removeChild(path);
-      }
+    PDFJSAnnotate.getStoreAdapter()
+      .addAnnotation(documentId, pageNumber, {
+        type: 'arrow',
+        width: _penSize,
+        color: _penColor,
+        lines
+      })
+      .then((annotation) => {
+        if (path) {
+          svg.removeChild(path);
+        }
 
-      appendChild(svg, annotation);
-    });
+        appendChild(svg, annotation);
+      });
   }
 
   document.removeEventListener('mousemove', handleDocumentMousemove);
@@ -126,10 +129,7 @@ function savePoint(x, y) {
   }
 
   let rect = svg.getBoundingClientRect();
-  let point = convertToSvgPoint([
-    x - rect.left,
-    y - rect.top
-  ], svg);
+  let point = convertToSvgPoint([x - rect.left, y - rect.top], svg);
 
   if (lines.length < 2) {
     lines.push(point);
@@ -166,7 +166,9 @@ export function setArrow(penSize = 10, penColor = '0000FF') {
  * Enable the pen behavior
  */
 export function enableArrow() {
-  if (_enabled) { return; }
+  if (_enabled) {
+    return;
+  }
 
   _enabled = true;
   document.addEventListener('mousedown', handleDocumentMousedown);
@@ -178,11 +180,12 @@ export function enableArrow() {
  * Disable the pen behavior
  */
 export function disableArrow() {
-  if (!_enabled) { return; }
+  if (!_enabled) {
+    return;
+  }
 
   _enabled = false;
   document.removeEventListener('mousedown', handleDocumentMousedown);
   document.removeEventListener('keyup', handleDocumentKeyup);
   enableUserSelect();
 }
-

@@ -14,6 +14,7 @@ import { appendChild, transformChild } from './appendChild';
 export default function render(svg, viewport, data) {
   return new Promise((resolve, reject) => {
     // Reset the content of the SVG
+    svg.innerHTML = '';
     svg.setAttribute('data-pdf-annotate-container', true);
     svg.setAttribute('data-pdf-annotate-viewport', JSON.stringify(viewport));
     svg.removeAttribute('data-pdf-annotate-document');

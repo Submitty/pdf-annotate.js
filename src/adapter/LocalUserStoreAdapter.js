@@ -25,7 +25,11 @@ export default class LocalUserStoreAdapter extends StoreAdapter {
     this._globalEdit = globalEdit;
 
     this.getAnnotation = (documentId, annotationId) => {
-      return Promise.resolve(getAnnotations(documentId, this._userId)[findAnnotation(documentId, this._userId, annotationId)]);
+      return Promise.resolve(
+        getAnnotations(documentId, this._userId)[
+        findAnnotation(documentId, this._userId, annotationId)
+        ]
+      );
     };
 
     this.addAnnotation = (documentId, pageNumber, annotation) => {
@@ -37,7 +41,7 @@ export default class LocalUserStoreAdapter extends StoreAdapter {
 
         let annotations = getAnnotations(documentId, this._userId);
         annotations.push(annotation);
-        updateAnnotations(documentId, this._userId, annotations);
+        updateAnnotations(documentId, this._userId, annotations, this.history);
 
         resolve(annotation);
       });
@@ -45,30 +49,52 @@ export default class LocalUserStoreAdapter extends StoreAdapter {
 
     this.editAnnotation = (documentId, annotationId, annotation) => {
       return new Promise((resolve, reject) => {
-        if (!this._globalEdit && annotation.userId && annotation.userId !== this._userId) {
+        if (
+          !this._globalEdit &&
+          annotation.userId &&
+          annotation.userId !== this._userId
+        ) {
           reject('Non-matching userId');
         }
         let annotations = getAnnotations(documentId, annotation.userId);
-        annotations[findAnnotation(documentId, annotation.userId, annotationId)] = annotation;
-        updateAnnotations(documentId, annotation.userId, annotations);
+        annotations[
+          findAnnotation(documentId, annotation.userId, annotationId)
+        ] = annotation;
+        updateAnnotations(
+          documentId,
+          annotation.userId,
+          annotations,
+          this.history
+        );
         resolve(annotation);
       });
     };
 
     this.deleteAnnotation = (documentId, annotationId) => {
       return new Promise((resolve, reject) => {
-        let annotation = getAllAnnotations(documentId).filter(i => i.uuid === annotationId)[0] || {};
+        let annotation =
+          getAllAnnotations(documentId).filter(
+            (i) => i.uuid === annotationId
+          )[0] || {};
         if (!annotation) {
           return reject('Could not find annotation');
-        }
-        else if (!this._globalEdit && annotation.userId && annotation.userId !== this._userId) {
+        } else if (
+          !this._globalEdit &&
+          annotation.userId &&
+          annotation.userId !== this._userId
+        ) {
           return reject('Non-matching userId');
         }
         let index = findAnnotation(documentId, annotation.userId, annotationId);
         if (index > -1) {
           let annotations = getAnnotations(documentId, annotation.userId);
           annotations.splice(index, 1);
-          updateAnnotations(documentId, annotation.userId, annotations);
+          updateAnnotations(
+            documentId,
+            annotation.userId,
+            annotations,
+            this.history
+          );
         }
 
         resolve(true);
@@ -77,9 +103,11 @@ export default class LocalUserStoreAdapter extends StoreAdapter {
 
     this.getComments = (documentId, annotationId) => {
       return new Promise((resolve, reject) => {
-        resolve(getAnnotations(documentId, this._userId).filter((i) => {
-          return i.class === 'Comment' && i.annotation === annotationId;
-        }));
+        resolve(
+          getAnnotations(documentId, this._userId).filter((i) => {
+            return i.class === 'Comment' && i.annotation === annotationId;
+          })
+        );
       });
     };
 
@@ -95,7 +123,7 @@ export default class LocalUserStoreAdapter extends StoreAdapter {
 
         let annotations = getAnnotations(documentId, this._userId);
         annotations.push(comment);
-        updateAnnotations(documentId, this._userId, annotations);
+        updateAnnotations(documentId, this._userId, annotations, this.history);
 
         resolve(comment);
       });
@@ -103,11 +131,17 @@ export default class LocalUserStoreAdapter extends StoreAdapter {
 
     this.deleteComment = (documentId, commentId) => {
       return new Promise((resolve, reject) => {
-        let comment = getAllAnnotations(documentId).filter(i => i.uuid === commentId)[0] || {};
+        let comment =
+          getAllAnnotations(documentId).filter(
+            (i) => i.uuid === commentId
+          )[0] || {};
         if (!comment) {
           return reject('Could not find annotation');
-        }
-        else if (!this._globalEdit && comment.userId && comment.userId !== this._userId) {
+        } else if (
+          !this._globalEdit &&
+          comment.userId &&
+          comment.userId !== this._userId
+        ) {
           return reject('Non-matching userId');
         }
         let index = -1;
@@ -121,11 +155,95 @@ export default class LocalUserStoreAdapter extends StoreAdapter {
 
         if (index > -1) {
           annotations.splice(index, 1);
-          updateAnnotations(documentId, comment.userId, annotations);
+          updateAnnotations(
+            documentId,
+            comment.userId,
+            annotations,
+            this.history
+          );
         }
 
         resolve(true);
       });
+    };
+
+    this.undo = (documentId) => {
+      return new Promise((resolve, reject) => {
+        if (
+          !this.history[documentId][this._userId] ||
+          this.history[documentId][this._userId]['idx'] === 0
+        ) {
+          return reject('No history now.');
+        } else {
+          let idx = this.history[documentId][this._userId]['idx'];
+          console.log(idx);
+          if (!this.history[documentId][this._userId]['record'][idx - 1]) {
+            return reject('invalid idx.');
+          } else {
+            let annotations =
+              this.history[documentId][this._userId]['record'][idx - 1];
+            this.history[documentId][this._userId]['idx'] = idx - 1;
+            updateAnnotations(documentId, annotations);
+            resolve(true);
+          }
+        }
+      });
+    };
+
+    this.redo = (documentId) => {
+      return new Promise((resolve, reject) => {
+        if (!this.history[documentId][this._userId]) {
+          return reject('No history now.');
+        } else {
+          let idx = this.history[documentId][this._userId]['idx'];
+          console.log(idx);
+          if (!this.history[documentId][this._userId]['record'][idx + 1]) {
+            return reject('invalid idx.');
+          } else {
+            let annotations =
+              this.history[documentId][this._userId]['record'][idx + 1];
+            this.history[documentId][this._userId]['idx'] = idx + 1;
+            updateAnnotations(documentId, annotations);
+            resolve(true);
+          }
+        }
+      });
+    };
+
+    this.clearHistory = (documentId) => {
+      return new Promise((resolve, reject) => {
+        delete this.history[documentId][this._userId];
+        resolve(true);
+      });
+    };
+
+    this.historyStatus = (documentId) => {
+      // TODO: needs test!
+      // return new Promise((resolve, reject) => {
+      let undo = false;
+      let redo = false;
+      let clear = false;
+
+      let idx = null;
+      if (!this.history[documentId]) {
+        return ([undo, redo, clear]);
+      }
+      if (this.history?.[documentId]?.[this._userId]) {
+        idx = this.history[documentId][this._userId]['idx'];
+      }
+      if (!this.history[documentId][this._userId]) {
+        return ([undo, redo, clear]);
+      } else {
+        clear = true;
+        if (this.history[documentId][this._userId]['idx'] !== 0) {
+          undo = true;
+        }
+        if (this.history[documentId][this._userId]['record'].length > idx) {
+          redo = true;
+        }
+      }
+      return ([undo, redo, clear]);
+      // });
     };
   }
 
@@ -139,18 +257,45 @@ function getAllAnnotations(documentId) {
   let re = new RegExp(`${documentId}/(.*)/annotations`);
   for (let i = 0; i < localStorage.length; i++) {
     if (localStorage.key(i).search(re) > -1) {
-      all_annotations.push(...JSON.parse(localStorage.getItem(localStorage.key(i))));
+      all_annotations.push(
+        ...JSON.parse(localStorage.getItem(localStorage.key(i)))
+      );
     }
   }
   return all_annotations;
 }
 
 function getAnnotations(documentId, userId) {
-  return JSON.parse(localStorage.getItem(`${documentId}/${userId}/annotations`)) || [];
+  return (
+    JSON.parse(localStorage.getItem(`${documentId}/${userId}/annotations`)) ||
+    []
+  );
 }
 
-function updateAnnotations(documentId, userId, annotations) {
-  localStorage.setItem(`${documentId}/${userId}/annotations`, JSON.stringify(annotations));
+function updateAnnotations(documentId, userId, annotations, history = null) {
+  /* Requires be called at most only once in every function of StoreAdapter */
+  /* As it records history every time it updates item (when history != null) */
+  if (history) {
+    if (!history?.[documentId]?.[userId]) {
+      let _ = {
+        record: [getAnnotations(documentId)],
+        idx: 0 // idx always points to annotation representing current status
+      };
+      if (!history[documentId]) {
+        history[documentId] = {};
+      }
+      history[documentId][userId] = _;
+    }
+    let idx = history[documentId][userId]['idx'];
+    history[documentId][userId]['record'][idx + 1] = annotations;
+    history[documentId][userId]['idx'] = idx + 1;
+    history[documentId][userId]['record'].length = idx + 2;
+    // console.log(history);
+  }
+  localStorage.setItem(
+    `${documentId}/${userId}/annotations`,
+    JSON.stringify(annotations)
+  );
 }
 /**
  *

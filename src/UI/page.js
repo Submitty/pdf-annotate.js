@@ -1,23 +1,38 @@
 import PDFJSAnnotate from '../PDFJSAnnotate';
-import config from '../config';
 import renderScreenReaderHints from '../a11y/renderScreenReaderHints';
+import config from '../config';
 
 // Template for creating a new page
-const PAGE_TEMPLATE = `
+const PAGE_TEMPLATE =
+  `
   <div style="visibility: hidden;" class="page" data-loaded="false">
     <div class="canvasWrapper">
       <canvas></canvas>
     </div>
-    <div class="` + config.textLayerName + `"></div>
-    <svg class="` + config.annotationLayerName + `"></svg>
+    <svg class="` +
+  config.annotationLayerName +
+  `"></svg>
+    <div class="` +
+  config.textLayerName +
+  `"></div>
   </div>
 `;
+let eventBus = null;
+
+function getGlobalEventBus(dispatchToDOM = false) {
+  if (!eventBus) {
+    eventBus = new pdfjsViewer.EventBus({
+      dispatchToDOM
+    });
+  }
+  return eventBus;
+}
 
 /**
  * Create a new page to be appended to the DOM.
  *
  * @param {Number} pageNumber The page number that is being created
- * @return {HTMLElement}
+ * @return {HTMLElement} The page container element
  */
 export function createPage(pageNumber) {
   let temp = document.createElement('div');
@@ -46,14 +61,7 @@ export function createPage(pageNumber) {
  *    - rejected: Error
  */
 export function renderPage(pageNumber, renderOptions) {
-  let {
-    documentId,
-    pdfDocument,
-    scale,
-    rotate
-  } = renderOptions;
-
-  const eventBus = new pdfjsViewer.EventBus();
+  let { documentId, pdfDocument, scale, rotate } = renderOptions;
 
   // Load the page and annotations
   return Promise.all([
@@ -63,52 +71,95 @@ export function renderPage(pageNumber, renderOptions) {
     let page = document.getElementById(`pageContainer${pageNumber}`);
     let svg = page.querySelector(config.annotationClassQuery());
     let canvas = page.querySelector('.canvasWrapper canvas');
-    let canvasContext = canvas.getContext('2d', {alpha: false});
+    let canvasContext = canvas.getContext('2d', { alpha: false });
     let totalRotation = (rotate + pdfPage.rotate) % 360;
-    let viewport = pdfPage.getViewport({scale: scale, rotation: totalRotation});
+    let viewport = pdfPage.getViewport({
+      scale: scale,
+      rotation: totalRotation
+    });
     let transform = scalePage(pageNumber, viewport, canvasContext);
 
     // Render the page
     return Promise.all([
       pdfPage.render({ canvasContext, viewport, transform }).promise,
       PDFJSAnnotate.render(svg, viewport, annotations)
-    ]).then(() => {
-      // Text content is needed for a11y, but is also necessary for creating
-      // highlight and strikeout annotations which require selecting text.
-      return pdfPage.getTextContent({normalizeWhitespace: true}).then((textContent) => {
-        return new Promise((resolve, reject) => {
-          // Render text layer for a11y of text content
-          let textLayer = page.querySelector(config.textClassQuery());
-          let textLayerFactory = new pdfjsViewer.DefaultTextLayerFactory();
-          let textLayerBuilder = textLayerFactory.createTextLayerBuilder(
-            textLayer,
-            pageNumber - 1,
-            viewport,
-            false,
-            eventBus
-          );
-          textLayerBuilder.setTextContent(textContent);
-          textLayerBuilder.render();
+    ])
+      .then(() => {
+        // Text content is needed for a11y, but is also necessary for creating
+        // highlight and strikeout annotations which require selecting text.
+        return pdfPage
+          .getTextContent({ normalizeWhitespace: true })
+          .then((textContent) => {
+            return new Promise((resolve, reject) => {
+              // Render text layer for a11y of text content
+              let eventBus = getGlobalEventBus();
+              let textLayer = page.querySelector(config.textClassQuery());
+              let textLayerFactory = new pdfjsViewer.DefaultTextLayerFactory();
+              let textLayerBuilder = textLayerFactory.createTextLayerBuilder(
+                textLayer,
+                pageNumber - 1,
+                viewport,
+                true,
+                eventBus
+              );
+              textLayerBuilder.setTextContent(textContent);
+              textLayerBuilder.render();
 
-          // Enable a11y for annotations
-          // Timeout is needed to wait for `textLayerBuilder.render`
-          setTimeout(() => {
-            try {
-              renderScreenReaderHints(annotations.annotations);
-              resolve();
-            }
-            catch (e) {
-              reject(e);
-            }
+              // Enable a11y for annotations
+              // Timeout is needed to wait for `textLayerBuilder.render`
+              setTimeout(() => {
+                try {
+                  renderScreenReaderHints(annotations.annotations);
+                  resolve();
+                }
+                catch (e) {
+                  reject(e);
+                }
+              });
+            });
           });
-        });
-      });
-    }).then(() => {
-      // Indicate that the page was loaded
-      page.setAttribute('data-loaded', 'true');
+      })
+      .then(() => {
+        // Indicate that the page was loaded
+        page.setAttribute('data-loaded', 'true');
 
-      return [pdfPage, annotations];
+        return [pdfPage, annotations];
+      });
+  });
+}
+
+/**
+ * Only rerender a page (SVG layer) that has annotations updated.
+ *
+ * @param {Number} pageNumber The page number to be rendered
+ * @param {Object} renderOptions The options for rendering
+ * @return {Promise} Settled once rendering has completed
+ *  A settled Promise will be either:
+ *    - fulfilled: [pdfPage, annotations]
+ *    - rejected: Error
+ */
+export function rerenderAnnotations(pageNumber, renderOptions) {
+  let { documentId, pdfDocument, scale, rotate } = renderOptions;
+
+  // Load the page and annotations
+  return Promise.all([
+    pdfDocument.getPage(pageNumber),
+    PDFJSAnnotate.getAnnotations(documentId, pageNumber)
+  ]).then(([pdfPage, annotations]) => {
+    let page = document.getElementById(`pageContainer${pageNumber}`);
+    let svg = page.querySelector(config.annotationClassQuery());
+    let totalRotation = (rotate + pdfPage.rotate) % 360;
+    let viewport = pdfPage.getViewport({
+      scale: scale,
+      rotation: totalRotation
     });
+
+    // Render the SVG
+    return Promise.all([PDFJSAnnotate.render(svg, viewport, annotations)])
+      .then(() => {})
+      .then(() => {
+        return [pdfPage, annotations];
+      });
   });
 }
 
@@ -127,7 +178,9 @@ function scalePage(pageNumber, viewport, context) {
   let wrapper = page.querySelector('.canvasWrapper');
   let textLayer = page.querySelector(config.textClassQuery());
   let outputScale = getOutputScale(context);
-  let transform = !outputScale.scaled ? null : [outputScale.sx, 0, 0, outputScale.sy, 0, 0];
+  let transform = !outputScale.scaled
+    ? null
+    : [outputScale.sx, 0, 0, outputScale.sy, 0, 0];
   let sfx = approximateFraction(outputScale.sx);
   let sfy = approximateFraction(outputScale.sy);
 
@@ -176,20 +229,26 @@ function approximateFraction(x) {
   const x_ = x > 1 ? xinv : x;
 
   // a/b and c/d are neighbours in Farey sequence.
-  let a = 0; let b = 1; let c = 1; let d = 1;
+  let a = 0;
+  let b = 1;
+  let c = 1;
+  let d = 1;
 
   // Limit search to order 8.
   while (true) {
     // Generating next term in sequence (order of q).
-    let p = a + c; let q = b + d;
+    let p = a + c;
+    let q = b + d;
     if (q > limit) {
       break;
     }
     if (x_ <= p / q) {
-      c = p; d = q;
+      c = p;
+      d = q;
     }
     else {
-      a = p; b = q;
+      a = p;
+      b = q;
     }
   }
 
@@ -204,11 +263,13 @@ function approximateFraction(x) {
 
 function getOutputScale(ctx) {
   let devicePixelRatio = window.devicePixelRatio || 1;
-  let backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
-                          ctx.mozBackingStorePixelRatio ||
-                          ctx.msBackingStorePixelRatio ||
-                          ctx.oBackingStorePixelRatio ||
-                          ctx.backingStorePixelRatio || 1;
+  let backingStoreRatio =
+    ctx.webkitBackingStorePixelRatio ||
+    ctx.mozBackingStorePixelRatio ||
+    ctx.msBackingStorePixelRatio ||
+    ctx.oBackingStorePixelRatio ||
+    ctx.backingStorePixelRatio ||
+    1;
   let pixelRatio = devicePixelRatio / backingStoreRatio;
   return {
     sx: pixelRatio,
